@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나에게 맞는 구성 고르기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{ --bg:#ffffff; --ink:#15132b; --sub:#55526b; --faint:#9a97ad; --line:#e7e5f0; --panel:#f7f6fb;
+  --amber:#F59E0B; --amber2:#F97316; --ok:#10b981; --navy:#0f2a5c; --blue:#0b6bcb;
+  --intro:#e3b98a; --verse:#3b5b86; --chorus:#c2553b; --bridge:#7fa784; --part2:#b4462f; }
+*,*::before,*::after{ margin:0; padding:0; box-sizing:border-box; }
+html{ background:var(--bg); }
+body{ font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; padding:32px 16px 100px; }
+button{ font-family:inherit; cursor:pointer; }
+.container{ max-width:1080px; margin:0 auto; }
+/* HEADER */
+.header{ text-align:center; margin-bottom:20px; }
+.header-top{ display:flex; justify-content:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.level-badge{ background:linear-gradient(135deg,var(--amber),var(--amber2)); color:#fff; font-size:12px; font-weight:900; letter-spacing:.1em; padding:5px 14px; border-radius:20px; }
+.page-badge{ background:var(--panel); color:var(--sub); font-size:12px; font-weight:700; padding:5px 12px; border-radius:20px; }
+.header h1{ font-size:clamp(26px,5vw,38px); font-weight:900; line-height:1.3; margin-bottom:8px; }
+.header h1 em{ font-style:normal; color:var(--amber2); }
+.header-sub{ font-size:14px; color:var(--sub); line-height:1.7; }
+/* 위 정보 줄 */
+.topbar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+.topbar input{ flex:1; min-width:220px; border:2px solid var(--line); border-radius:12px; padding:9px 12px; font-family:inherit; font-size:14px; outline:none; }
+.topbar input:focus{ border-color:#fdba74; }
+.btn{ border:none; border-radius:12px; padding:10px 16px; font-size:14px; font-weight:900; color:#fff; background:linear-gradient(135deg,var(--amber),var(--amber2)); }
+.btn.ghost{ background:#fff; color:var(--ink); border:2px solid var(--line); }
+.progress-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:13px; font-weight:700; color:var(--sub); }
+.progress-header b{ color:var(--amber2); }
+.total-bar{ height:8px; background:var(--panel); border-radius:99px; overflow:hidden; margin-bottom:14px; }
+.total-fill{ height:100%; width:0; background:linear-gradient(90deg,var(--amber),var(--amber2)); border-radius:99px; transition:width .5s ease; }
+/* 순서도 */
+.chart-wrap{ background:var(--panel); border-radius:22px; padding:12px; overflow-x:auto; }
+.chart{ position:relative; width:100%; min-width:760px; aspect-ratio:1000/432; }
+.chart svg{ position:absolute; inset:0; width:100%; height:100%; }
+.edge{ fill:none; stroke:#2b6cb0; stroke-width:2; opacity:.45; vector-effect:non-scaling-stroke; transition:opacity .3s, stroke .3s, stroke-width .3s; }
+.edge.on{ stroke:var(--amber2); stroke-width:5; opacity:1; }
+.node{ position:absolute; transform:translate(-50%,-50%); display:grid; place-items:center; text-align:center; border-radius:16px; background:#fff; border:2px solid #dcd9ea; color:var(--ink); font-size:15px; font-weight:700; line-height:1.45; padding:6px 12px; box-shadow:0 4px 12px rgba(21,19,43,.06); transition:all .3s; }
+.node.pill{ border-radius:99px; background:var(--blue); border-color:var(--blue); color:#fff; font-size:19px; font-weight:500; }
+.node.pill:hover{ filter:brightness(1.1); }
+.node.leaf{ border-radius:6px; background:var(--navy); border-color:var(--navy); color:#fff; font-size:16px; font-weight:500; flex-direction:column; }
+.node.leaf small{ display:block; font-size:11px; opacity:.75; font-weight:500; }
+.node.dim{ opacity:.35; }
+.node.visited{ border-color:var(--amber2); background:#fff7ed; color:#7c2d12; }
+.node.active{ border-color:var(--amber2); background:#fff7ed; box-shadow:0 0 0 6px rgba(249,115,22,.18),0 10px 24px rgba(249,115,22,.2); animation:pulse 1.6s ease-in-out infinite; }
+.node.leaf.ready{ background:var(--amber2); border-color:var(--amber2); cursor:pointer; animation:pulse 1.6s ease-in-out infinite; }
+.node.leaf.got{ background:var(--amber2); border-color:var(--amber2); box-shadow:0 0 0 6px rgba(249,115,22,.25); cursor:pointer; }
+.node.leaf.peek{ cursor:pointer; }
+@keyframes pulse{ 0%,100%{ box-shadow:0 0 0 4px rgba(249,115,22,.15); } 50%{ box-shadow:0 0 0 10px rgba(249,115,22,.05); } }
+.chip{ position:absolute; transform:translate(-50%,-50%); border:2px solid #b9c7dd; background:#fff; color:var(--sub); border-radius:99px; padding:3px 12px; font-size:13px; font-weight:900; white-space:nowrap; transition:all .25s; pointer-events:none; }
+.chip.can{ pointer-events:auto; border-color:var(--amber2); color:#fff; background:var(--amber2); box-shadow:0 6px 16px rgba(249,115,22,.3); animation:bob 1.2s ease-in-out infinite; }
+.chip.can:hover{ transform:translate(-50%,-50%) scale(1.08); }
+.chip.chosen{ border-color:var(--amber2); color:var(--amber2); background:#fff; }
+@keyframes bob{ 0%,100%{ transform:translate(-50%,-50%); } 50%{ transform:translate(-50%,-62%); } }
+.or{ position:absolute; transform:translate(-50%,-50%); font-size:13px; color:var(--sub); font-weight:700; }
+.lhint{ position:absolute; transform:translate(-50%,0); width:150px; text-align:center; font-size:11.5px; font-weight:700; color:#9a3412; line-height:1.4; opacity:0; transition:opacity .3s; }
+.lhint.show{ opacity:1; }
+/* 안내 카드 */
+.guide{ display:flex; gap:12px; align-items:flex-start; background:#fff; border:2px solid var(--line); border-radius:18px; padding:14px 18px; margin-top:12px; position:relative; overflow:hidden; }
+.guide::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--amber); }
+.gnum{ min-width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--amber),var(--amber2)); color:#fff; display:grid; place-items:center; font-weight:900; }
+.guide b{ display:block; font-size:16px; margin-bottom:2px; } .guide p{ font-size:13.5px; color:var(--sub); line-height:1.6; }
+.hint{ font-size:12.5px; color:#92400e; background:#fef3c7; border-radius:8px; padding:6px 11px; margin-top:6px; display:inline-block; line-height:1.55; }
+.section-label{ font-size:11px; font-weight:900; letter-spacing:.12em; color:var(--faint); margin:22px 0 10px; display:flex; align-items:center; gap:8px; }
+.section-label::after{ content:''; flex:1; height:1px; background:var(--line); }
+.allrow{ display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+.cmp{ text-align:left; border:2px solid var(--line); background:#fff; border-radius:14px; padding:9px 10px; display:flex; flex-direction:column; gap:4px; }
+.cmp b{ font-size:13px; } .cmp small{ font-size:11.5px; color:var(--sub); } .cmp.me{ border-color:var(--amber2); background:#fff7ed; }
+.mini{ display:flex; align-items:flex-end; gap:2px; height:24px; } .mini i{ display:block; border-radius:2px; }
+.src{ font-size:12px; color:var(--faint); line-height:1.7; margin-top:16px; }
+/* 모달 */
+.backdrop{ position:fixed; inset:0; background:rgba(21,19,43,.45); backdrop-filter:blur(3px); display:none; align-items:flex-start; justify-content:center; padding:24px 12px; overflow-y:auto; z-index:50; }
+.backdrop.show{ display:flex; }
+.modal{ background:#fff; border-radius:24px; width:100%; max-width:820px; padding:22px 22px 18px; position:relative; box-shadow:0 30px 80px rgba(21,19,43,.35); animation:pop .35s cubic-bezier(.2,1.4,.4,1); }
+@keyframes pop{ from{ opacity:0; transform:translateY(20px) scale(.97); } to{ opacity:1; transform:none; } }
+.close{ position:absolute; top:14px; right:14px; width:40px; height:40px; border-radius:50%; border:2px solid var(--line); background:#fff; font-size:18px; font-weight:900; color:var(--sub); }
+.close:hover{ border-color:var(--amber2); color:var(--amber2); }
+.res-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding-right:48px; }
+.res-badge{ background:var(--blue); color:#fff; border-radius:99px; padding:5px 15px; font-size:17px; font-weight:900; }
+.res-name{ font-size:24px; font-weight:900; } .res-genre{ font-size:14px; color:var(--sub); font-weight:700; }
+.peekbadge{ font-size:12px; font-weight:900; background:var(--panel); color:var(--sub); border-radius:99px; padding:3px 10px; }
+.desc{ font-size:14px; color:var(--sub); line-height:1.65; margin-top:6px; }
+.flow{ position:relative; background:var(--panel); border-radius:18px; padding:16px 12px 12px; margin:14px 0 10px; overflow-x:auto; }
+.flow svg{ position:absolute; left:12px; top:8px; width:calc(100% - 24px); height:60px; pointer-events:none; }
+.blocks{ position:relative; display:flex; align-items:flex-end; gap:6px; min-width:540px; height:150px; padding-top:60px; }
+.bk{ flex:var(--w,1); height:var(--h,40px); background:var(--c); border-radius:6px; position:relative; cursor:pointer; transition:transform .25s, box-shadow .25s, filter .25s; }
+.bk{ animation:grow .45s cubic-bezier(.2,1.4,.4,1) backwards; animation-delay:calc(var(--i,0)*80ms + 150ms); }
+@keyframes grow{ from{ opacity:0; transform:translateY(24px); } to{ opacity:1; transform:none; } }
+.bk.bridge{ clip-path:polygon(0 35%,100% 0,100% 100%,0 100%); border-radius:0; }
+.bk.build{ clip-path:polygon(0 70%,100% 0,100% 100%,0 100%); border-radius:0; }
+.bk.sw{ flex:.35; background:none; height:90px; display:grid; place-items:center; font-size:30px; }
+.bk.lit{ transform:translateY(-6px); box-shadow:0 10px 20px rgba(21,19,43,.25); filter:brightness(1.12); }
+.bk .ki{ position:absolute; top:-26px; left:50%; transform:translateX(-50%); font-size:12px; font-weight:900; color:#fff; background:#15132b; border-radius:8px; padding:1px 7px; white-space:nowrap; opacity:0; transition:opacity .3s; }
+.show-ki .bk .ki{ opacity:1; }
+.labels{ display:flex; gap:6px; min-width:540px; margin-top:6px; }
+.labels span{ flex:var(--w,1); text-align:center; font-size:11.5px; font-weight:900; color:#fff; background:#2b2a3a; border-radius:99px; padding:3px 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.labels span.sw{ flex:.35; background:none; color:var(--sub); }
+.now{ font-size:14px; min-height:44px; border:1.5px dashed var(--line); border-radius:12px; padding:10px 14px; line-height:1.6; color:var(--sub); }
+.now b{ color:var(--ink); }
+.btns{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center; }
+.kiseung{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px; }
+.ks{ border:2px solid var(--line); border-radius:14px; padding:9px 11px; } .ks b{ display:block; font-size:19px; color:var(--blue); } .ks small{ font-size:12.5px; color:var(--sub); line-height:1.5; } .ks.none b{ color:var(--faint); }
+.mh{ font-size:15px; font-weight:900; margin:16px 0 6px; }
+.tagtable{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; background:#15132b; border-radius:14px; padding:12px 14px; }
+.tagtable code{ font-family:'Consolas','D2Coding',monospace; font-size:14px; color:#fde68a; } .tagtable i{ color:#8f8ba8; font-style:normal; }
+.why{ width:100%; border:2px solid var(--line); border-radius:12px; padding:10px 12px; font-family:inherit; font-size:14px; min-height:70px; resize:vertical; outline:none; }
+.why:focus{ border-color:#fdba74; }
+.out{ background:var(--panel); border-radius:14px; padding:12px 14px; font-family:'Consolas','D2Coding',monospace; font-size:13px; white-space:pre-wrap; line-height:1.65; margin-top:8px; }
+@media (max-width:760px){ .allrow{ grid-template-columns:repeat(3,1fr); } .kiseung{ grid-template-columns:1fr 1fr; } }
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+.pickbox{ background:#15132b; color:#fff; border-radius:20px; padding:14px 18px; display:flex; flex-direction:column; gap:10px; }
+.pickbox[hidden]{ display:none; }
+.pk-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; } .pk-head b{ font-size:18px; } .pk-genre{ font-size:13px; color:#b8b5d0; font-weight:700; }
+.pk-tags{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.pk-tags code{ font-family:'Consolas','D2Coding',monospace; font-size:15px; color:#fde68a; background:#24204a; border-radius:8px; padding:4px 9px; } .pk-tags i{ color:#8f8ba8; font-style:normal; }
+.pickbox .btn{ align-self:flex-start; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-top"><span class="level-badge">🧭 구성 고르기</span><span class="page-badge">강의교안 62쪽 · 학습활동지</span></div>
+    <h1>나에게 맞는 <em>구성</em> 고르기</h1>
+    <p class="header-sub">순서도 전체를 보면서, 주황색으로 빛나는 답을 눌러 한 칸씩 내려가요.<br>구조에 도착하면 그 구조의 [ ] 태그를 바로 복사할 수 있어요.</p>
+  </div>
+  <div class="topbar" style="justify-content:flex-end"><button class="btn ghost" type="button" id="reset">⟲ 다시 고르기</button></div>
+  <div class="progress-header"><span>🧭 진행도</span><span id="ptxt">Start Here를 눌러요</span></div>
+  <div class="total-bar"><div class="total-fill" id="pfill"></div></div>
+
+  <div class="chart-wrap"><div class="chart" id="chart"></div></div>
+  <div class="guide"><span class="gnum" id="gnum">▶</span><div><b id="gtitle">Start Here를 눌러 시작해요</b><p id="gdesc">질문마다 주황색 답 버튼이 나타나요. 지나온 길은 주황색 선으로 남아요.</p><span class="hint" id="ghint">💡 지나온 질문 상자를 누르면 그 질문으로 돌아갈 수 있어요.</span></div></div>
+
+  <div class="pickbox" id="pickbox" hidden aria-live="polite"></div>
+
+  <div class="section-label">구조 A~F 한눈에 (눌러서 미리 보기)</div>
+  <div class="allrow" id="allrow"></div>
+  <p class="src">출처: 「01. [음악] 강의교안」 57~63쪽(블록, 구성 A~F, 기승전결, 나에게 맞는 구성 고르기, 기획을 음악에 적용하기). 흐름도에서 “또는”으로 갈라지는 C/E, A/D는 두 구조 중 하나를 직접 고르도록 했어요(상자 아래 짧은 고르기 힌트는 덧붙인 설명이에요).</p>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  var $=function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var motion=!!window.gsap && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ═════════ 블록 & 구성 (교안 57~61쪽) ═════════ */
+  var BK={
+    intro:{ko:'인트로',en:'Intro',c:'var(--intro)',h:34,w:.6,say:'곡의 느낌을 보여 주는 시작. 듣는 사람의 귀를 사로잡아요.'},
+    outro:{ko:'아웃트로',en:'Outro',c:'var(--intro)',h:34,w:.6,say:'여운을 남기며 곡이 자연스럽게 마무리돼요.'},
+    verse:{ko:'벌스',en:'Verse',c:'var(--verse)',h:58,w:1,say:'이야기가 전개되는 부분. 멜로디는 비슷하지만 가사가 바뀌어요.'},
+    chorus:{ko:'코러스',en:'Chorus',c:'var(--chorus)',h:82,w:1,say:'곡의 핵심! 가장 강하게 터지고 가사와 멜로디가 반복돼요.'},
+    bridge:{ko:'브릿지',en:'Bridge',c:'var(--bridge)',h:74,w:1,say:'곡 중간에 분위기를 완전히 환기시키는 단 한 번의 전환점.'},
+    build:{ko:'벌스·빌드업',en:'Verse / Build',c:'var(--verse)',h:82,w:1.6,say:'에너지를 조금씩 쌓아 올려요. 터지기 직전까지!'},
+    drop:{ko:'코러스(드롭)',en:'Drop',c:'var(--chorus)',h:100,w:1.1,say:'쌓은 에너지가 한 번에 폭발! 노래보다 소리가 주인공이 돼요.'},
+    part1:{ko:'파트 1',en:'Part 1',c:'var(--verse)',h:66,w:1.6,say:'첫 번째 곡처럼 하나의 분위기로 흘러가요.'},
+    sw:{ko:'비트 스위치',en:'Beat Switch',sw:1,say:'갑자기 템포나 장르가 완전히 바뀌어요. 마치 두 곡이 이어진 듯!'},
+    part2:{ko:'파트 2',en:'Part 2',c:'var(--part2)',h:80,w:1.6,say:'완전히 다른 두 번째 곡 같은 분위기로 이어져요.'}
+  };
+  var ST={
+    A:{short:'흔한 구조',name:'가장 흔한 구조',genre:'K-pop·팝 대부분',ex:'BTS – “Butter”',line:'벌스와 코러스를 두 번 오가다 브릿지에서 분위기를 바꾸고, 마지막 코러스로 가장 크게 터져요.',pick:'후렴(노래)으로 터지기',
+       b:['intro','verse','chorus','verse','bridge','chorus','outro'],ki:['기','기','승','승','전','결','결'],e:[.2,.4,.75,.45,.55,.95,.25],
+       ks:['인트로·벌스 1: 곡의 배경을 소개해요','코러스·벌스 2: 주제가 본격적으로 펼쳐져요','브릿지: 분위기가 바뀌며 클라이맥스를 준비해요','마지막 코러스·아웃트로: 가장 크게 터진 뒤 마무리해요']},
+    B:{short:'코러스로 시작',name:'코러스로 바로 시작',genre:'팝, 힙합 등',ex:'ABBA – “Dancing Queen”',line:'처음부터 가장 강한 후렴으로 시선을 끄는 현대적인 구조예요.',pick:'첫 소절부터 후렴!',
+       b:['intro','chorus','verse','chorus','outro'],ki:['기','기','승','전','결'],e:[.3,.85,.5,.9,.3],
+       ks:['인트로·코러스: 시작하자마자 핵심(훅)을 들려줘요','벌스: 잠깐 숨을 고르며 이야기를 풀어요','다시 코러스: 아는 후렴이 돌아와 더 크게 터져요','아웃트로: 여운을 남겨요']},
+    C:{short:'이야기 반복',name:'이야기 중심, 반복',genre:'포크, 발라드, 재즈 등',ex:'Beatles – “Yesterday”',line:'터지는 후렴 없이 차분하게 감정과 가사 이야기를 쌓아 올려요.',pick:'같은 멜로디로 돌아오며 쌓기',
+       b:['intro','verse','verse','bridge','verse','outro'],ki:['기','기','승','전','결','결'],e:[.2,.35,.42,.55,.45,.2],
+       ks:['인트로·벌스 1: 조용히 이야기를 시작해요','벌스 2: 같은 멜로디로 이야기를 이어 가요','브릿지: 살짝 다른 멜로디로 마음이 흔들려요','벌스 3·아웃트로: 처음 멜로디로 돌아와 정리해요']},
+    D:{short:'빌드업 폭발',name:'빌드업 (에너지 폭발)',genre:'EDM 등',ex:'Swedish House Mafia – “Don’t You Worry Child”',line:'EDM·댄스 음악처럼 에너지를 끝까지 쌓았다가 드롭에서 극대화해요.',pick:'드롭(소리)으로 폭발',
+       b:['intro','build','drop','outro'],ki:['기','승','전','결'],e:[.15,.6,1,.25],
+       ks:['인트로: 가볍게 시작해요','벌스·빌드업: 소리가 점점 쌓이고 빨라져요','드롭: 한 번에 폭발! 가장 강한 순간','아웃트로: 에너지를 내려놓아요']},
+    E:{short:'선형·반복 없음',name:'선형 구조 (반복 없음)',genre:'영화 OST 등',ex:'Audrey Hepburn – “Moon River” (Breakfast at Tiffany’s)',line:'기승전결 없이 처음부터 끝까지 한 방향으로 흘러가요. 짧은 여운이 남아요.',pick:'반복 없이 한 방향으로',
+       b:['intro','verse','verse','verse','outro'],ki:['기','흐름','흐름','흐름','결'],e:[.3,.4,.4,.4,.3],
+       ks:['인트로: 장면을 열어요','벌스들: 같은 높이로 한 방향으로 흘러가요','(뚜렷한 “전”이 없어요)','아웃트로: 짧은 여운으로 끝나요'],none:2},
+    F:{short:'전환형',name:'전환형',genre:'K-pop·팝 등',ex:'NMIXX – “O.O”',line:'곡 중간에 템포나 장르가 완전히 달라져요. 마치 두 곡이 하나로 이어진 듯한 극적인 연출!',pick:'중간에 완전히 다른 곡으로',
+       b:['intro','part1','sw','part2','outro'],ki:['기','승','전','결','결'],e:[.25,.55,.1,.75,.25],
+       ks:['인트로·파트 1: 첫 번째 분위기로 시작해요','파트 1: 그 분위기가 무르익어요','비트 스위치: 갑자기 완전히 다른 곡으로!','파트 2·아웃트로: 새 분위기로 끝까지 가요']}
+  };
+  var TAG={intro:'[Intro]',outro:'[Outro]',verse:'[Verse]',chorus:'[Chorus]',bridge:'[Bridge]',build:'[Verse] [Build]',drop:'[Drop]',part1:'[Verse] [Chorus]',sw:'[Bridge] (비트 스위치)',part2:'[Verse] [Chorus]'};
+
+  /* ═════════ 순서도 (교안 62쪽, 1000×560 좌표) ═════════ */
+  var N={
+    start:{x:465,y:120,w:210,h:44,t:'Start Here',k:'pill'},
+    q1:{x:485,y:200,w:270,h:56,t:'강하게 터지는 순간(클라이맥스)이<br>필요한가요?',q:1,d:'노래에서 가장 크고 강하게 “빵!” 하고 터지는 순간을 클라이맥스라고 해요.',hint:'💡 내 교과 개념 이야기에 “깨달음의 순간”이나 “폭발하는 장면”이 있나요?'},
+    q2n:{x:217,y:262,w:250,h:70,t:'이야기를 차분히<br>전개하고 싶다',q:2,d:'차분한 노래에는 두 가지 길이 있어요. 아래 [구조 C]와 [구조 E] 중 하나를 골라요.',hint:'💡 C는 브릿지에서 살짝 흔들린 뒤 처음 멜로디로 돌아와요. E는 돌아오지 않고 앞으로만 흘러가요.'},
+    q2y:{x:777,y:272,w:260,h:70,t:'처음 시작을 어떻게<br>하고 싶나요?',q:2,d:'첫 3초는 듣는 사람이 계속 들을지 정하는 순간이에요.',hint:'💡 강렬하게 = 시작하자마자 후렴(핵심)부터!'},
+    q3:{x:500,y:358,w:290,h:70,t:'곡 중간에 장르/분위기가 완전히<br>바뀌는 반전이 필요한가요?',q:3,d:'두 곡이 하나로 이어진 듯 템포나 장르가 확 바뀌는 연출을 “비트 스위치”라고 해요.',hint:'💡 내 이야기에 “전과 후”가 완전히 다른 장면이 있나요? 예: 애벌레 → 나비'},
+    AD:{x:500,y:430,group:['A','D'],q:4,d:'크게 터지는 노래에는 두 가지 길이 있어요. [구조 A]와 [구조 D] 중 하나를 골라요.',hint:'💡 A는 후렴(노래)으로 터지고, D는 드롭(소리)으로 터져요.'},
+    C:{x:98,y:433,w:112,h:52,leaf:1}, E:{x:258,y:433,w:112,h:52,leaf:1},
+    A:{x:415,y:483,w:112,h:52,leaf:1}, D:{x:573,y:483,w:112,h:52,leaf:1},
+    F:{x:721,y:483,w:112,h:52,leaf:1}, B:{x:908,y:425,w:112,h:52,leaf:1}
+  };
+  // 간선: id, from, to, 점들, 답 버튼 [글자, x, y]
+  var EG=[
+    ['s1','start','q1',[[465,142],[465,158],[485,158],[485,172]]],
+    ['e1n','q1','q2n',[[350,200],[217,200],[217,227]],['아니요',283,200]],
+    ['e1y','q1','q2y',[[620,200],[777,200],[777,237]],['네',700,200]],
+    ['bC','q2n','C',[[217,297],[217,378],[98,378],[98,407]]],
+    ['bE','q2n','E',[[217,297],[217,378],[258,378],[258,407]]],
+    ['e2c','q2y','q3',[[647,272],[500,272],[500,323]],['차분하게',575,272]],
+    ['e2s','q2y','B',[[777,307],[777,350],[908,350],[908,399]],['강렬하게',842,350]],
+    ['e3n','q3','AD',[[500,393],[500,430]],['아니요',500,410]],
+    ['bA','AD','A',[[500,430],[415,430],[415,457]]],
+    ['bD','AD','D',[[500,430],[573,430],[573,457]]],
+    ['e3y','q3','F',[[645,358],[721,358],[721,457]],['네',683,358]]];
+  var GROUPOF={q2n:['C','E'],AD:['A','D']};
+
+  /* ═════════ 상태 ═════════ */
+  var KEY='structure-chart-v1', S={edges:[],cur:null,res:null,why:'',topic:''};
+  try{ var sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv) S=Object.assign(S,sv); }catch(e){}
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+  function E(id){ for(var i=0;i<EG.length;i++) if(EG[i][0]===id) return EG[i]; }
+  function pct(x,y){ return 'left:'+(x/10)+'%;top:'+((y-Y0)/YH*100)+'%;'; }
+  var Y0=88, YH=432;
+  function visitedNodes(){ var v={start:1}; S.edges.forEach(function(id){ var e=E(id); v[e[1]]=1; v[e[2]]=1; }); return v; }
+
+  /* ═════════ 순서도 그리기 ═════════ */
+  function drawChart(){ var vis=visitedNodes(), cur=S.cur, grp=GROUPOF[cur]||(cur==='AD'?GROUPOF.AD:null);
+    var svg='<svg viewBox="0 '+Y0+' 1000 '+YH+'" preserveAspectRatio="none" aria-hidden="true">'+EG.map(function(e){ return '<polyline class="edge'+(S.edges.indexOf(e[0])>=0?' on':'')+'" data-e="'+e[0]+'" points="'+e[3].map(function(p){ return p.join(','); }).join(' ')+'"/>'; }).join('')+'</svg>';
+    var h=svg;
+    Object.keys(N).forEach(function(k){ var n=N[k]; if(n.group) return;
+      var cls='node'+(n.k==='pill'?' pill':'')+(n.leaf?' leaf':'');
+      if(n.leaf){ if(S.res===k) cls+=' got'; else if(grp&&grp.indexOf(k)>=0&&!S.res) cls+=' ready'; else cls+=' peek'+(S.cur&&!vis[k]?' dim':''); }
+      else if(k===cur&&!S.res) cls+=' active'; else if(vis[k]&&S.cur&&k!=='start') cls+=' visited'; else if(S.cur&&k!=='start') cls+=' dim';
+      var inner=n.leaf?'[구조 '+k+']<small>'+esc(ST[k].short)+'</small>':n.t;
+      var tag=(n.leaf||k==='start'||vis[k])?'button':'div';
+      h+='<'+tag+(tag==='button'?' type="button"':'')+' class="'+cls+'" data-n="'+k+'" style="'+pct(n.x,n.y)+'width:'+(n.w/10)+'%;height:'+(n.h/YH*100)+'%">'+inner+'</'+tag+'>';
+      if(n.leaf&&(k==='C'||k==='E'||k==='A'||k==='D')) h+='<span class="lhint'+(grp&&grp.indexOf(k)>=0&&!S.res?' show':'')+'" style="'+pct(n.x,n.y+30)+'">'+esc(ST[k].pick)+'</span>'; });
+    h+='<span class="or" style="'+pct(178,433)+'">또는</span><span class="or" style="'+pct(494,483)+'">또는</span>';
+    EG.forEach(function(e){ if(!e[4]) return; var chosen=S.edges.indexOf(e[0])>=0, can=!S.res&&e[1]===cur;
+      h+='<button type="button" class="chip'+(can?' can':'')+(chosen?' chosen':'')+'" data-c="'+e[0]+'" style="'+pct(e[4][1],e[4][2])+'"'+(can?'':' tabindex="-1"')+'>('+e[4][0]+')</button>'; });
+    $('chart').innerHTML=h; guide(); prog(); drawAll(); }
+  function guide(){ var n=N[S.cur];
+    if(S.res){ $('gnum').textContent='🎯'; $('gtitle').textContent='도착! 내 노래에 맞는 구성은 [구조 '+S.res+'] '+ST[S.res].name; $('gdesc').textContent='아래에서 [ ] 태그를 복사해 Suno 가사 칸에 붙여 넣어요.'; $('ghint').textContent='💡 지나온 질문 상자를 누르면 그 질문부터 다시 고를 수 있어요.'; return; }
+    if(!n){ $('gnum').textContent='▶'; $('gtitle').textContent='Start Here를 눌러 시작해요'; $('gdesc').textContent='질문마다 주황색 답 버튼이 나타나요. 지나온 길은 주황색 선으로 남아요.'; $('ghint').textContent='💡 지나온 질문 상자를 누르면 그 질문으로 돌아갈 수 있어요.'; return; }
+    $('gnum').textContent=n.q; $('gtitle').innerHTML=n.group?'[구조 A] 또는 [구조 D] 중 하나를 골라요':(n.t||'').replace(/<br>/g,' '); $('gdesc').textContent=n.d; $('ghint').textContent=n.hint; }
+  function prog(){ var lv=S.res?4:S.cur?(N[S.cur].q||0)-1+.5:0, p=S.res?100:Math.min(92,lv/4*100);
+    $('pfill').style.width=p+'%'; $('ptxt').innerHTML=S.res?'<b>🎯 도착: 구조 '+S.res+'</b>':S.cur?'질문 <b>'+N[S.cur].q+'</b> 진행 중':'Start Here를 눌러요'; }
+  function mini(bl){ return '<span class="mini">'+bl.map(function(k){ var b=BK[k]; if(b.sw) return '<i style="width:6px;height:18px;border-left:2px dashed #9a97ad"></i>'; return '<i style="width:'+Math.round(b.w*12)+'px;height:'+Math.round(b.h*.24)+'px;background:'+b.c+'"></i>'; }).join('')+'</span>'; }
+  function drawAll(){ $('allrow').innerHTML=Object.keys(ST).map(function(x){ return '<button type="button" class="cmp'+(x===S.res?' me':'')+'" data-p="'+x+'"><b>구성 '+x+'</b><small>'+esc(ST[x].name)+'</small>'+mini(ST[x].b)+'</button>'; }).join(''); }
+
+  /* ═════════ 이동 ═════════ */
+  function choose(eid){ var e=E(eid); S.edges.push(eid); var to=e[2];
+    if(ST[to]){ S.res=to; S.cur=null; } else S.cur=to; save(); drawChart(); animEdge(eid);
+    if(ST[to]) setTimeout(function(){ openModal(to,false); },motion?650:0); }
+  function animEdge(eid){ if(!motion) return; var el=document.querySelector('[data-e="'+eid+'"]'); if(!el||!el.getTotalLength) return; var L=el.getTotalLength(); el.style.strokeDasharray=L; el.style.strokeDashoffset=L; gsap.to(el,{strokeDashoffset:0,duration:.55,ease:'power2.out',onComplete:function(){ el.style.strokeDasharray=''; }}); }
+  function rewindTo(node){ // 그 노드에서 나가는 선택부터 지우기
+    $('pickbox').hidden=true; var i=-1; S.edges.forEach(function(id,k){ if(E(id)[1]===node&&i<0) i=k; }); if(i<0) return; S.edges=S.edges.slice(0,i); S.res=null; S.cur=node; save(); drawChart(); }
+  $('chart').addEventListener('click',function(e){ var c=e.target.closest('[data-c]'); if(c&&c.classList.contains('can')){ choose(c.dataset.c); return; }
+    var n=e.target.closest('[data-n]'); if(!n) return; var k=n.dataset.n;
+    if(k==='start'){ if(!S.edges.length){ choose('s1'); } else { S.edges=['s1']; S.cur='q1'; S.res=null; save(); drawChart(); } return; }
+    if(N[k].leaf){ var grp=GROUPOF[S.cur]||(S.cur==='AD'?GROUPOF.AD:null);
+      if(!S.res&&grp&&grp.indexOf(k)>=0){ choose({C:'bC',E:'bE',A:'bA',D:'bD'}[k]); return; }
+      openModal(k,S.res!==k); return; }
+    if(visitedNodes()[k]&&(k!==S.cur||S.res)) rewindTo(k); });
+
+  /* ═════════ 결과: 태그만 복사 ═════════ */
+  function tagList(k){ return ST[k].b.map(function(b){ return TAG[b]; }); }
+  function openModal(k,peek){ var s=ST[k], box=$('pickbox'), tags=tagList(k);
+    box.hidden=false;
+    box.innerHTML='<div class="pk-head"><span class="res-badge">구성 '+k+'</span><b>'+esc(s.name)+'</b><span class="pk-genre">'+esc(s.genre)+(peek?' · 미리 보기':' · 🎯 내 구조')+'</span></div>'+
+      '<div class="pk-tags">'+tags.map(function(t){ return '<code>'+esc(t)+'</code>'; }).join('<i>→</i>')+'</div>'+
+      '<button class="btn" type="button" id="pk-copy">📋 [ ] 태그 복사</button>';
+    $('pk-copy').addEventListener('click',function(){ var b=this, t=tags.join('\n');
+      var done=function(m){ b.textContent=m; setTimeout(function(){ b.textContent='📋 [ ] 태그 복사'; },1600); };
+      var fb=function(){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done('✅ 복사했어요! Suno 가사 칸에 붙여 넣어요'); }catch(err){ done('복사가 안 돼요'); } document.body.removeChild(ta); };
+      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ done('✅ 복사했어요! Suno 가사 칸에 붙여 넣어요'); },fb); else fb(); });
+    if(motion) gsap.fromTo(box,{y:10,opacity:0},{y:0,opacity:1,duration:.35,ease:'power2.out',clearProps:'opacity,transform'});
+    if(box.scrollIntoView) box.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  $('allrow').addEventListener('click',function(e){ var b=e.target.closest('[data-p]'); if(b) openModal(b.dataset.p,b.dataset.p!==S.res); });
+  $('reset').addEventListener('click',function(){ S.edges=[]; S.cur=null; S.res=null; save(); drawChart(); $('pickbox').hidden=true; });
+
+  drawChart();
+
+})();
+</script>
+</body>
+</html>
