@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마스터링 실습실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{ --ink:#15132b; --sub:#5b5873; --faint:#a3a0b8; --line:#ebe9f3; --panel:#f6f5fb; --ac:#f97316; --pro:#7c3aed; --ok:#16a34a;
+  --display:'Black Han Sans',sans-serif; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ background:#fff; }
+body{ font-family:'Noto Sans KR',sans-serif; color:var(--ink); width:100vw; height:100vh; overflow:hidden; }
+button{ font-family:inherit; cursor:pointer; } input,select{ font-family:inherit; }
+.bg{ position:fixed; inset:0; pointer-events:none; background:repeating-linear-gradient(90deg,transparent 0 46px,#f4f3f9 46px 47px); mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent); }
+.deck{ position:relative; z-index:1; width:100%; height:100%; }
+.slide{ position:absolute; inset:0; display:flex; justify-content:center; padding:26px 40px 84px; opacity:0; transform:translateX(70px); transition:opacity .45s, transform .45s; pointer-events:none; overflow-y:auto; }
+.slide.active{ opacity:1; transform:none; pointer-events:all; } .slide.prev{ transform:translateX(-70px); }
+.slide.lab{ padding-top:78px; }
+.inner{ width:100%; max-width:1180px; display:flex; flex-direction:column; align-items:center; gap:16px; margin:auto 0; }
+.slide.active .inner > *{ animation:up .5s ease both; animation-delay:calc(var(--i,0)*60ms); }
+@keyframes up{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+.tag{ font-size:12px; font-weight:900; letter-spacing:3px; padding:6px 16px; border-radius:20px; border:1.5px solid currentColor; background:#fff; }
+h1{ font-family:var(--display); font-weight:400; font-size:clamp(40px,6.2vw,84px); line-height:1.08; text-align:center; }
+h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px); line-height:1.2; text-align:center; }
+.sub{ font-size:clamp(14px,1.6vw,18px); color:var(--sub); text-align:center; line-height:1.75; } .sub b{ color:var(--ink); }
+.cap{ font-size:12.5px; color:var(--faint); text-align:center; line-height:1.6; }
+.pill{ padding:8px 15px; border-radius:22px; font-size:13.5px; font-weight:900; border:2px solid var(--line); background:#fff; color:var(--sub); transition:all .2s; }
+.pill:hover{ border-color:#c9c5dc; color:var(--ink); } .pill.on{ background:var(--ink); border-color:var(--ink); color:#fff; }
+.btns{ display:flex; gap:7px; flex-wrap:wrap; justify-content:center; }
+.lab-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center; }
+
+/* 표지 파형 */
+.wavehero{ width:min(760px,92vw); height:170px; display:block; }
+/* 비유 카드 */
+.analogy{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; }
+.an{ border-radius:20px; background:var(--panel); padding:16px; display:flex; flex-direction:column; gap:6px; }
+.an .e{ font-size:34px; } .an b{ font-size:17px; } .an p{ font-size:13.5px; color:var(--sub); line-height:1.6; }
+.an.hot{ background:#fff7ed; border:2px solid #fed7aa; }
+.devices{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.dev{ border:2px solid var(--line); background:#fff; border-radius:16px; padding:10px 14px; display:flex; flex-direction:column; align-items:center; gap:2px; font-weight:900; font-size:13px; min-width:92px; }
+.dev .e{ font-size:28px; } .dev.on{ border-color:var(--ac); background:#fff7ed; }
+
+/* 화면 지도(모형) */
+.mock{ width:100%; max-width:980px; border-radius:22px; background:#1b1930; color:#fff; padding:18px; display:grid; grid-template-columns:1.5fr 1fr; gap:16px; }
+.mock h4{ font-size:12px; letter-spacing:2px; color:#a8a5c0; margin-bottom:8px; }
+.mpre{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.mp{ border-radius:14px; background:#2a2745; padding:10px 6px; text-align:center; font-size:12.5px; font-weight:900; position:relative; border:2px solid transparent; }
+.mp .e{ display:block; font-size:24px; } .mp small{ position:absolute; top:4px; right:5px; font-size:9px; color:#fbbf24; }
+.mp.on{ border-color:#fbbf24; }
+.mslider{ height:10px; border-radius:5px; background:#2a2745; position:relative; margin:14px 4px 6px; } .mslider i{ position:absolute; left:0; top:0; bottom:0; width:50%; border-radius:5px; background:linear-gradient(90deg,#fbbf24,#f97316); }
+.mlabels{ display:flex; justify-content:space-between; font-size:11.5px; color:#a8a5c0; font-weight:900; }
+.meq{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+.meq div{ border-radius:12px; background:#2a2745; padding:10px; text-align:center; font-size:12px; font-weight:900; }
+.mexp{ width:100%; max-width:980px; border-radius:16px; border:2px dashed var(--line); padding:12px 16px; font-size:14.5px; line-height:1.65; color:var(--sub); min-height:56px; }
+.mexp b{ color:var(--ink); }
+
+/* 트랜스포트 */
+.transport{ position:fixed; top:12px; left:50%; transform:translateX(-50%); width:max-content; z-index:30; display:none; align-items:center; gap:8px; background:#15132b; color:#fff; border-radius:18px; padding:7px 10px; box-shadow:0 14px 30px rgba(21,19,43,.25); flex-wrap:wrap; max-width:96vw; }
+.transport.show{ display:flex; }
+.transport .vol{ display:flex; align-items:center; gap:6px; background:#2a2745; border:1.5px solid #3e3a5e; border-radius:10px; padding:4px 10px; font-size:12.5px; font-weight:900; }
+.transport .vol input{ width:90px; accent-color:#fbbf24; }
+
+.transport .play{ width:40px; height:40px; border-radius:12px; border:none; background:#22c55e; color:#04230f; font-size:17px; font-weight:900; }
+.transport .play.on{ background:#ef4444; color:#fff; }
+.transport select, .transport .tb{ background:#2a2745; color:#fff; border:1.5px solid #3e3a5e; border-radius:10px; padding:7px 9px; font-size:12.5px; font-weight:900; }
+.transport .ab{ display:flex; border-radius:10px; overflow:hidden; border:1.5px solid #3e3a5e; }
+.transport .ab button{ border:none; background:#2a2745; color:#a8a5c0; padding:7px 11px; font-size:12.5px; font-weight:900; }
+.transport .ab button.on{ background:#fbbf24; color:#15132b; }
+.transport .tb.on{ background:#22c55e; color:#04230f; border-color:#22c55e; }
+
+.transport .tb.rec.on{ background:#ef4444; color:#fff; border-color:#ef4444; }
+.transport .tb.rec.done{ background:#22c55e; color:#04230f; border-color:#22c55e; }
+
+/* 실습 레이아웃 */
+.labwrap{ width:100%; display:grid; grid-template-columns:1fr 340px; gap:14px; align-items:start; }
+.screen{ border-radius:18px; background:#15132b; padding:12px; display:flex; flex-direction:column; gap:8px; }
+.screen canvas{ width:100%; display:block; border-radius:10px; }
+.screen .spec{ height:150px; } .screen .hist{ height:120px; }
+.meters{ display:grid; grid-template-columns:1fr 1fr 130px; gap:8px; align-items:stretch; }
+.mt{ border-radius:12px; background:#221f3b; padding:8px 10px; color:#fff; }
+.mt b{ font-size:11px; color:#a8a5c0; font-weight:900; letter-spacing:1px; display:block; }
+.mt .v{ font-family:var(--display); font-size:24px; } .mt small{ font-size:11px; color:#a8a5c0; }
+.mt .bar{ height:8px; border-radius:4px; background:#2f2b4f; overflow:hidden; margin-top:4px; } .mt .bar i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#22c55e,#fbbf24 75%,#ef4444); }
+.scope{ border-radius:12px; background:#221f3b; display:block; width:130px; height:130px; }
+.legendrow{ display:flex; gap:12px; font-size:11.5px; font-weight:900; color:#a8a5c0; } .legendrow i{ display:inline-block; width:14px; height:4px; border-radius:2px; vertical-align:middle; margin-right:4px; }
+.side{ display:flex; flex-direction:column; gap:10px; }
+.card{ border-radius:18px; background:#fff; border:2px solid var(--line); padding:12px 14px; }
+.card h4{ font-size:12px; font-weight:900; letter-spacing:2px; color:var(--faint); margin-bottom:6px; }
+.tip{ border-radius:18px; background:#fffbeb; border:1.5px solid #fde68a; padding:12px 14px; font-size:13px; line-height:1.65; color:#78350f; } .tip b{ color:#92400e; }
+.presets{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:100%; }
+.pr{ text-align:left; border:2px solid var(--line); background:#fff; border-radius:16px; padding:10px 12px; display:flex; flex-direction:column; gap:2px; position:relative; transition:all .2s; }
+.pr .e{ font-size:24px; } .pr b{ font-size:15px; } .pr small{ font-size:11.5px; color:var(--sub); line-height:1.4; }
+.pr .mem{ position:absolute; top:8px; right:8px; font-size:10px; font-weight:900; color:var(--pro); background:#f5f3ff; border-radius:99px; padding:2px 7px; }
+.pr.on{ border-color:var(--ac); background:#fff7ed; box-shadow:0 10px 22px rgba(249,115,22,.15); }
+.desc b{ font-size:16px; } .desc p{ font-size:13.5px; color:var(--sub); line-height:1.6; margin-top:4px; }
+.int{ display:flex; flex-direction:column; gap:6px; }
+.int input{ width:100%; accent-color:var(--ac); }
+.int .lb{ display:flex; justify-content:space-between; font-size:12px; font-weight:900; color:var(--sub); }
+.int .big{ font-family:var(--display); font-size:30px; text-align:center; color:var(--ac); }
+.eqs{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.eqk{ display:flex; flex-direction:column; align-items:center; gap:4px; border-radius:14px; background:var(--panel); padding:10px 6px; }
+.eqk input{ writing-mode:vertical-lr; direction:rtl; height:120px; accent-color:var(--ac); }
+.eqk b{ font-size:13px; } .eqk span{ font-family:var(--display); font-size:20px; color:var(--ac); } .eqk small{ font-size:11px; color:var(--sub); text-align:center; line-height:1.4; }
+.mi{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; line-height:1.5; padding:6px 0; border-bottom:1px dashed var(--line); }
+.mi:last-child{ border-bottom:none; } .mi .ck{ width:22px; height:22px; border-radius:7px; border:2px solid #d4d1e3; flex-shrink:0; display:grid; place-items:center; font-size:12px; color:#fff; }
+.mi.done .ck{ background:#22c55e; border-color:#22c55e; } .mi.done{ color:#166534; } .mi small{ display:block; color:var(--faint); font-size:12px; }
+/* 장르 게임 */
+.songs{ display:grid; grid-template-columns:repeat(6,1fr); gap:8px; width:100%; }
+.song{ border:2px solid var(--line); background:#fff; border-radius:16px; padding:10px; display:flex; flex-direction:column; align-items:center; gap:3px; font-weight:900; font-size:13px; position:relative; }
+.song .e{ font-size:28px; } .song small{ font-weight:700; font-size:11.5px; color:var(--sub); }
+.song.on{ border-color:var(--ink); box-shadow:0 10px 22px rgba(21,19,43,.12); }
+.song .res{ position:absolute; top:6px; right:8px; font-size:14px; }
+.answer{ width:100%; border-radius:16px; padding:12px 16px; font-size:14.5px; line-height:1.6; background:var(--panel); min-height:54px; }
+/* 내 곡 */
+.drop{ width:100%; border:3px dashed #d4d1e3; border-radius:20px; padding:22px; text-align:center; color:var(--sub); font-weight:700; font-size:15px; background:#fcfcfe; }
+.drop.over{ border-color:var(--ac); background:#fff7ed; }
+.note{ width:100%; background:#15132b; color:#e9e7ff; border-radius:16px; padding:14px 16px; font-family:'Consolas','D2Coding',monospace; font-size:13px; white-space:pre-wrap; line-height:1.65; }
+.msg{ font-size:13px; font-weight:900; color:var(--ok); }
+.rate{ display:flex; gap:4px; } .rate button{ border:none; background:none; font-size:22px; color:#d4d1e3; } .rate button.on{ color:#f59e0b; }
+.rules{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; width:100%; }
+.rule{ border-radius:18px; background:var(--panel); padding:14px; } .rule .e{ font-size:28px; } .rule b{ display:block; font-size:15px; margin:4px 0; } .rule p{ font-size:13px; color:var(--sub); line-height:1.6; }
+
+.nav{ position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:30; display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.92); backdrop-filter:blur(10px); border:1px solid var(--line); border-radius:99px; padding:6px 10px; box-shadow:0 10px 30px rgba(21,19,43,.1); }
+.nav button{ width:38px; height:38px; border-radius:50%; border:none; background:var(--panel); font-size:15px; }
+.nav button:disabled{ opacity:.3; }
+.dots{ display:flex; gap:6px; } .dots i{ width:8px; height:8px; border-radius:99px; background:#dcd9ea; cursor:pointer; transition:all .3s; } .dots i.on{ width:24px; background:var(--ac); }
+@media (max-width:900px){ .slide{ padding:20px 14px 84px; } .slide.lab{ padding-top:130px; } .labwrap, .mock{ grid-template-columns:1fr; } .analogy, .rules{ grid-template-columns:1fr 1fr; } .presets{ grid-template-columns:1fr 1fr; } .songs{ grid-template-columns:repeat(3,1fr); } .meters{ grid-template-columns:1fr 1fr; } }
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+
+<div class="transport" id="transport" role="region" aria-label="재생 장치">
+  <button class="play" id="play" type="button" aria-label="재생">▶</button>
+  <select id="src" aria-label="들을 곡"><option value="pop">🎵 데모 곡 (마스터링 전)</option><option value="file">📁 내 곡 파일</option><option value="game">🎮 장르 데모</option></select>
+  <input type="file" id="file" accept="audio/*" hidden>
+  <div class="ab" role="group" aria-label="원본과 마스터 비교"><button type="button" data-ab="0">A 원본</button><button type="button" data-ab="1" class="on">B 마스터</button></div>
+  <button class="tb" id="match" type="button" title="원본과 마스터의 음량을 맞춰서 비교">🎚 음량 맞춰 비교</button>
+  <select id="dev" aria-label="듣는 기기"><option value="none">🎧 스튜디오</option><option value="phone">📱 폰 스피커</option><option value="buds">🎵 이어폰</option><option value="car">🚗 자동차</option><option value="laptop">💻 노트북</option></select>
+  <button class="tb rec" id="rec" type="button" title="지금 들리는 소리(이펙트 포함)를 녹음해서 WAV 파일로 저장해요">⏺ 녹음</button><button class="tb" id="recx" type="button" title="지우고 새로 녹음" hidden>↺ 새로</button>
+  <span class="vol" title="전체 볼륨 (스피커로 나가는 소리만 줄여요. 미터는 그대로)"><span aria-hidden="true">🔊</span><input type="range" id="vol" min="0" max="100" value="45" aria-label="전체 볼륨"><span id="volv">45</span></span>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 표지 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--ac)">MASTERING LAB</span>
+    <canvas class="wavehero" id="hero" width="1520" height="340" aria-hidden="true"></canvas>
+    <h1>마스터링 <span style="color:var(--ac)">실습실</span></h1>
+    <p class="sub">다 만든 곡에 <b>마지막 포장</b>을 하는 시간이에요. BandLab Mastering의<br>프리셋 · Intensity · EQ를 <b>진짜 소리로</b> 비교해 봐요. 내 곡 파일도 올릴 수 있어요. 🎧</p>
+  </div></section>
+
+  <!-- 2 마스터링이 뭐야 -->
+  <section class="slide lab" data-lab="what"><div class="inner">
+    <span class="tag" style="color:var(--ac)">WHAT · 마스터링이 뭐예요?</span>
+    <h2>어디서 틀어도 <span style="color:var(--ac)">잘 들리게</span> 마지막 포장</h2>
+    <div class="analogy">
+      <div class="an"><span class="e">🍳</span><b>믹싱 = 요리</b><p>악기 하나하나의 크기, 음색, 공간을 맞춰 한 곡으로 섞어요. (지난 시간 이펙트 실습)</p></div>
+      <div class="an hot"><span class="e">🎁</span><b>마스터링 = 포장</b><p>완성된 곡 <b>전체</b>의 크기, 밝기, 넓이를 다듬어 <b>어디서 틀어도</b> 크고 고르게 들리게 해요.</p></div>
+      <div class="an"><span class="e">🚚</span><b>배포 = 배달</b><p>음원 사이트, 영상, 친구 폰으로! 다른 곡들 사이에서 작게 들리면 안 되겠죠?</p></div>
+    </div>
+    <p class="sub">위 재생 바에서 ▶ 누르고, 아래 기기를 바꿔 가며 <b>A 원본 / B 마스터</b>를 비교해 보세요.</p>
+    <div class="devices" id="devs"></div>
+    <p class="cap">기기 소리는 이퀄라이저로 흉내 낸 거예요. 폰 스피커는 저음이 거의 안 나와서, 마스터링 안 된 곡은 더 작고 얇게 들려요.</p>
+  </div></section>
+
+  <!-- 3 화면 지도 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--pro)">MAP · BandLab Mastering 화면</span>
+    <h2>버튼은 딱 <span style="color:var(--pro)">세 종류</span></h2>
+    <div class="mock" aria-label="BandLab Mastering 화면 구조 예시">
+      <div><h4>① PRESET 프리셋 (8)</h4><div class="mpre" id="mockPre"></div></div>
+      <div><h4>② INTENSITY 세기</h4><div class="mslider"><i id="mockI"></i></div><div class="mlabels"><span>Light</span><span>Normal</span><span>Heavy</span></div>
+        <h4 style="margin-top:16px">③ EQ</h4><div class="meq"><div>Low<br>저음</div><div>Mid<br>중음</div><div>High<br>고음</div></div></div>
+    </div>
+    <div class="mexp" id="mockExp">프리셋을 눌러 보세요. 영어 뜻과 BandLab 설명을 알려 줘요.</div>
+    <p class="cap">구조를 보여 주는 예시 그림이에요(실제 화면과 배치가 다를 수 있어요). ★ = 멤버십 전용 프리셋. 설명 출처: BandLab 블로그.</p>
+  </div></section>
+
+  <!-- 4 프리셋 시음회 -->
+  <section class="slide lab" data-lab="preset"><div class="inner">
+    <div class="lab-head"><span class="tag" style="color:var(--ac)">LAB 1 · 프리셋</span><h2>여덟 가지 <span style="color:var(--ac)">포장지</span> 비교</h2></div>
+    <div class="presets" id="presets"></div>
+    <div class="labwrap"><div class="screen" id="scr1"></div>
+      <div class="side"><div class="card desc" id="pdesc"></div><div class="tip"><b>💡 프로의 비밀: 음량 맞춰 비교</b><br>사람 귀는 <b>더 큰 소리를 더 좋다고</b> 착각해요. 마스터링은 소리를 키우니까 B가 늘 좋게 들리죠. 위의 <b>🎚 음량 맞춰 비교</b>를 켜고 A/B를 바꿔 보세요. 크기가 같아져도 B가 좋다면 진짜 좋은 거예요!</div></div></div>
+  </div></section>
+
+  <!-- 5 Intensity -->
+  <section class="slide lab" data-lab="int"><div class="inner">
+    <div class="lab-head"><span class="tag" style="color:var(--ac)">LAB 2 · Intensity</span><h2>세게 할수록 <span style="color:var(--ac)">좋을까?</span></h2></div>
+    <div class="labwrap"><div class="screen" id="scr2"></div>
+      <div class="side"><div class="card int"><h4>INTENSITY · <span id="intPre"></span></h4><div class="big" id="intBig">Normal</div><input type="range" id="intR" min="0" max="10" value="5" aria-label="세기"><div class="lb"><span>Light</span><span>Normal</span><span>Heavy</span></div></div>
+        <div class="card" id="mInt"></div>
+        <div class="tip"><b>💡 소시지 파형</b><br>Heavy로 갈수록 아래 파형(마스터)이 위아래로 꽉 찬 <b>소시지</b>처럼 납작해져요. 소리는 커지지만 <b>작고 큰 차이(다이내믹)</b>가 사라져서 답답하고 귀가 피곤해질 수 있어요. 큰 소리 경쟁을 <b>“라우드니스 전쟁”</b>이라고 불러요.</div></div></div>
+  </div></section>
+
+  <!-- 6 EQ -->
+  <section class="slide lab" data-lab="eq"><div class="inner">
+    <div class="lab-head"><span class="tag" style="color:var(--ac)">LAB 3 · EQ</span><h2>곡 전체의 <span style="color:var(--ac)">간</span>을 살짝</h2></div>
+    <div class="labwrap"><div class="screen" id="scr3"></div>
+      <div class="side"><div class="card"><h4>MASTERING EQ (이 실습실: ±6dB)</h4><div class="eqs" id="eqs"></div></div><div class="card" id="mEq"></div>
+        <div class="tip"><b>💡 마스터링 EQ는 아주 조금만!</b><br>트랙 하나가 아니라 <b>곡 전체</b>가 바뀌니까 1~3dB만 움직여도 커요. Low는 킥·베이스, Mid는 보컬·기타 몸통, High는 심벌·숨결·공기감.</div></div></div>
+  </div></section>
+
+  <!-- 7 장르 매칭 -->
+  <section class="slide lab" data-lab="game"><div class="inner">
+    <div class="lab-head"><span class="tag" style="color:var(--pro)">GAME · 장르 매칭</span><h2>이 곡에는 <span style="color:var(--pro)">어떤 프리셋?</span></h2></div>
+    <div class="songs" id="songs"></div>
+    <p class="cap">곡을 눌러 들어 보고(▶ 자동 재생) → 아래에서 BandLab이 추천하는 프리셋을 골라요. 고른 프리셋이 바로 걸려서 소리도 확인돼요.</p>
+    <div class="presets" id="gamePre"></div>
+    <div class="answer" id="ans">곡을 먼저 골라요.</div>
+    <p class="cap" id="gscore"></p>
+  </div></section>
+
+  <!-- 8 내 곡 -->
+  <section class="slide lab" data-lab="mine"><div class="inner">
+    <div class="lab-head"><span class="tag" style="color:var(--ac)">MY TRACK · 내 곡 마스터링</span><h2>내 곡에 <span style="color:var(--ac)">딱 맞는 포장</span> 찾기</h2></div>
+    <label class="drop" id="drop" for="file">📁 내 곡 파일(mp3, wav)을 여기로 끌어 놓거나 눌러서 고르세요<br><small style="font-weight:500">Suno나 BandLab에서 내려받은 파일. 파일은 이 컴퓨터 안에서만 재생되고 어디에도 올라가지 않아요.</small></label>
+    <div class="labwrap"><div class="screen" id="scr4"></div>
+      <div class="side"><div class="card"><h4>프리셋</h4><div class="btns" id="minePre" style="justify-content:flex-start"></div></div>
+        <div class="card int"><h4>INTENSITY</h4><div class="big" id="mineIntBig">Normal</div><input type="range" id="mineInt" min="0" max="10" value="5" aria-label="세기"></div>
+        <div class="card"><h4>EQ</h4><div class="eqs" id="mineEq"></div></div></div></div>
+    <div class="card" style="width:100%"><h4>🎧 기기별 귀 평가 (위 재생 바에서 기기를 바꿔 들어요)</h4><div id="rates"></div></div>
+    <div class="note" id="note"></div>
+    <div class="btns"><button class="pill on" type="button" id="copy">📋 마스터링 노트 복사</button><span class="msg" id="msg"></span></div>
+  </div></section>
+
+  <!-- 9 정리 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--ac)">CHEAT SHEET</span>
+    <h2>마스터링 <span style="color:var(--ac)">네 가지 약속</span></h2>
+    <div class="rules">
+      <div class="rule"><span class="e">🎚</span><b>음량 맞춰 비교</b><p>큰 소리가 좋게 들리는 착각에 속지 않기.</p></div>
+      <div class="rule"><span class="e">🌭</span><b>Heavy가 정답은 아니야</b><p>소시지 파형이 되면 답답해요. 곡에 맞는 세기를 귀로 찾기.</p></div>
+      <div class="rule"><span class="e">📱</span><b>여러 기기로 듣기</b><p>폰, 이어폰, 자동차… 어디서든 괜찮은지 확인해요.</p></div>
+      <div class="rule"><span class="e">🍳</span><b>믹스가 먼저</b><p>마스터링은 포장이에요. 요리(믹스)가 맛없으면 포장으로 못 살려요.</p></div>
+    </div>
+    <p class="cap">프리셋 설명: BandLab 블로그 “Shape your sound with 4 BandLab Mastering upgrades”, “Master your tracks instantly with BandLab Mastering”. 무료: Universal·Fire·Clarity·Tape / 멤버십: Natural·Spatial·Cinematic·Punch. Intensity는 Light·Normal·Heavy(최신 버전은 11단계).<br>이 실습실의 마스터링은 브라우저에서 원리를 흉내 낸 것이라 BandLab 실제 결과와 달라요.</p>
+  </div></section>
+</div>
+<div class="nav"><button type="button" id="prev" aria-label="이전">◀</button><span class="dots" id="dots"></span><button type="button" id="next" aria-label="다음">▶</button></div>
+
+<script>
+(function(){
+  var $=function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ═════════ 프리셋 (BandLab 설명 기반, 소리 값은 흉내) ═════════ */
+  // eq:[저음dB,저음Hz, 중음dB,중음Hz, 고음dB,고음Hz], sat 0~1, width 배, comp:[임계dB, 비율, 어택ms], loud dB
+  var PR=[
+    {k:'universal',e:'🎵',n:'Universal',ko:'보편적인',mem:0,d:'원래 셈여림과 음색을 지키는 <b>기본형</b>.',g:'록, 팝, 일렉트로닉, 얼터너티브',eq:[1,100,0,1000,1.5,9000],sat:.05,w:1,comp:[-20,2,15],loud:5},
+    {k:'fire',e:'🔥',n:'Fire',ko:'불꽃',mem:0,d:'<b>묵직한 저음</b>과 또렷한 중음.',g:'트랩, 실험적 음악, 레게톤',eq:[5,80,2,2000,1,10000],sat:.15,w:1,comp:[-22,4,12],loud:8},
+    {k:'clarity',e:'💎',n:'Clarity',ko:'선명함',mem:0,d:'<b>고음을 또렷하게</b>, 디테일을 살려요.',g:'클래식, R&B',eq:[-1,120,1.5,3000,5,8000],sat:0,w:1.05,comp:[-20,2,20],loud:5},
+    {k:'tape',e:'📼',n:'Tape',ko:'테이프',mem:0,d:'테이프처럼 <b>따뜻하게 살짝 찌그러뜨려요</b>(새추레이션).',g:'얼터너티브, 인디, 재즈, 록',eq:[2,120,1,600,-2.5,9000],sat:.55,w:.95,comp:[-20,3,25],loud:6},
+    {k:'natural',e:'🌿',n:'Natural',ko:'자연스러운',mem:1,d:'원래 음색은 지키고 <b>선명함만</b> 살짝.',g:'어쿠스틱, 자연스러운 소리',eq:[0,100,.5,2500,1.5,10000],sat:0,w:1,comp:[-18,1.5,30],loud:3.5},
+    {k:'spatial',e:'🌌',n:'Spatial',ko:'공간의',mem:1,d:'소리를 <b>좌우로 넓게</b> 펼쳐요(스테레오 폭).',g:'(공간감이 필요한 곡)',eq:[0,100,-1,500,1.5,10000],sat:0,w:1.9,comp:[-20,2,20],loud:5},
+    {k:'cinematic',e:'🎬',n:'Cinematic',ko:'영화 같은',mem:1,d:'<b>묵직한 저음</b> + <b>셈여림 폭을 지켜</b> 웅장하게.',g:'오케스트라, 영화 음악',eq:[4,60,-1,400,1,8000],sat:.05,w:1.3,comp:[-16,1.4,40],loud:3},
+    {k:'punch',e:'👊',n:'Punch',ko:'펀치',mem:1,d:'한 방 한 방 <b>때리는 힘과 또렷함</b>(Fire의 다른 버전).',g:'힙합, 랩',eq:[3,100,3,1500,1,9000],sat:.2,w:1,comp:[-24,5,25],loud:8}];
+  function P(k){ for(var i=0;i<PR.length;i++) if(PR[i].k===k) return PR[i]; return PR[0]; }
+
+  /* ═════════ 오디오 엔진 ═════════ */
+  var A=null, E=null, NB=null;
+  function ac(){ if(!A){ var C=window.AudioContext||window.webkitAudioContext; if(C) A=new C(); } if(A&&A.state==='suspended') A.resume(); return A; }
+  function nb(a){ if(!NB){ NB=a.createBuffer(1,a.sampleRate*2,a.sampleRate); var d=NB.getChannelData(0); for(var i=0;i<d.length;i++) d[i]=Math.random()*2-1; } return NB; }
+  function satCurve(amt){ var n=2048, c=new Float32Array(n), k=1+amt*5; for(var i=0;i<n;i++){ var x=i/(n/2)-1; c[i]=Math.tanh(x*k)/Math.tanh(k); } return c; }
+  var ST={preset:'universal',int:5,ueq:[0,0,0],ab:1,match:false,dev:'none'};
+  function build(){ var a=ac(); if(!a) return null; if(E) return E; E={};
+    E.src=a.createGain(); // 스테레오 입력
+    E.preAn=a.createAnalyser(); E.preAn.fftSize=2048; E.src.connect(E.preAn);
+    function bq(t,f){ var b=a.createBiquadFilter(); b.type=t; b.frequency.value=f; return b; }
+    E.lo=bq('lowshelf',100); E.mid=bq('peaking',1000); E.mid.Q.value=.8; E.hi=bq('highshelf',9000);
+    E.satIn=a.createGain(); E.sh=a.createWaveShaper(); E.sh.oversample='4x'; E.satOut=a.createGain(); E.satDry=a.createGain();
+    E.src.connect(E.lo); E.lo.connect(E.mid); E.mid.connect(E.hi); E.hi.connect(E.satIn); E.satIn.connect(E.sh); E.sh.connect(E.satOut); E.hi.connect(E.satDry);
+    // 스테레오 폭 (M/S)
+    E.wIn=a.createGain(); E.satOut.connect(E.wIn); E.satDry.connect(E.wIn);
+    E.split=a.createChannelSplitter(2); E.merge=a.createChannelMerger(2); E.wIn.connect(E.split);
+    E.ll=a.createGain(); E.rl=a.createGain(); E.rr=a.createGain(); E.lr=a.createGain();
+    E.split.connect(E.ll,0); E.split.connect(E.rl,1); E.split.connect(E.rr,1); E.split.connect(E.lr,0);
+    E.ll.connect(E.merge,0,0); E.rl.connect(E.merge,0,0); E.rr.connect(E.merge,0,1); E.lr.connect(E.merge,0,1);
+    E.comp=a.createDynamicsCompressor(); E.comp.knee.value=8; E.merge.connect(E.comp);
+    E.ulo=bq('lowshelf',100); E.umid=bq('peaking',1000); E.umid.Q.value=.7; E.uhi=bq('highshelf',8000);
+    E.comp.connect(E.ulo); E.ulo.connect(E.umid); E.umid.connect(E.uhi);
+    E.make=a.createGain(); E.uhi.connect(E.make);
+    E.lim=a.createDynamicsCompressor(); E.lim.threshold.value=-1; E.lim.ratio.value=20; E.lim.knee.value=0; E.lim.attack.value=.002; E.lim.release.value=.08; E.make.connect(E.lim);
+    E.mGain=a.createGain(); E.lim.connect(E.mGain); E.dryGain=a.createGain(); E.src.connect(E.dryGain);
+    E.postAn=a.createAnalyser(); E.postAn.fftSize=2048; E.lim.connect(E.postAn);
+    E.bus=a.createGain(); E.mGain.connect(E.bus); E.dryGain.connect(E.bus);
+    // 기기 흉내
+    E.dIn=a.createGain(); E.bus.connect(E.dIn);
+    E.dHP=bq('highpass',20); E.dLP=bq('lowpass',20000); E.dPk=bq('peaking',2000); E.dLo=bq('lowshelf',80);
+    E.mono=a.createGain(); E.mono.channelCount=1; E.mono.channelCountMode='explicit'; E.mono.channelInterpretation='speakers';
+    E.stereo=a.createGain(); E.monoG=a.createGain(); E.stG=a.createGain();
+    E.dIn.connect(E.dHP); E.dHP.connect(E.dLP); E.dLP.connect(E.dPk); E.dPk.connect(E.dLo); E.dLo.connect(E.mono); E.dLo.connect(E.stereo); E.mono.connect(E.monoG); E.stereo.connect(E.stG);
+    E.out=a.createGain(); E.out.gain.value=.9; E.monoG.connect(E.out); E.stG.connect(E.out);
+    E.outAn=a.createAnalyser(); E.outAn.fftSize=2048; E.out.connect(E.outAn); E.vol=a.createGain(); E.vol.gain.value=volGain(); E.outAn.connect(E.vol); E.vol.connect(a.destination);
+    E.sp2=a.createChannelSplitter(2); E.anL=a.createAnalyser(); E.anR=a.createAnalyser(); E.anL.fftSize=E.anR.fftSize=1024; E.lim.connect(E.sp2); E.sp2.connect(E.anL,0); E.sp2.connect(E.anR,1);
+    apply(); return E; }
+  function intK(){ return .35+ST.int*.13; } // Light 0.35 ~ Heavy 1.65
+  function apply(){ if(!E) return; var t=A.currentTime, p=P(ST.preset), k=intK(), s=function(par,v){ par.setTargetAtTime(v,t,.04); };
+    s(E.lo.gain,p.eq[0]*k); E.lo.frequency.value=p.eq[1]; s(E.mid.gain,p.eq[2]*k); E.mid.frequency.value=p.eq[3]; s(E.hi.gain,p.eq[4]*k); E.hi.frequency.value=p.eq[5];
+    var sat=Math.min(1,p.sat*k); E.sh.curve=satCurve(sat); s(E.satOut.gain,sat); s(E.satDry.gain,1-sat*.8); s(E.satIn.gain,1+sat);
+    var w=1+(p.w-1)*k; s(E.ll.gain,(1+w)/2); s(E.rr.gain,(1+w)/2); s(E.rl.gain,(1-w)/2); s(E.lr.gain,(1-w)/2);
+    s(E.comp.threshold,p.comp[0]-(k-1)*8); s(E.comp.ratio,1+(p.comp[1]-1)*k); E.comp.attack.value=p.comp[2]/1000; E.comp.release.value=.15;
+    s(E.ulo.gain,ST.ueq[0]); s(E.umid.gain,ST.ueq[1]); s(E.uhi.gain,ST.ueq[2]);
+    s(E.make.gain,Math.pow(10,p.loud*k/20));
+    var on=ST.ab===1; s(E.mGain.gain,on?matchG:0); s(E.dryGain.gain,on?0:1);
+    var dv=ST.dev; s(E.dHP.frequency,{phone:550,laptop:260,buds:30,car:25,none:20}[dv]); s(E.dLP.frequency,{phone:7000,laptop:14000,buds:16000,car:11000,none:20000}[dv]);
+    s(E.dPk.gain,{phone:5,laptop:3,buds:1,car:0,none:0}[dv]); s(E.dLo.gain,{car:7,buds:3,phone:0,laptop:0,none:0}[dv]);
+    s(E.monoG.gain,dv==='phone'?1:0); s(E.stG.gain,dv==='phone'?0:1); }
+  var matchG=1;
+
+
+  /* 전체 볼륨: 미터·분석기 뒤, 스피커 바로 앞에서만 줄여요 */
+  var VOL=45; try{ var vs=localStorage.getItem('lab-volume'); if(vs!=null) VOL=+vs; }catch(e){}
+  function volGain(){ return Math.pow(VOL/100,2)*1.6; }
+  function setVol(v){ VOL=v; try{ localStorage.setItem('lab-volume',v); }catch(e){} var el=document.getElementById('vol'); if(el){ el.value=v; document.getElementById('volv').textContent=v; } if(E&&E.vol) E.vol.gain.setTargetAtTime(volGain(),A.currentTime,.03); }
+  document.getElementById('vol').addEventListener('input',function(){ setVol(+this.value); });
+  setTimeout(function(){ setVol(VOL); },0);
+  /* 데모 곡: 장르별 패턴 (모두 일부러 조금 작고 덜 다듬어진 '마스터링 전' 소리) */
+  function midi(n){ return 440*Math.pow(2,(n-69)/12); }
+  function pan(a,dest,p){ var g=a.createStereoPanner?a.createStereoPanner():a.createGain(); if(g.pan) g.pan.value=p; g.connect(dest); return g; }
+  function env(a,dest,t,v,att,dec){ var g=a.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(Math.max(v,.0002),t+att); g.gain.exponentialRampToValueAtTime(.0001,t+att+dec); g.connect(dest); return g; }
+  function kick(a,d,t,v){ var g=env(a,d,t,.8*v,.003,.35), o=a.createOscillator(); o.frequency.setValueAtTime(140,t); o.frequency.exponentialRampToValueAtTime(42,t+.13); o.connect(g); o.start(t); o.stop(t+.4); }
+  function snare(a,d,t,v){ var f=a.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1900; f.connect(env(a,d,t,.45*v,.002,.18)); var s=a.createBufferSource(); s.buffer=nb(a); s.connect(f); s.start(t,Math.random()); s.stop(t+.2); }
+  function hat(a,d,t,v){ var f=a.createBiquadFilter(); f.type='highpass'; f.frequency.value=8000; f.connect(env(a,d,t,.18*v,.001,.045)); var s=a.createBufferSource(); s.buffer=nb(a); s.connect(f); s.start(t,Math.random()); s.stop(t+.06); }
+  function bass(a,d,t,f,len,v){ var g=env(a,d,t,.4*(v||1),.01,len), o=a.createOscillator(); o.type='triangle'; o.frequency.value=f; var l=a.createBiquadFilter(); l.type='lowpass'; l.frequency.value=600; o.connect(l); l.connect(g); o.start(t); o.stop(t+len+.05); }
+  function b808(a,d,t,f,len){ var g=env(a,d,t,.7,.005,len), o=a.createOscillator(); o.frequency.setValueAtTime(f*1.6,t); o.frequency.exponentialRampToValueAtTime(f,t+.06); o.connect(g); o.start(t); o.stop(t+len+.05); }
+  function pad(a,d,t,f,len,v,w){ var g=a.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.linearRampToValueAtTime(.05*(v||1),t+.3); g.gain.setValueAtTime(.05*(v||1),t+len-.2); g.gain.linearRampToValueAtTime(.0001,t+len+.3); var l=a.createBiquadFilter(); l.type='lowpass'; l.frequency.value=1600; l.connect(g);
+    [-1,1].forEach(function(sd){ var pp=pan(a,d,sd*(w==null?.7:w)); var o=a.createOscillator(); o.type='sawtooth'; o.frequency.value=f; o.detune.value=sd*9; o.connect(l); g.connect(pp); o.start(t); o.stop(t+len+.4); }); }
+  function keys(a,d,t,f,v,p){ var g=env(a,pan(a,d,p||0),t,.22*(v||1),.004,1.2), o=a.createOscillator(); o.type='triangle'; o.frequency.value=f; var l=a.createBiquadFilter(); l.type='lowpass'; l.frequency.value=2600; o.connect(l); l.connect(g); o.start(t); o.stop(t+1.3); }
+  var KS={}; function pluck(a,d,t,f,v,p){ var key=Math.round(f); if(!KS[key]){ var sr=a.sampleRate, N=Math.round(sr/f), L=Math.floor(sr*1.4), b=a.createBuffer(1,L,sr), y=b.getChannelData(0); for(var i=0;i<N;i++) y[i]=Math.random()*2-1; for(i=N;i<L;i++) y[i]=(y[i-N]+y[i-N+1])*.5*.995; KS[key]=b; } var s=a.createBufferSource(); s.buffer=KS[key]; var g=a.createGain(); g.gain.value=.35*(v||1); s.connect(g); g.connect(pan(a,d,p||0)); s.start(t); }
+  function lead(a,d,t,f,len,v){ var g=a.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.09*(v||1),t+.04); g.gain.setValueAtTime(.09*(v||1),t+len*.8); g.gain.exponentialRampToValueAtTime(.0001,t+len); g.connect(d); var o=a.createOscillator(); o.type='square'; o.frequency.value=f; var l=a.createBiquadFilter(); l.type='lowpass'; l.frequency.value=2200; o.connect(l); l.connect(g); var lf=a.createOscillator(), lg=a.createGain(); lf.frequency.value=5.5; lg.gain.value=f*.01; lf.connect(lg); lg.connect(o.frequency); lf.start(t); lf.stop(t+len+.05); o.start(t); o.stop(t+len+.05); }
+  var CH=[[60,64,67],[57,60,64],[53,57,60],[55,59,62]], RT=[36,33,29,31], MEL=[[0,72,4],[4,74,2],[6,76,2],[8,79,6],[16,76,4],[20,74,4],[24,72,8],[32,69,4],[36,72,4],[40,74,8],[48,71,4],[52,72,4],[56,67,8]];
+  var SONGS={
+    pop:{bpm:110,e:'🎵',n:'팝',step:function(a,d,s,t,q,bar,dur){ if(q===0||q===8) kick(a,d,t,1); if(q===4||q===12) snare(a,d,t,.9); if(q%2===0) hat(a,pan(a,d,.3),t,.8); if(q===0||q===10) bass(a,d,t,midi(RT[bar]),dur*5); if(q===0) CH[bar].forEach(function(n){ pad(a,d,t,midi(n),dur*15); }); MEL.forEach(function(m){ if(m[0]===s) lead(a,d,t,midi(m[1]),m[2]*dur*.9); }); }},
+    trap:{bpm:140,e:'💎',n:'트랩',ans:['fire','punch'],step:function(a,d,s,t,q,bar,dur){ var h=s%32; if(h===0||h===11||h===20) kick(a,d,t,1); if(h===8||h===24) snare(a,d,t,1); hat(a,pan(a,d,.25),t,.7); if(q===14||q===15){ hat(a,d,t+dur/2,.5); } if(h===0||h===20) b808(a,d,t,midi(RT[bar]-12+3),dur*10); if(q===0) CH[bar].forEach(function(n){ pad(a,d,t,midi(n-12+3),dur*15,.7); }); }},
+    rnb:{bpm:75,e:'💜',n:'R&B',ans:['clarity'],step:function(a,d,s,t,q,bar,dur){ if(q===0||q===10) kick(a,d,t,.7); if(q===8) snare(a,d,t,.6); if(q%2===0) hat(a,d,t,.4); if(q===0||q===6) [CH[bar][0],CH[bar][1],CH[bar][2],CH[bar][0]+11].forEach(function(n,i){ keys(a,d,t+i*.01,midi(n),.8,i%2?.4:-.4); }); if(q===0) bass(a,d,t,midi(RT[bar]),dur*14,.8); MEL.forEach(function(m){ if(m[0]===s) lead(a,d,t,midi(m[1]-12),m[2]*dur*.95,.8); }); }},
+    rock:{bpm:122,e:'🎸',n:'인디 록',ans:['tape'],step:function(a,d,s,t,q,bar,dur){ if(q===0||q===6||q===8) kick(a,d,t,1); if(q===4||q===12) snare(a,d,t,1); if(q%2===0) hat(a,pan(a,d,-.2),t,.9); if(q%2===0) CH[bar].forEach(function(n,i){ pluck(a,d,t+i*.012,midi(n-12),.7,-.6); }); if(q%4===0) CH[bar].forEach(function(n,i){ pluck(a,d,t+i*.012,midi(n),.5,.6); }); if(q%2===0) bass(a,d,t,midi(RT[bar]),dur*1.8,.8); }},
+    acoustic:{bpm:88,e:'🪕',n:'어쿠스틱',ans:['natural'],step:function(a,d,s,t,q,bar,dur){ var arp=[0,1,2,1]; if(q%2===0) pluck(a,d,t,midi(CH[bar][arp[(q/2)%4]]+(q%8===0?-12:0)),q%8===0?1:.7,(q%4-1.5)*.3); MEL.forEach(function(m){ if(m[0]===s) lead(a,d,t,midi(m[1]-12),m[2]*dur*.95,.55); }); }},
+    film:{bpm:66,e:'🎬',n:'영화 음악',ans:['cinematic'],step:function(a,d,s,t,q,bar,dur){ if(q===0) CH[bar].concat([CH[bar][0]-12,CH[bar][2]+12]).forEach(function(n){ pad(a,d,t,midi(n-3),dur*15,1.2,.9); }); if(q===0||(bar===3&&(q===8||q===12))) kick(a,d,t,1.3); if(q===0) bass(a,d,t,midi(RT[bar]-12-3),dur*14,1.1); }},
+    edm:{bpm:124,e:'🎆',n:'팝·일렉트로닉',ans:['universal'],step:function(a,d,s,t,q,bar,dur){ if(q%4===0) kick(a,d,t,1); if(q===4||q===12) snare(a,d,t,.8); if(q%4===2) hat(a,pan(a,d,.3),t,1); if(q%2===0) bass(a,d,t,midi(RT[bar]),dur*1.6,.9); if(q%4===0||q===6||q===14) CH[bar].forEach(function(n,i){ keys(a,d,t,midi(n+12),.7,i-1); }); }}};
+  var SRC={kind:'pop',on:false,timer:null,buf:null,fileBuf:null,step:0,next:0,name:''};
+  function tick(){ var a=A; if(!a||!SRC.on) return; var sg=SONGS[SRC.kind], dur=60/sg.bpm/4, la=a.currentTime+.12;
+    while(SRC.next<la){ var s=SRC.step%64; sg.step(a,E.srcIn,s,SRC.next,s%16,Math.floor(s/16),dur); SRC.step++; SRC.next+=dur; } }
+  function startSrc(){ var a=ac(); if(!a) return; build(); stopSrc(true); if(!E.srcIn){ E.srcIn=a.createGain(); E.srcIn.gain.value=.55; E.srcIn.connect(E.src); }
+    if(SRC.kind==='file'){ if(!SRC.fileBuf){ $('file').click(); return; } var b=a.createBufferSource(); b.buffer=SRC.fileBuf; b.loop=true; var fg=a.createGain(); fg.gain.value=1; b.connect(fg); fg.connect(E.src); b.start(); SRC.buf=b; }
+    else { SRC.step=0; SRC.next=a.currentTime+.06; tick(); SRC.timer=setInterval(tick,25); }
+    SRC.on=true; $('play').textContent='■'; $('play').classList.add('on'); }
+  function stopSrc(quiet){ SRC.on=false; clearInterval(SRC.timer); if(SRC.buf){ try{ SRC.buf.stop(); }catch(e){} SRC.buf=null; } if(!quiet){ $('play').textContent='▶'; $('play').classList.remove('on'); } }
+  function setKind(k){ SRC.kind=k; var o=$('src'); o.value=(k==='file'||k==='pop')?k:'game'; if(SRC.on) startSrc(); }
+  $('play').addEventListener('click',function(){ if(SRC.on) stopSrc(); else startSrc(); });
+  $('src').addEventListener('change',function(){ if(this.value==='file'&&!SRC.fileBuf){ $('file').click(); return; } setKind(this.value==='game'?(gSel||'trap'):this.value); });
+  function loadFile(f){ if(!f) return; var a=ac(); if(!a) return; f.arrayBuffer().then(function(ab){ return a.decodeAudioData(ab); }).then(function(b){ SRC.fileBuf=b; SRC.name=f.name; $('drop').innerHTML='✅ <b>'+esc(f.name)+'</b> 불러왔어요! 위 재생 바에서 ▶ · 다 만들면 <b>⏺ 녹음</b>으로 저장<br><small style="font-weight:500">다른 파일로 바꾸려면 다시 눌러요.</small>'; setKind('file'); if(!SRC.on) startSrc(); note(); }).catch(function(){ $('drop').textContent='⚠️ 이 파일은 열 수 없어요. mp3나 wav 파일을 골라 주세요.'; }); }
+  $('file').addEventListener('change',function(){ loadFile(this.files[0]); });
+  var drop=$('drop'); ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.add('over'); }); }); ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.remove('over'); }); });
+  drop.addEventListener('drop',function(e){ loadFile(e.dataTransfer.files[0]); });
+  document.querySelectorAll('[data-ab]').forEach(function(b){ b.addEventListener('click',function(){ ST.ab=+b.dataset.ab; document.querySelectorAll('[data-ab]').forEach(function(x){ x.classList.toggle('on',x===b); }); build(); apply(); }); });
+  $('match').addEventListener('click',function(){ ST.match=!ST.match; this.classList.toggle('on',ST.match); if(!ST.match){ matchG=1; apply(); } });
+  $('dev').addEventListener('change',function(){ ST.dev=this.value; build(); apply(); drawDevs(); note(); });
+
+  /* ═════════ 화면: 스펙트럼·미터·스코프·파형 기록 ═════════ */
+  function screenHTML(withHist){ return '<canvas class="spec"></canvas>'+(withHist?'<canvas class="hist"></canvas>':'')+'<div class="legendrow"><span><i style="background:#8f8ba8"></i>A 원본</span><span><i style="background:#f97316"></i>B 마스터</span>'+(withHist?'<span>· 아래 파형: 위=원본, 아래=마스터</span>':'')+'</div><div class="meters"><div class="mt"><b>음량 LOUDNESS</b><span class="v" data-m="loud">-∞</span> <small>dB</small><div class="bar"><i data-m="loudb"></i></div></div><div class="mt"><b>다이내믹 (작고 큰 차이)</b><span class="v" data-m="dyn">–</span> <small>dB</small><div class="bar"><i data-m="dynb" style="background:linear-gradient(90deg,#ef4444,#fbbf24 40%,#22c55e)"></i></div></div><canvas class="scope" width="260" height="260" aria-label="스테레오 폭 보기"></canvas></div>'; }
+  $('scr1').innerHTML=screenHTML(); $('scr2').innerHTML=screenHTML(true); $('scr3').innerHTML=screenHTML(); $('scr4').innerHTML=screenHTML(true);
+  var FA=new Uint8Array(1024), FB=new Uint8Array(1024), TA=new Float32Array(2048), TB=new Float32Array(2048), TL=new Float32Array(1024), TR=new Float32Array(1024), hist=[], rmsA=0, rmsB=0;
+  function db(x){ return x>0?20*Math.log10(x):-99; }
+  function size(cv){ var r=cv.getBoundingClientRect(), d=Math.min(2,devicePixelRatio||1); if(r.width&&cv.width!==Math.round(r.width*d)){ cv.width=Math.round(r.width*d); cv.height=Math.round(r.height*d); } return d; }
+  function frame(){ var sl=slides[cur], scr=sl&&sl.querySelector('.screen');
+    if(E&&SRC.on){ E.preAn.getFloatTimeDomainData(TA); E.postAn.getFloatTimeDomainData(TB); var sa=0, sb=0, pa=0, pb=0; for(var i=0;i<TA.length;i++){ sa+=TA[i]*TA[i]; sb+=TB[i]*TB[i]; pa=Math.max(pa,Math.abs(TA[i])); pb=Math.max(pb,Math.abs(TB[i])); }
+      var ra=Math.sqrt(sa/TA.length), rb=Math.sqrt(sb/TB.length); rmsA=rmsA*.9+ra*.1; rmsB=rmsB*.9+rb*.1;
+      if(ST.match&&rmsB>1e-4){ var target=Math.min(1,rmsA/rmsB); matchG=matchG*.92+target*.08; if(ST.ab===1) E.mGain.gain.setTargetAtTime(matchG,A.currentTime,.05); }
+      hist.push([pa,pb*(ST.match?matchG:1)]); if(hist.length>240) hist.shift();
+      var showB=ST.ab===1, rms=showB?rmsB*(ST.match?matchG:1):rmsA, pk=showB?pb*(ST.match?matchG:1):pa, L=db(rms);
+      document.querySelectorAll('[data-m="loud"]').forEach(function(e){ e.textContent=L<-60?'-∞':L.toFixed(1); }); document.querySelectorAll('[data-m="loudb"]').forEach(function(e){ e.style.width=Math.max(0,Math.min(100,(L+40)/40*100))+'%'; });
+      var dyn=db(pk)-L; document.querySelectorAll('[data-m="dyn"]').forEach(function(e){ e.textContent=isFinite(dyn)?dyn.toFixed(1):'–'; }); document.querySelectorAll('[data-m="dynb"]').forEach(function(e){ e.style.width=Math.max(0,Math.min(100,dyn/20*100))+'%'; });
+      lastDyn=dyn; lastLoud=L; }
+    if(scr){ var sp=scr.querySelector('.spec'), d=size(sp), c=sp.getContext('2d'), W=sp.width, H=sp.height; c.clearRect(0,0,W,H);
+      if(E&&SRC.on){ E.preAn.getByteFrequencyData(FA); E.postAn.getByteFrequencyData(FB);
+        [[FA,'rgba(143,139,168,.9)',1],[FB,'#f97316',ST.match?matchG:1]].forEach(function(x){ c.beginPath(); for(var j=0;j<=120;j++){ var f=Math.floor(Math.pow(900,j/120))+1, v=x[0][Math.min(1023,f)]/255, xx=j/120*W, yy=H-v*H*.92; if(j) c.lineTo(xx,yy); else c.moveTo(xx,yy); } c.strokeStyle=x[1]; c.lineWidth=2.5*d; c.stroke(); });
+        c.fillStyle='rgba(255,255,255,.45)'; c.font=(10*d)+'px sans-serif'; c.fillText('저음',6*d,14*d); c.fillText('중음',W*.45,14*d); c.fillText('고음',W-30*d,14*d); }
+      else { c.fillStyle='rgba(255,255,255,.55)'; c.font='bold '+(14*d)+'px sans-serif'; c.textAlign='center'; c.fillText('위 재생 바의 ▶ 를 눌러 소리를 틀어요',W/2,H/2); c.textAlign='left'; }
+      var hc=scr.querySelector('.hist'); if(hc){ var d2=size(hc), h=hc.getContext('2d'), W2=hc.width, H2=hc.height; h.clearRect(0,0,W2,H2); h.fillStyle='rgba(255,255,255,.08)'; h.fillRect(0,H2/2-1,W2,2);
+        hist.forEach(function(v,i){ var x=i/240*W2, bw=W2/240+.5, a1=Math.min(1,v[0])*H2*.46, b1=Math.min(1,v[1])*H2*.46; h.fillStyle='#8f8ba8'; h.fillRect(x,H2*.25-a1/2,bw,a1); h.fillStyle='#f97316'; h.fillRect(x,H2*.75-b1/2,bw,b1); }); }
+      var sc=scr.querySelector('.scope'), g=sc.getContext('2d'), S=sc.width; g.fillStyle='rgba(34,31,59,.35)'; g.fillRect(0,0,S,S); g.strokeStyle='rgba(255,255,255,.12)'; g.beginPath(); g.moveTo(S/2,0); g.lineTo(S/2,S); g.moveTo(0,S/2); g.lineTo(S,S/2); g.stroke();
+      if(E&&SRC.on){ E.anL.getFloatTimeDomainData(TL); E.anR.getFloatTimeDomainData(TR); g.fillStyle='rgba(251,191,36,.6)'; var amp=S*.42/Math.max(.05,Math.sqrt(rmsB)*2);
+        for(var k=0;k<TL.length;k+=2){ var side=(TL[k]-TR[k]), midv=(TL[k]+TR[k]); g.fillRect(S/2+side*amp*.7,S/2-midv*amp*.5,2,2); } }
+      g.fillStyle='rgba(255,255,255,.5)'; g.font='bold 18px sans-serif'; g.fillText('폭',8,22); }
+    requestAnimationFrame(frame); }
+  var lastDyn=0, lastLoud=-99;
+
+  /* ═════════ 표지 파형 ═════════ */
+  (function hero(){ var cv=$('hero'), c=cv.getContext&&cv.getContext('2d'); if(!c) return; var t=0;
+    function draw(){ var W=cv.width, H=cv.height; c.clearRect(0,0,W,H); var k=reduce?1:(Math.sin(t/60)+1)/2;
+      for(var x=0;x<W;x+=6){ var n=Math.sin(x*.013)*Math.sin(x*.0021+1)*.9+Math.sin(x*.05)*.1, raw=Math.abs(n)*.45, m=Math.min(.92,Math.tanh(Math.abs(n)*3)*.92), v=raw+(m-raw)*k, h=v*H;
+        c.fillStyle='hsl('+(28-k*10+(x/W)*20)+',95%,'+(62-k*8)+'%)'; c.fillRect(x,H/2-h/2,4,h); }
+      c.fillStyle='rgba(21,19,43,.55)'; c.font='bold 26px sans-serif'; c.fillText(k<.5?'마스터링 전':'마스터링 후',10,30); t++; if(!reduce) requestAnimationFrame(draw); }
+    draw(); })();
+
+  /* ═════════ 2 기기 ═════════ */
+  var DEV=[['none','🎧','스튜디오'],['phone','📱','폰 스피커'],['buds','🎵','이어폰'],['car','🚗','자동차'],['laptop','💻','노트북']];
+  function drawDevs(){ $('devs').innerHTML=DEV.map(function(d){ return '<button type="button" class="dev'+(ST.dev===d[0]?' on':'')+'" data-dv="'+d[0]+'"><span class="e">'+d[1]+'</span>'+d[2]+'</button>'; }).join(''); }
+  $('devs').addEventListener('click',function(e){ var b=e.target.closest('[data-dv]'); if(!b) return; ST.dev=b.dataset.dv; $('dev').value=ST.dev; build(); apply(); drawDevs(); if(!SRC.on) startSrc(); });
+
+  /* ═════════ 3 화면 지도 ═════════ */
+  $('mockPre').innerHTML=PR.map(function(p,i){ return '<button type="button" class="mp'+(i===0?' on':'')+'" data-mk="'+i+'"><span class="e">'+p.e+'</span>'+p.n+(p.mem?'<small>★</small>':'')+'</button>'; }).join('');
+  $('mockPre').addEventListener('click',function(e){ var b=e.target.closest('[data-mk]'); if(!b) return; var p=PR[+b.dataset.mk]; [].forEach.call(this.children,function(x){ x.classList.toggle('on',x===b); });
+    $('mockExp').innerHTML=p.e+' <b>'+p.n+'</b> = “'+p.ko+'” · '+p.d+' <span style="color:var(--faint)">추천: '+esc(p.g)+(p.mem?' · ★ 멤버십':' · 무료')+'</span>'; });
+  if(!reduce){ var mi=0; setInterval(function(){ mi=(mi+1)%3; $('mockI').style.width=['20%','50%','90%'][mi]; },1400); }
+
+  /* ═════════ 4 프리셋 ═════════ */
+  function presetHTML(sel,attr){ return PR.map(function(p){ return '<button type="button" class="pr'+(sel===p.k?' on':'')+'" '+attr+'="'+p.k+'"><span class="e">'+p.e+'</span><b>'+p.n+'</b><small>'+p.ko+'</small>'+(p.mem?'<span class="mem">★ 멤버십</span>':'')+'</button>'; }).join(''); }
+  function drawPresets(){ $('presets').innerHTML=presetHTML(ST.preset,'data-pr'); var p=P(ST.preset); $('pdesc').innerHTML='<b>'+p.e+' '+p.n+' · '+p.ko+'</b><p>'+p.d+'</p><p>BandLab 추천: '+esc(p.g)+'</p>'; }
+  function setPreset(k){ ST.preset=k; build(); apply(); drawPresets(); drawMine(); $('intPre').textContent=P(k).n; note(); }
+  $('presets').addEventListener('click',function(e){ var b=e.target.closest('[data-pr]'); if(!b) return; setPreset(b.dataset.pr); if(!SRC.on) startSrc(); });
+
+  /* ═════════ 5 Intensity ═════════ */
+  function intName(v){ return v<=3?'Light':v<=6?'Normal':'Heavy'; }
+  function setInt(v){ ST.int=v; build(); apply(); $('intR').value=v; $('mineInt').value=v; $('intBig').textContent=intName(v)+' ('+v+')'; $('mineIntBig').textContent=intName(v)+' ('+v+')'; checkM(); note(); }
+  $('intR').addEventListener('input',function(){ setInt(+this.value); }); $('mineInt').addEventListener('input',function(){ setInt(+this.value); });
+  var MI=[['Light → Heavy 끝까지 밀어 보기','아래 파형(마스터)이 소시지처럼 납작해지나요?',function(){ return seenHeavy; }],['다이내믹 6dB 아래로 떨어뜨려 보기','작고 큰 차이가 거의 없어진 상태',function(){ return seenFlat; }],['“크지만 답답하지 않은” 세기 찾기','음량 맞춰 비교를 켜고, 내 귀에 가장 좋은 단계에서 멈춰요',function(){ return ST.match&&seenHeavy&&ST.int<=7; }]];
+  var MEQ=[['저음이 웅웅거려요 → Low 내리기','Low -2 이하',function(){ return ST.ueq[0]<=-2; }],['목소리를 앞으로 → Mid 올리기','Mid +2 이상',function(){ return ST.ueq[1]>=2; }],['반짝이는 공기감 → High 올리기','High +2 이상',function(){ return ST.ueq[2]>=2; }]];
+  var seenHeavy=false, seenFlat=false;
+  function misHTML(t,list){ return '<h4>'+t+'</h4>'+list.map(function(m){ var d=m[2](); return '<div class="mi'+(d?' done':'')+'"><span class="ck">'+(d?'✓':'')+'</span><span>'+m[0]+'<small>'+m[1]+'</small></span></div>'; }).join(''); }
+  function checkM(){ if(ST.int>=10) seenHeavy=true; if(SRC.on&&ST.ab===1&&lastDyn>0&&lastDyn<6) seenFlat=true; $('mInt').innerHTML=misHTML('🎯 MISSION',MI); $('mEq').innerHTML=misHTML('🎯 MISSION',MEQ); }
+  setInterval(checkM,800);
+
+  /* ═════════ 6 EQ ═════════ */
+  var EQN=[['Low','저음','킥·베이스'],['Mid','중음','보컬·기타'],['High','고음','심벌·공기감']];
+  function eqHTML(prefix){ return EQN.map(function(q,i){ return '<div class="eqk"><b>'+q[0]+'</b><span data-eqv="'+i+'">'+(ST.ueq[i]>0?'+':'')+ST.ueq[i]+'</span><input type="range" min="-6" max="6" step="0.5" value="'+ST.ueq[i]+'" data-eq="'+i+'" aria-label="'+q[0]+' '+q[1]+'"><small>'+q[1]+'<br>'+q[2]+'</small></div>'; }).join(''); }
+  function drawEqs(){ $('eqs').innerHTML=eqHTML(); $('mineEq').innerHTML=eqHTML(); }
+  document.addEventListener('input',function(e){ var t=e.target; if(t.dataset&&t.dataset.eq!=null){ var i=+t.dataset.eq; ST.ueq[i]=+t.value; build(); apply(); document.querySelectorAll('[data-eq="'+i+'"]').forEach(function(x){ if(x!==t) x.value=t.value; }); document.querySelectorAll('[data-eqv="'+i+'"]').forEach(function(x){ x.textContent=(ST.ueq[i]>0?'+':'')+ST.ueq[i]; }); checkM(); note(); } });
+
+  /* ═════════ 7 장르 매칭 ═════════ */
+  var GAME=['trap','rnb','rock','acoustic','film','edm'], gSel=null, gRes={};
+  function drawGame(){ $('songs').innerHTML=GAME.map(function(k){ var s=SONGS[k]; return '<button type="button" class="song'+(gSel===k?' on':'')+'" data-sg="'+k+'"><span class="e">'+s.e+'</span>'+s.n+'<small>'+s.bpm+' BPM</small>'+(gRes[k]!=null?'<span class="res">'+(gRes[k]?'✅':'❌')+'</span>':'')+'</button>'; }).join('');
+    $('gamePre').innerHTML=presetHTML(gSel?ST.preset:'','data-gp'); var n=Object.keys(gRes).length, ok=Object.keys(gRes).filter(function(k){ return gRes[k]; }).length; $('gscore').textContent=n?'맞힌 곡 '+ok+' / '+n+' (첫 번째 고른 답 기준)':''; }
+  $('songs').addEventListener('click',function(e){ var b=e.target.closest('[data-sg]'); if(!b) return; gSel=b.dataset.sg; setKind(gSel); setPreset('universal'); ST.ab=1; document.querySelectorAll('[data-ab]').forEach(function(x){ x.classList.toggle('on',x.dataset.ab==='1'); }); if(!SRC.on) startSrc(); drawGame(); $('ans').innerHTML='🎧 <b>'+SONGS[gSel].n+'</b>을(를) 듣고 있어요. 어떤 프리셋이 어울릴까요?'; });
+  $('gamePre').addEventListener('click',function(e){ var b=e.target.closest('[data-gp]'); if(!b||!gSel) return; var k=b.dataset.gp, s=SONGS[gSel], ok=s.ans.indexOf(k)>=0; if(gRes[gSel]==null) gRes[gSel]=ok; setPreset(k);
+    var right=s.ans.map(function(x){ return P(x).e+' '+P(x).n; }).join(' 또는 ');
+    $('ans').innerHTML=(ok?'🎉 정답! ':'🤔 BandLab 추천은 <b>'+right+'</b>예요. ')+P(k).e+' <b>'+P(k).n+'</b>: '+P(k).d+' (추천: '+esc(P(k).g)+')<br><small style="color:var(--sub)">💡 추천은 출발점일 뿐! A/B로 들어 보고 내 귀에 더 좋은 걸 고르는 게 진짜 정답이에요.</small>'; drawGame(); });
+
+  /* ═════════ 8 내 곡 ═════════ */
+  var rates={};
+  function drawMine(){ $('minePre').innerHTML=PR.map(function(p){ return '<button type="button" class="pill'+(ST.preset===p.k?' on':'')+'" data-mp="'+p.k+'">'+p.e+' '+p.n+'</button>'; }).join('');
+    $('rates').innerHTML=DEV.map(function(d){ var r=rates[d[0]]||0; return '<div style="display:flex;align-items:center;gap:10px;padding:4px 0"><span style="width:110px;font-weight:900;font-size:13.5px">'+d[1]+' '+d[2]+'</span><span class="rate">'+[1,2,3,4,5].map(function(n){ return '<button type="button" data-rt="'+d[0]+'" data-v="'+n+'" class="'+(n<=r?'on':'')+'" aria-label="'+d[2]+' '+n+'점">★</button>'; }).join('')+'</span></div>'; }).join(''); }
+  $('minePre').addEventListener('click',function(e){ var b=e.target.closest('[data-mp]'); if(b) setPreset(b.dataset.mp); });
+  $('rates').addEventListener('click',function(e){ var b=e.target.closest('[data-rt]'); if(!b) return; rates[b.dataset.rt]=rates[b.dataset.rt]===+b.dataset.v?0:+b.dataset.v; drawMine(); note(); });
+  function note(){ var el=$('note'); if(!el) return; var p=P(ST.preset);
+    el.textContent=['■ 마스터링 노트'+(SRC.name?' — '+SRC.name:''),'',
+      '[BandLab Mastering 설정]','  Preset    : '+p.e+' '+p.n+' ('+p.ko+')'+(p.mem?' ★멤버십':''),'  Intensity : '+intName(ST.int)+' ('+ST.int+'/10)','  EQ        : Low '+(ST.ueq[0]>0?'+':'')+ST.ueq[0]+' / Mid '+(ST.ueq[1]>0?'+':'')+ST.ueq[1]+' / High '+(ST.ueq[2]>0?'+':'')+ST.ueq[2],'',
+      '[기기별 귀 평가]',DEV.map(function(d){ return '  '+d[2]+' '+('★★★★★'.slice(0,rates[d[0]]||0)||'—'); }).join('\n'),'',
+      '[고른 이유] 이 프리셋은 “'+p.d.replace(/<[^>]+>/g,'')+'” 내 곡에는 ______ 때문에 어울려요.',
+      '※ 이 실습실 소리는 흉내예요. BandLab에서 같은 설정으로 다시 들어 보고 확정해요.'].join('\n'); }
+  $('copy').addEventListener('click',function(){ var t=$('note').textContent, m=$('msg'); function fb(){ var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); m.textContent='복사했어요!'; }catch(e){ m.textContent='Ctrl+C로 복사해요'; } ta.remove(); }
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ m.textContent='복사했어요!'; setTimeout(function(){ m.textContent=''; },2000); },fb); else fb(); });
+
+  /* ═════════ 덱 ═════════ */
+  var slides=[].slice.call(document.querySelectorAll('.slide')), cur=0;
+  slides.forEach(function(sl){ sl.querySelectorAll('.inner > *').forEach(function(el,i){ el.style.setProperty('--i',i); }); });
+  $('dots').innerHTML=slides.map(function(_,i){ return '<i data-g="'+i+'"></i>'; }).join('');
+  function go(n){ n=Math.max(0,Math.min(slides.length-1,n)); cur=n; var lab=slides[n].dataset.lab;
+    slides.forEach(function(s,i){ s.classList.toggle('active',i===n); s.classList.toggle('prev',i<n); s.setAttribute('aria-hidden',i===n?'false':'true'); });
+    document.querySelectorAll('#dots i').forEach(function(d,i){ d.classList.toggle('on',i===n); }); $('prev').disabled=n===0; $('next').disabled=n===slides.length-1; slides[n].scrollTop=0;
+    $('transport').classList.toggle('show',!!lab); if(!lab&&SRC.on) stopSrc();
+    if(lab&&lab!=='game'&&lab!=='mine'&&GAME.indexOf(SRC.kind)>=0) setKind('pop');
+    if(lab==='mine'&&SRC.fileBuf) setKind('file'); }
+  $('prev').addEventListener('click',function(){ go(cur-1); }); $('next').addEventListener('click',function(){ go(cur+1); });
+  $('dots').addEventListener('click',function(e){ var d=e.target.closest('[data-g]'); if(d) go(+d.dataset.g); });
+  document.addEventListener('keydown',function(e){ if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return; if(e.key==='ArrowRight'||e.key==='PageDown'){ e.preventDefault(); go(cur+1); } if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(cur-1); } if(e.key===' '&&slides[cur].dataset.lab){ e.preventDefault(); $('play').click(); } if((e.key==='a'||e.key==='b')&&slides[cur].dataset.lab){ document.querySelector('[data-ab="'+(e.key==='a'?0:1)+'"]').click(); } });
+  var sx=null, sy=null; document.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
+  document.addEventListener('touchend',function(e){ if(sx===null) return; if(e.target.closest('input,.drop')){ sx=null; return; } var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) go(cur+(dx<0?1:-1)); sx=null; });
+
+  drawDevs(); drawPresets(); drawEqs(); drawGame(); drawMine(); setInt(5); $('intPre').textContent=P(ST.preset).n; note(); go(0); requestAnimationFrame(frame);
+  function REC_TAP(){ return E.bus; }
+  function REC_NAME(){ var b=SRC.kind==='file'?(SRC.name||'내곡').replace(/\.[^.]+$/,''):(SONGS[SRC.kind]?SONGS[SRC.kind].n||'데모':'데모'); return (ST.ab?'마스터_':'원본_')+b+'_'+recStamp()+'.wav'; }
+  /* ═════════ 내 버전 저장 (지금 들리는 소리를 녹음 → WAV 파일) ═════════ */
+  var REC={on:false,tail:false,L:[],R:[],n:0,sp:null,mute:null,ui:null,auto:null,blob:null,dur:0,name:''}, REC_MAX=600;
+  function recFmt(s){ s=Math.floor(s); return Math.floor(s/60)+':'+('0'+s%60).slice(-2); }
+  function recUI(){ var b=$('rec'), x=$('recx');
+    if(REC.on){ b.className='tb rec on'; b.textContent='⏹ '+recFmt(REC.n/A.sampleRate); x.hidden=true; if(!SRC.on&&!REC.tail) recStop(); }
+    else if(REC.blob){ b.className='tb rec done'; b.textContent='💾 저장 '+recFmt(REC.dur); x.hidden=false; }
+    else { b.className='tb rec'; b.textContent='⏺ 녹음'; x.hidden=true; } }
+  function recMsg(t){ var b=$('rec'); b.textContent=t; setTimeout(recUI,2600); }
+  function recStart(){ var a=ac(); if(!a) return; build();
+    if(!a.createScriptProcessor){ recMsg('이 브라우저는 녹음이 안 돼요'); return; }
+    if(SRC.kind==='file'&&!SRC.fileBuf){ recMsg('먼저 📁 파일을 불러와요'); $('file').click(); return; }
+    REC.L=[]; REC.R=[]; REC.n=0; REC.blob=null; REC.tail=false;
+    var sp=a.createScriptProcessor(4096,2,2), mute=a.createGain(); mute.gain.value=0;
+    sp.onaudioprocess=function(e){ if(!REC.on) return; var i=e.inputBuffer;
+      REC.L.push(new Float32Array(i.getChannelData(0))); REC.R.push(new Float32Array(i.getChannelData(i.numberOfChannels>1?1:0))); REC.n+=i.length;
+      if(REC.n>a.sampleRate*REC_MAX) setTimeout(recStop,0); };
+    REC_TAP().connect(sp); sp.connect(mute); mute.connect(a.destination); REC.sp=sp; REC.mute=mute; REC.on=true;
+    // 파일은 처음부터 한 바퀴 녹음하고 울림 꼬리까지 담은 뒤 저절로 멈춰요
+    if(SRC.kind==='file'){ startSrc(); var rate=(SRC.buf&&SRC.buf.playbackRate.value)||1;
+      REC.auto=setTimeout(function(){ REC.tail=true; stopSrc(); REC.auto=setTimeout(recStop,1800); },SRC.fileBuf.duration/rate*1000); }
+    else if(!SRC.on) startSrc();
+    REC.name=REC_NAME(); REC.ui=setInterval(recUI,250); recUI(); }
+  function recStop(){ if(!REC.on) return; REC.on=false; clearInterval(REC.ui); clearTimeout(REC.auto);
+    try{ REC_TAP().disconnect(REC.sp); }catch(e){} REC.sp.disconnect(); REC.mute.disconnect();
+    if(REC.n<A.sampleRate*.5){ REC.blob=null; recUI(); return; }
+    REC.dur=REC.n/A.sampleRate; REC.blob=recWav(REC.L,REC.R,REC.n,A.sampleRate); REC.L=[]; REC.R=[]; recUI(); }
+  function recWav(L,R,n,sr){ var buf=new ArrayBuffer(44+n*4), v=new DataView(buf), p=0;
+    function s(t){ for(var i=0;i<t.length;i++) v.setUint8(p++,t.charCodeAt(i)); } function u32(x){ v.setUint32(p,x,true); p+=4; } function u16(x){ v.setUint16(p,x,true); p+=2; }
+    function smp(x){ x=x>1?1:x<-1?-1:x; v.setInt16(p,x<0?x*32768:x*32767,true); p+=2; }
+    s('RIFF'); u32(36+n*4); s('WAVE'); s('fmt '); u32(16); u16(1); u16(2); u32(sr); u32(sr*4); u16(4); u16(16); s('data'); u32(n*4);
+    for(var c=0;c<L.length;c++){ var l=L[c], r=R[c]; for(var i=0;i<l.length;i++){ smp(l[i]); smp(r[i]); } }
+    return new Blob([buf],{type:'audio/wav'}); }
+  function recSave(){ if(!REC.blob) return; var fn=REC.name, file=null;
+    try{ file=new File([REC.blob],fn,{type:'audio/wav'}); }catch(e){}
+    var ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    if(ios&&file&&navigator.canShare&&navigator.canShare({files:[file]})){ navigator.share({files:[file]}).catch(function(){}); return; }
+    var u=URL.createObjectURL(REC.blob), l=document.createElement('a'); l.href=u; l.download=fn; document.body.appendChild(l); l.click(); l.remove(); setTimeout(function(){ URL.revokeObjectURL(u); },60000); }
+  function recStamp(){ var d=new Date(); return ('0'+d.getHours()).slice(-2)+('0'+d.getMinutes()).slice(-2); }
+  $('rec').addEventListener('click',function(){ if(REC.on) recStop(); else if(REC.blob) recSave(); else recStart(); });
+  $('recx').addEventListener('click',function(){ REC.blob=null; recUI(); });
+})();
+</script>
+</body>
+</html>
