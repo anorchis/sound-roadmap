@@ -259,6 +259,57 @@ input[type=range]{ width:100%; accent-color:var(--tempo); height:28px; }
   .dexgrid{ max-height:none; }
   .qo{ grid-template-columns:1fr; }
 }
+/* 연표 */
+.tlwrap{ width:100%; max-width:1180px; overflow-x:auto; border-radius:20px; background:var(--panel); padding:6px; }
+.tlwrap svg{ display:block; min-width:940px; width:100%; height:auto; }
+.tl-dot{ cursor:pointer; } .tl-dot circle{ transition:r .15s; } .tl-dot:hover circle, .tl-dot.on circle{ r:19; }
+.tl-link{ fill:none; stroke-width:2; opacity:.16; transition:opacity .2s; } .tl-link.on{ opacity:.95; stroke-width:3; }
+.legend{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; font-size:12.5px; font-weight:900; }
+.legend span{ display:inline-flex; align-items:center; gap:4px; } .legend i{ width:10px; height:10px; border-radius:50%; }
+/* 이야기책: 한 줄 요약 + 4컷 */
+.st-when{ display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+.st-when span{ font-size:13px; font-weight:900; color:var(--fc); background:color-mix(in srgb,var(--fc) 9%,#fff); border-radius:99px; padding:3px 10px; }
+.st-hook{ display:grid; grid-template-columns:40px 1fr; gap:10px; align-items:center; background:#fff7ed; border:2px dashed #fdba74; border-radius:18px; padding:10px 14px; }
+.st-hook .q{ font-size:28px; text-align:center; }
+.st-hook p{ font-family:var(--display); font-size:clamp(18px,1.9vw,23px); line-height:1.35; color:var(--ink); }
+.st-hook small{ display:block; font-family:var(--body); font-size:12px; font-weight:900; color:#c2410c; letter-spacing:.5px; margin-bottom:2px; }
+.st-strip{ display:grid; grid-template-columns:1fr 18px 1fr 18px 1fr 18px 1fr; gap:4px; align-items:stretch; }
+.st-arr{ display:grid; place-items:center; color:var(--fc); font-weight:900; font-size:16px; }
+.st-cut{ background:var(--panel); border-radius:16px; padding:10px 12px; display:flex; flex-direction:column; gap:6px; border-top:4px solid var(--fc); }
+.st-h{ display:flex; align-items:center; gap:6px; }
+.st-h .n{ width:22px; height:22px; border-radius:50%; background:var(--fc); color:#fff; font-size:12px; font-weight:900; display:grid; place-items:center; flex-shrink:0; }
+.st-h .e{ font-size:18px; } .st-h b{ font-size:13.5px; font-weight:900; color:var(--fc); }
+.st-cut p{ font-size:13.5px; line-height:1.6; color:var(--sub); }
+.st-cut .ld{ display:block; font-size:15px; font-weight:800; line-height:1.5; color:var(--ink); margin-bottom:3px; }
+.st-foot{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:10px; align-items:center; }
+.st-name{ border:2px dashed var(--line); border-radius:14px; padding:8px 12px; font-size:13.5px; line-height:1.5; color:var(--sub); }
+.st-name b{ display:block; font-size:12.5px; color:var(--fc); }
+@media (max-width:1100px){ .st-strip{ grid-template-columns:1fr 1fr; } .st-arr{ display:none; } .st-foot{ grid-template-columns:1fr; } }
+@media (max-width:600px){ .st-strip{ grid-template-columns:1fr; } }
+/* 이야기책 */
+.book{ width:100%; max-width:1180px; display:grid; grid-template-columns:270px 1fr; gap:14px; align-items:start; }
+.glist{ display:flex; flex-direction:column; gap:6px; max-height:66vh; overflow:auto; padding-right:4px; }
+.glist h4{ font-size:12px; font-weight:900; color:var(--fc); margin-top:4px; }
+.glist .grp{ display:flex; flex-wrap:wrap; gap:5px; }
+.gchip{ border:1.5px solid var(--line); background:#fff; border-radius:99px; padding:4px 10px; font-size:13px; font-weight:700; }
+.gchip[aria-pressed="true"]{ background:var(--fc); border-color:var(--fc); color:#fff; }
+.story{ background:#fff; border:2px solid var(--fc); border-radius:26px; padding:16px 20px; display:flex; flex-direction:column; gap:10px; box-shadow:0 14px 40px rgba(21,19,43,.08); }
+.story .top{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.story .big{ font-size:60px; line-height:1; }
+.story h3{ font-family:var(--display); font-weight:400; font-size:36px; line-height:1.1; } .story h3 small{ display:block; font-family:'Consolas','D2Coding',monospace; font-size:14px; color:var(--faint); }
+.story .meta{ font-size:13.5px; font-weight:900; color:var(--fc); }
+.chain{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12.5px; font-weight:900; color:var(--faint); }
+.chain button, .chain span.t{ border:1.5px solid var(--line); background:#fff; border-radius:99px; padding:3px 9px; font-size:12.5px; font-weight:700; color:var(--ink); }
+.chain button{ border-color:var(--cc); color:var(--cc); }
+.chain .me{ background:var(--fc); color:#fff; border-radius:99px; padding:3px 10px; }
+.panels{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.pn{ border-radius:16px; background:var(--panel); padding:10px 12px; position:relative; }
+.pn b{ display:block; font-size:13px; font-weight:900; color:var(--fc); margin-bottom:3px; }
+.pn p{ font-size:14px; line-height:1.6; }
+.pn.lock p{ filter:blur(5px); user-select:none; } .pn.lock::after{ content:'다음 장면을 눌러요 ▶'; position:absolute; inset:0; display:grid; place-items:center; font-size:13px; font-weight:900; color:var(--sub); }
+.pn.wide{ grid-column:1 / -1; }
+.pn.wow{ background:#fff7ed; } .pn.wow b{ color:#b45309; }
+:root{ --rt:#b45309; }
 </style>
 </head>
 <body>
@@ -274,6 +325,17 @@ input[type=range]{ width:100%; accent-color:var(--tempo); height:28px; }
       <h1>장르 <span class="c-po">캐릭터 도감</span></h1>
       <p class="sub">로파이 힙합, 얼터너티브 R&B, 아마피아노…<br>낯선 장르 이름을 <b>성격 있는 캐릭터</b>로 만나요. 버튼 하나면 소리도 들려줘요.</p>
       <p class="cart-hint">🔊 소리가 나와요. 처음엔 버튼을 눌러야 들려요.</p>
+    </div>
+  </section>
+
+  <!-- 3 족보 연표 -->
+  <section class="slide">
+    <div class="inner">
+      <span class="tag" style="color:var(--el)">STEP 1 · 130년 장르 족보</span>
+      <h2>장르는 <span style="color:var(--el)">부모와 자식</span>이 있어요</h2>
+      <div class="legend" id="legend"></div>
+      <div class="tlwrap"><svg id="tl" viewBox="0 0 1100 540" role="img" aria-label="장르 족보 연표"></svg></div>
+      <div class="detail" id="tl-out">동그라미를 누르면 부모·자식 장르가 이어져 보여요.</div>
     </div>
   </section>
 
@@ -328,17 +390,14 @@ input[type=range]{ width:100%; accent-color:var(--tempo); height:28px; }
     </div>
   </section>
 
-  <!-- 5 도감 -->
+  <!-- 4 이야기책 -->
   <section class="slide">
     <div class="inner">
-      <span class="tag c-po">STEP 2 · 장르 도감</span>
-      <h2>캐릭터를 골라 <span class="c-po">들어 보고 찜하기</span></h2>
-      <div class="dex">
-        <div class="dexlist">
-          <div class="chips" id="dex-fam"></div>
-          <div class="dexgrid" id="dexgrid"></div>
-        </div>
-        <div class="card" id="card"></div>
+      <span class="tag" style="color:var(--rb)">STEP 2 · 장르 탄생 이야기책</span>
+      <h2>한 장르씩 <span style="color:var(--rb)">이야기로</span> 만나요</h2>
+      <div class="book">
+        <div class="glist" id="glist"></div>
+        <div class="story" id="story"></div>
       </div>
     </div>
   </section>
@@ -490,29 +549,6 @@ input[type=range]{ width:100%; accent-color:var(--tempo); height:28px; }
     if(playing) playing.key=k; btn.textContent='■ 멈추기'; $(x[2]).classList.add('on'); }); });
   Object.keys(AB).forEach(function(k){ eqAnim(AB[k][1],false); });
 
-  /* ═════════ 5 도감 ═════════ */
-  $('dex-fam').innerHTML='<button type="button" class="chip" data-df="" style="--cc:var(--ink)" aria-pressed="true">전체</button>'+Object.keys(FAM).map(function(k){ return '<button type="button" class="chip" data-df="'+k+'" style="--cc:'+FAM[k].color+'" aria-pressed="false">'+FAM[k].ic+'</button>'; }).join('');
-  $('dex-fam').addEventListener('click',function(e){ var b=e.target.closest('[data-df]'); if(!b) return; S.fam=b.dataset.df; save(); drawDex(); });
-  $('dexgrid').addEventListener('click',function(e){ var b=e.target.closest('[data-g]'); if(!b) return; stopAll(); S.cur=b.dataset.g; save(); drawDex(true); });
-  function bar(lbl,v,max,txt,col){ return '<div class="stat"><span>'+lbl+'</span><span class="tr"><span class="fl" style="width:'+(v/max*100)+'%;background:'+(col||'var(--fc)')+'"></span></span><span>'+txt+'</span></div>'; }
-  function drawDex(anim){
-    [].forEach.call($('dex-fam').children,function(b){ b.setAttribute('aria-pressed',b.dataset.df===S.fam?'true':'false'); });
-    $('dexgrid').innerHTML=G.filter(function(g){ return !S.fam||g.fam===S.fam; }).map(function(g){ return '<button type="button" class="dbtn" data-g="'+g.id+'" style="--fc:'+FAM[g.fam].color+'" aria-current="'+(g.id===S.cur)+'"><b>'+(S.star.indexOf(g.id)>=0?'<span class="star">★</span> ':'')+esc(g.ko)+'</b><small>No.'+(G.indexOf(g)+1)+' · '+esc(g.en)+'</small></button>'; }).join('');
-    var g=gById(S.cur)||G[0], f=FAM[g.fam], starred=S.star.indexOf(g.id)>=0, mid=Math.round((g.bpm[0]+g.bpm[1])/2);
-    $('card').style.setProperty('--fc',f.color);
-    $('card').innerHTML='<div class="card-in"><div class="card-top"><div class="card-name">'+esc(g.ko)+'<small>No.'+(G.indexOf(g)+1)+' · '+esc(g.en)+'</small></div><span class="famtag">'+f.ic+' '+f.name+'</span></div>'+
-      '<div class="persona">🗣 "'+esc(g.persona)+'"</div>'+
-      '<div class="facts"><div class="fact"><small>고향 · 태어난 때</small>'+esc(g.home)+'</div><div class="fact"><small>필살기 (대표 소리)</small>'+esc(g.move)+'</div></div>'+
-      '<div class="stats">'+bar('빠르기',mid-50,150,g.bpm[0]+'~'+g.bpm[1])+bar('어두움',g.dark,5,'★'.repeat(g.dark),'#475569')+bar('에너지',g.energy,5,'★'.repeat(g.energy),'#f59e0b')+'</div>'+
-      '<div class="kits">Suno 태그 <code>'+esc(g.suno)+'</code>'+(g.kits.length?' · 밴드랩 키트 친구 '+g.kits.map(function(k){return '<code>'+esc(k)+'</code>';}).join(' '):'')+'</div>'+
-      '<div class="cardbtns"><button type="button" class="btn" id="card-play" style="background:'+f.color+'">▶ 들어 보기</button><button type="button" class="starbtn" id="card-star" aria-pressed="'+starred+'">'+(starred?'★ 찜했어요':'☆ 찜하기')+'</button><div class="eqbars" id="eq-card" style="--ac:'+f.color+'"></div></div></div>';
-    eqAnim('eq-card',false);
-    $('card-play').addEventListener('click',function(){ var btn=this; if(playing&&playing.key==='card'){ stopAll(); return; }
-      play(g.p,{onStep:function(i){ if(i%2===0) eqAnim('eq-card',true); },onStop:function(){ btn.textContent='▶ 들어 보기'; eqAnim('eq-card',false); }}); if(playing) playing.key='card'; btn.textContent='■ 멈추기'; });
-    $('card-star').addEventListener('click',function(){ var i=S.star.indexOf(g.id); if(i>=0) S.star.splice(i,1); else S.star.push(g.id); save(); drawDex(); refreshStar(); if(motion&&i<0) gsap.fromTo('#cart',{scale:1.25,rotation:-8},{scale:1,rotation:0,duration:.5,ease:'back.out(3)'}); });
-    if(motion&&anim) gsap.fromTo('#card .card-in > *',{y:12,opacity:0},{y:0,opacity:1,duration:.35,stagger:.05,ease:'power2.out'});
-  }
-
   /* ═════════ 6 배틀 ═════════ */
   var curPair=0;
   $('pairs').innerHTML=PAIRS.map(function(p,i){ return '<button type="button" class="chip" data-pair="'+i+'" style="--cc:var(--ro)" aria-pressed="false">'+esc(gById(p[0]).ko)+' vs '+esc(gById(p[1]).ko)+'</button>'; }).join('');
@@ -532,17 +568,455 @@ input[type=range]{ width:100%; accent-color:var(--tempo); height:28px; }
   /* ═════════ 이동 ═════════ */
   var slides=[].slice.call(document.querySelectorAll('.slide')), cur=0;
   function animIn(sl){ if(!motion) return; var it=sl.querySelectorAll('[data-in]'); if(it.length) gsap.fromTo(it,{y:16,opacity:0},{y:0,opacity:1,duration:.45,stagger:.06,ease:'power2.out'}); }
-  function go(n){ n=Math.max(0,Math.min(slides.length-1,n)); if(n!==cur) stopAll(); cur=n;
+  function go(n){ n=Math.max(0,Math.min(slides.length-1,n)); if(n!==cur){ stopAll(); if(window.__storyStop) window.__storyStop(); } cur=n;
     slides.forEach(function(s,i){ s.classList.toggle('active',i===n); s.classList.toggle('prev',i<n); s.setAttribute('aria-hidden',i===n?'false':'true'); });
     $('num').textContent=(n+1)+' / '+slides.length; $('prev').disabled=n===0; $('next').disabled=n===slides.length-1; slides[n].scrollTop=0; animIn(slides[n]);
-    if(n===3) drawDex(true); if(n===4) drawBattle(true); }
+    if(n===5) drawBattle(true); if(n===1&&motion) gsap.fromTo('.tl-dot',{opacity:0},{opacity:1,duration:.3,stagger:.03}); }
+  window.__goSlide=go;
   $('prev').addEventListener('click',function(){go(cur-1);}); $('next').addEventListener('click',function(){go(cur+1);});
   document.addEventListener('keydown',function(e){ if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return; if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();go(cur+1);} else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1);} });
   var sx=null,sy=null;
   document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
   document.addEventListener('touchend',function(e){ if(sx===null) return; var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) go(cur+(dx<0?1:-1)); sx=null; });
 
-  drawDex(); drawBattle(); go(0);
+  drawBattle(); go(0);
+})();
+</script>
+<script>
+/* ═════════ 소리 엔진: 파일 없이 합성 (드럼 + 악기 흉내) ═════════ */
+var SND=(function(){
+  var AC=null, NB=null, cur=null;
+  function ac(){ if(!AC){ var C=window.AudioContext||window.webkitAudioContext; if(C) AC=new C(); } if(AC&&AC.state==='suspended') AC.resume(); return AC; }
+  function nb(a){ if(!NB){ NB=a.createBuffer(1,a.sampleRate*.8,a.sampleRate); var d=NB.getChannelData(0); for(var i=0;i<d.length;i++) d[i]=Math.random()*2-1; } return NB; }
+  function midi(n){ return 440*Math.pow(2,(n-69)/12); }
+  function g0(a,dest,t,v,att,dec,sus,rel,dur){ var g=a.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(Math.max(v,.0002),t+att);
+    if(sus==null){ g.gain.exponentialRampToValueAtTime(.0001,t+att+dec); } else { g.gain.exponentialRampToValueAtTime(Math.max(v*sus,.0002),t+att+dec); g.gain.setValueAtTime(Math.max(v*sus,.0002),t+Math.max(att+dec,dur)); g.gain.exponentialRampToValueAtTime(.0001,t+Math.max(att+dec,dur)+rel); }
+    g.connect(dest); return g; }
+  function osc(a,type,f,t,end,dest,det){ var o=a.createOscillator(); o.type=type; o.frequency.setValueAtTime(f,t); if(det) o.detune.value=det; o.connect(dest); o.start(t); o.stop(end); return o; }
+  function vib(a,o,t,end,rate,depth){ var l=a.createOscillator(), lg=a.createGain(); l.frequency.value=rate; lg.gain.value=depth; l.connect(lg).connect(o.frequency); l.start(t); l.stop(end); }
+  function lp(a,dest,f,q){ var x=a.createBiquadFilter(); x.type='lowpass'; x.frequency.value=f; if(q) x.Q.value=q; x.connect(dest); return x; }
+  function noiseSrc(a,t,len,dest){ var s=a.createBufferSource(); s.buffer=nb(a); s.loop=true; s.connect(dest); s.start(t); s.stop(t+len); return s; }
+  function ks(a,f,dur,damp,bright){ var sr=a.sampleRate, N=Math.max(2,Math.round(sr/f)), L=Math.floor(sr*dur), b=a.createBuffer(1,L,sr), y=b.getChannelData(0);
+    for(var i=0;i<N&&i<L;i++) y[i]=(Math.random()*2-1)*(bright||1); for(i=N;i<L;i++) y[i]=(y[i-N]+y[i-N+1])*.5*damp; return b; }
+  function shaper(a,amt){ var w=a.createWaveShaper(), c=new Float32Array(512); for(var i=0;i<512;i++){ var x=i/256-1; c[i]=Math.tanh(x*amt); } w.curve=c; return w; }
+
+  /* 드럼 */
+  var D={
+    kick:function(a,bus,t,v){ var g=g0(a,bus,t,.9*(v||1),.003,.3); var o=osc(a,'sine',140,t,t+.35,g); o.frequency.exponentialRampToValueAtTime(42,t+.12); },
+    snare:function(a,bus,t,v){ var bp=a.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1800; bp.connect(g0(a,bus,t,.45*(v||1),.002,.18)); noiseSrc(a,t,.2,bp); },
+    clap:function(a,bus,t,v){ [0,.012,.024].forEach(function(d){ var bp=a.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1400; bp.connect(g0(a,bus,t+d,.32*(v||1),.002,.12)); noiseSrc(a,t+d,.14,bp); }); },
+    hat:function(a,bus,t,v){ var hp=a.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=8000; hp.connect(g0(a,bus,t,.2*(v||1),.001,.045)); noiseSrc(a,t,.06,hp); },
+    cow:function(a,bus,t,v,pm){ pm=pm||1; var g=g0(a,bus,t,.2*(v||1),.002,.28); var x=a.createBiquadFilter(); x.type='bandpass'; x.frequency.value=800*pm; x.Q.value=2; x.connect(g); osc(a,'square',540*pm,t,t+.3,x); osc(a,'square',800*pm,t,t+.3,x); },
+    click:function(a,bus,t,v){ var g=g0(a,bus,t,.35,.001,.05); osc(a,'square',v>1?1600:1100,t,t+.06,lp(a,g,3000)); }
+  };
+  /* 악기 [이름: 함수(a,bus,t,f,dur,v)] */
+  var I={
+    piano:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.32*v,.004,1.4); var x=lp(a,g,Math.min(6000,f*8)); osc(a,'triangle',f,t,t+1.6,x); var g2=a.createGain(); g2.gain.value=.25; g2.connect(x); osc(a,'sine',f*2,t,t+1.6,g2); },
+    epiano:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.3*v,.006,1.6); var tr=a.createGain(); tr.connect(g); osc(a,'sine',f,t,t+1.8,tr); var b=a.createGain(); b.gain.setValueAtTime(.18,t); b.gain.exponentialRampToValueAtTime(.001,t+.4); b.connect(g); osc(a,'sine',f*7,t,t+.5,b); var l=a.createOscillator(), lg=a.createGain(); l.frequency.value=5; lg.gain.value=.25; l.connect(lg).connect(tr.gain); l.start(t); l.stop(t+1.8); },
+    organ:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.13*v,.02,.05,.9,.08,d); [1,2,3,4].forEach(function(h,i){ var m=a.createGain(); m.gain.value=[1,.6,.4,.25][i]; m.connect(g); osc(a,'sine',f*h,t,t+d+.2,m); }); },
+    aguitar:function(a,bus,t,f,d,v){ var s=a.createBufferSource(); s.buffer=ks(a,f,2,.996,1); var x=lp(a,g0(a,bus,t,.5*v,.002,2),3500); s.connect(x); s.start(t); },
+    eguitar:function(a,bus,t,f,d,v){ var s=a.createBufferSource(); s.buffer=ks(a,f,1.6,.995,.8); var x=lp(a,g0(a,bus,t,.45*v,.002,1.6),2400); s.connect(x); s.start(t); },
+    dguitar:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.12*v,.005,.1,.8,.1,d); var x=lp(a,g,2200); var sh=shaper(a,8); sh.connect(x); osc(a,'sawtooth',f,t,t+d+.2,sh); osc(a,'sawtooth',f*1.5,t,t+d+.2,sh,8); },
+    gayageum:function(a,bus,t,f,d,v){ var s=a.createBufferSource(); s.buffer=ks(a,f,2.2,.993,1); var g=g0(a,bus,t,.55*v,.002,2.2); var x=lp(a,g,2800); s.connect(x); s.start(t); s.playbackRate.setValueAtTime(1,t+.25); s.playbackRate.linearRampToValueAtTime(1.03,t+.45); s.playbackRate.linearRampToValueAtTime(1,t+.7); },
+    bass:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.5*v,.004,.15,.6,.08,d); osc(a,'triangle',f,t,t+d+.15,lp(a,g,900)); },
+    b808:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.75*v,.005,.2,.7,.25,d); var o=osc(a,'sine',f*1.6,t,t+d+.4,g); o.frequency.exponentialRampToValueAtTime(f,t+.06); },
+    sbass:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.28*v,.004,.2,.5,.08,d); var x=a.createBiquadFilter(); x.type='lowpass'; x.Q.value=6; x.frequency.setValueAtTime(2200,t); x.frequency.exponentialRampToValueAtTime(300,t+.25); x.connect(g); osc(a,'sawtooth',f,t,t+d+.15,x); },
+    pad:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.07*v,.4,.3,.8,.6,d); var x=lp(a,g,1400); osc(a,'sawtooth',f,t,t+d+1,x,-9); osc(a,'sawtooth',f,t,t+d+1,x,9); },
+    lead:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.1*v,.01,.1,.8,.08,d); var o=osc(a,'square',f,t,t+d+.15,lp(a,g,3000)); vib(a,o,t+.15,t+d+.15,6,f*.012); },
+    strings:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.09*v,.18,.2,.85,.3,d); var x=lp(a,g,Math.min(3200,f*6)); [-7,0,7].forEach(function(dt){ var o=osc(a,'sawtooth',f,t,t+d+.5,x,dt); vib(a,o,t,t+d+.5,5.5,f*.006); }); },
+    cello:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.14*v,.12,.2,.85,.3,d); var x=lp(a,g,1600); var o=osc(a,'sawtooth',f,t,t+d+.5,x); vib(a,o,t+.1,t+d+.5,5,f*.008); },
+    pizz:function(a,bus,t,f,d,v){ var s=a.createBufferSource(); s.buffer=ks(a,f,.6,.985,.7); s.connect(lp(a,g0(a,bus,t,.5*v,.002,.5),1800)); s.start(t); },
+    trumpet:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.13*v,.04,.1,.85,.1,d); var x=a.createBiquadFilter(); x.type='lowpass'; x.frequency.setValueAtTime(500,t); x.frequency.linearRampToValueAtTime(3500,t+.08); x.connect(g); var o=osc(a,'sawtooth',f,t,t+d+.2,x); vib(a,o,t+.2,t+d+.2,5,f*.006); },
+    sax:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.14*v,.05,.1,.85,.12,d); var bp=a.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=f*2.5; bp.Q.value=1.2; bp.connect(g); var o=osc(a,'sawtooth',f,t,t+d+.2,bp); vib(a,o,t+.2,t+d+.2,5,f*.01); var n=a.createGain(); n.gain.value=.04; n.connect(bp); noiseSrc(a,t,d+.2,n); },
+    flute:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.22*v,.06,.1,.85,.12,d); var o=osc(a,'sine',f,t,t+d+.2,g); vib(a,o,t+.2,t+d+.2,5,f*.008); var hp=a.createBiquadFilter(); hp.type='bandpass'; hp.frequency.value=f*2; var n=a.createGain(); n.gain.value=.05; hp.connect(n).connect(g); noiseSrc(a,t,d+.2,hp); },
+    daegeum:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.22*v,.12,.1,.85,.2,d); var o=osc(a,'sine',f,t,t+d+.3,g); o.frequency.setValueAtTime(f*.97,t); o.frequency.linearRampToValueAtTime(f,t+.15); vib(a,o,t+.3,t+d+.3,4.5,f*.018); var bp=a.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=f*1.5; var n=a.createGain(); n.gain.value=.14; bp.connect(n).connect(g); noiseSrc(a,t,d+.3,bp); },
+    haegeum:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.11*v,.08,.1,.85,.2,d); var bp=a.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=f*3; bp.Q.value=2; bp.connect(g); var o=osc(a,'sawtooth',f*.95,t,t+d+.3,bp); o.frequency.linearRampToValueAtTime(f,t+.12); vib(a,o,t+.15,t+d+.3,6,f*.022); },
+    marimba:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.4*v,.002,.6); osc(a,'sine',f,t,t+.7,g); var g2=g0(a,bus,t,.12*v,.001,.08); osc(a,'sine',f*4,t,t+.1,g2); },
+    glock:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.18*v,.001,1.2); osc(a,'sine',f*2,t,t+1.3,g); var g2=g0(a,bus,t,.06*v,.001,.3); osc(a,'sine',f*2*2.76,t,t+.4,g2); },
+    kalimba:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.3*v,.001,.9); osc(a,'sine',f,t,t+1,g); var g2=g0(a,bus,t,.1*v,.001,.12); osc(a,'sine',f*5.4,t,t+.15,g2); },
+    choir:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.12*v,.25,.2,.85,.4,d); var x=lp(a,g,900,3); [-6,0,6].forEach(function(dt){ var o=osc(a,'triangle',f,t,t+d+.6,x,dt); vib(a,o,t+.2,t+d+.6,5,f*.01); }); },
+    drums:function(a,bus,t,f,d,v){ D.kick(a,bus,t); D.hat(a,bus,t+.25); D.snare(a,bus,t+.5); D.hat(a,bus,t+.75); }
+  };
+  function bus(a,vol){ var b=a.createGain(); b.gain.value=vol==null?.8:vol; b.connect(a.destination); return b; }
+  function stop(){ if(cur){ clearInterval(cur.id); (cur.timers||[]).forEach(clearTimeout); try{ cur.bus.gain.setTargetAtTime(0,AC.currentTime,.04); }catch(e){} var cb=cur.onStop; cur=null; if(cb) cb(); } }
+  /* 반복 재생: step(i, t, dur, bus) 를 16분음표마다 호출 */
+  function loop(bpm,step,opt){ stop(); var a=ac(); if(!a) return null; opt=opt||{}; var b=bus(a,opt.vol); var i=0, dur=60/bpm/4;
+    var tick=function(){ step(i,a.currentTime+.03,dur,b,a); i++; };
+    tick(); cur={id:setInterval(tick,dur*1000),bus:b,onStop:opt.onStop,key:opt.key}; return cur; }
+  /* 음표 목록 한 번 재생: notes=[[midi|null, 박자수], ...] */
+  function seq(inst,notes,bpm,opt){ stop(); var a=ac(); if(!a) return null; opt=opt||{}; var b=bus(a,opt.vol); var t=a.currentTime+.05, beat=60/bpm, timers=[];
+    notes.forEach(function(n){ var len=n[1]*beat; if(n[0]!=null){ var f=midi(n[0]); var play=opt.art==='stacc'?len*.3:len*.92;
+        if(opt.art==='trem'){ for(var k=0;k<len;k+=.06) I[inst](a,b,t+k,f,.06,.7); } else I[inst](a,b,t,f,play,1); }
+      t+=len; });
+    if(opt.click){ for(var c=a.currentTime+.05, n=0; c<t; c+=beat, n++) D.click(a,b,c,n%4===0?2:1); }
+    var total=(t-a.currentTime)*1000; timers.push(setTimeout(function(){ if(cur&&cur.timers===timers) stop(); },total+300));
+    cur={id:null,bus:b,timers:timers,onStop:opt.onStop,key:opt.key}; return cur; }
+  /* 직접 예약: fn(a,bus,t0) 가 끝나는 시각을 돌려줌 */
+  function custom(fn,opt){ stop(); var a=ac(); if(!a) return null; opt=opt||{}; var b=bus(a,opt.vol), timers=[]; var end=fn(a,b,a.currentTime+.05);
+    timers.push(setTimeout(function(){ if(cur&&cur.timers===timers) stop(); },(end-a.currentTime)*1000+300)); cur={id:null,bus:b,timers:timers,onStop:opt.onStop,key:opt.key}; return cur; }
+  function playing(){ return cur; }
+  return {ac:ac,midi:midi,D:D,I:I,loop:loop,seq:seq,custom:custom,stop:stop,playing:playing};
+})();
+var TWINKLE=[[60,1],[60,1],[67,1],[67,1],[69,1],[69,1],[67,2],[65,1],[65,1],[64,1],[64,1],[62,1],[62,1],[60,2]];
+
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var motion=!!window.gsap && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ═════════ 데이터: 장르 탄생 이야기 ═════════
+     id, ko, en, e(이모지), fam, yr(연표 위치), when, where, par(부모: id 또는 글자), scene(그때 그곳), why(왜), tool(비밀 무기), sound(그래서 이런 소리), name(이름의 비밀), wow(재밌는 사실) */
+  var FAM={
+    rt:{ko:'뿌리 가족',e:'🌳',c:'#b45309'},
+    rb:{ko:'R&B·소울 가족',e:'💜',c:'#db2777'},
+    ro:{ko:'밴드 가족',e:'🎸',c:'#e11d48'},
+    hh:{ko:'힙합 가족',e:'🎤',c:'#ea580c'},
+    el:{ko:'전자음악 가족',e:'🎛',c:'#2563eb'},
+    po:{ko:'팝 가족',e:'✨',c:'#7c3aed'},
+    wo:{ko:'세계 리듬 가족',e:'🌍',c:'#059669'}
+  };
+  var FK=['rt','rb','ro','hh','el','po','wo'];
+  var G=[
+    {id:'blues',ko:'블루스',en:'Blues',e:'💙',fam:'rt',yr:1895,when:'1890년대 무렵',where:'미국 남부 미시시피 델타',par:['노동요·필드 홀러','영가(스피리추얼)','아프리카 리듬'],
+     scene:'노예제가 끝난 뒤에도 미국 남부의 흑인들은 목화밭에서 고된 일을 하며 차별 속에 살았어요.',
+     why:'일하며 부르던 노동요, 들판에서 길게 외치던 “필드 홀러”, 교회의 영가가 모여 슬픔과 고단함을 털어놓는 노래가 됐어요.',
+     tool:'기타 한 대와 목소리. 병목이나 쇠막대로 줄을 미끄러뜨리는 “슬라이드” 연주도 있었어요.',
+     sound:'살짝 낮춘 “블루 노트”의 애틋한 음, 12마디가 반복되는 형식, 한 줄 묻고 한 줄 답하는 가사.',
+     name:'blue = 우울한. “우울한 기분(the blues)”을 노래한다는 뜻이에요.',
+     wow:'1903년 한 음악가가 기차역에서 떠돌이 기타 연주자의 노래를 듣고 악보로 옮겨 널리 퍼뜨렸어요. 재즈·R&B·록 모두 블루스의 자손이에요.'},
+    {id:'jazz',ko:'재즈',en:'Jazz',e:'🎺',fam:'rt',yr:1912,when:'1900~1910년대',where:'미국 뉴올리언스',par:['blues','래그타임 피아노','브라스 밴드(행진 악단)'],
+     scene:'항구 도시 뉴올리언스는 아프리카·카리브·프랑스·스페인 문화가 뒤섞인 곳. 노예였던 사람들이 일요일마다 “콩고 광장”에 모여 북을 치고 춤추던 곳이기도 해요.',
+     why:'행진 악단의 악기, 블루스의 감정, 래그타임 피아노의 엇박이 만나 “악보 없이 그 자리에서 바꿔 연주하는” 음악이 됐어요.',
+     tool:'값싸게 구할 수 있던 트럼펫·트롬본·클라리넷, 그리고 즉흥 연주(애드리브).',
+     sound:'엇박(싱코페이션), 악기들이 대화하듯 주고받는 즉흥 솔로, 걸어가듯 움직이는 베이스.',
+     name:'처음엔 “jass”라고도 썼어요. 1917년 처음 나온 재즈 음반의 밴드 이름에도 Jass가 들어 있었어요.',
+     wow:'같은 곡도 매번 다르게! 즉흥 연주가 장르의 심장이에요.'},
+    {id:'swing',ko:'스윙',en:'Swing',e:'💃',fam:'rt',yr:1935,when:'1930년대 중반',where:'미국 뉴욕 → 전국',par:['jazz'],
+     scene:'1930년대 미국은 대공황으로 모두가 힘들었어요. 사람들은 잠시라도 신나게 춤추며 걱정을 잊고 싶었어요.',
+     why:'재즈가 큰 무도장에서 춤추기 좋은 음악으로 변했어요. 뉴욕 할렘에서는 “린디 합” 같은 신나는 춤이 생겼죠.',
+     tool:'10명이 넘는 “빅 밴드”. 색소폰·트럼펫·트롬본이 팀을 이뤄 함께 쾅쾅 받쳐 줘요. 라디오 중계로 전국에 퍼졌어요.',
+     sound:'따-다 따-다 튀는 “스윙 리듬”, 큰 관악기 합주, 걸어가는 베이스.',
+     name:'swing = 흔들다. 몸이 저절로 흔들리는 리듬이라서 붙은 이름이에요.',
+     wow:'1935~1945년 무렵은 재즈가 미국에서 가장 인기 있는 음악이었던 거의 유일한 시기로 꼽혀요.'},
+    {id:'rnb',ko:'R&B',en:'Rhythm & Blues',e:'💜',fam:'rb',yr:1949,when:'1940년대 말 → 1980년대 이후 새 모습',where:'미국 대도시',par:['blues','swing','가스펠'],
+     scene:'1940년대 미국 남부의 많은 흑인들이 일자리를 찾아 북부 대도시로 이주했어요(대이주). 도시에서 블루스·스윙·가스펠이 섞여 신나는 춤 음악이 됐어요.',
+     why:'그런데 음반 회사들은 흑인 음악을 “레이스 레코드(인종 음반)”라는 차별적인 이름으로 따로 묶어 팔았어요.',
+     tool:'라디오와 주크박스, 교회에서 배운 가스펠 창법. 1980년대부터는 드럼머신·신시사이저를 입었어요(컨템퍼러리 R&B).',
+     sound:'감정이 꽉 찬 목소리가 주인공. 부드러운 화음과 리듬 위에서 노래가 춤춰요.',
+     name:'1949년 6월 미국 음악잡지 빌보드가 한 기자의 제안으로 차트 이름을 “레이스 레코드”에서 “리듬 앤 블루스”로 바꿨어요.',
+     wow:'장르 이름 하나가 차별적인 말을 지우려는 노력에서 나왔어요.'},
+    {id:'rock',ko:'록',en:'Rock (and Roll)',e:'🎸',fam:'ro',yr:1954,when:'1950년대 초중반',where:'미국',par:['rnb','컨트리'],
+     scene:'2차 세계대전이 끝난 뒤 미국. 라디오와 레코드가 흔해지고, 처음으로 “10대”가 자기 용돈으로 음악을 사기 시작했어요.',
+     why:'흑인 음악 R&B와 백인 시골 음악 컨트리가 라디오에서 만나 섞였어요. 10대들은 부모 세대와 다른 “우리 음악”을 원했어요.',
+     tool:'일렉 기타 + 앰프. 몸통이 꽉 찬 일렉 기타가 나오면서 기타가 크고 날카롭게 무대의 주인공이 됐어요.',
+     sound:'2·4박을 세게 치는 드럼, 반복되는 기타 리프, 소리쳐 부르는 보컬.',
+     name:'1951년 무렵 클리블랜드의 라디오 DJ가 이 음악을 “로큰롤(rock and roll, 흔들고 구르다)”이라 부르며 퍼뜨렸어요.',
+     wow:'R&B에서 주인공이던 색소폰 자리를 일렉 기타가 차지했어요.'},
+    {id:'bossanova',ko:'보사노바',en:'Bossa Nova',e:'🏖',fam:'wo',yr:1958,when:'1950년대 말',where:'브라질 리우데자네이루',par:['삼바','jazz'],
+     scene:'1950년대 리우데자네이루의 바닷가 동네. 젊은 음악가들이 아파트에 모여 기타를 치며 미국 재즈를 들었어요.',
+     why:'시끌벅적한 카니발 삼바를 조용한 방에서도 부를 수 있게, 부드럽고 세련되게 바꾸고 싶었어요.',
+     tool:'나일론 줄 기타 한 대. 삼바의 북 리듬을 기타 손가락으로 옮겨 친 새 주법, 그리고 속삭이듯 부르는 창법.',
+     sound:'살랑살랑 엇박 기타, 재즈 화음, 작고 부드러운 목소리.',
+     name:'포르투갈어로 “새로운 경향(새 물결)”이라는 뜻이에요.',
+     wow:'1958년 7월 녹음된 한 곡이 보사노바의 생일로 꼽혀요.'},
+    {id:'soul',ko:'소울',en:'Soul',e:'❤️‍🔥',fam:'rb',yr:1961,when:'1950년대 말~1960년대',where:'미국 디트로이트·멤피스',par:['rnb','가스펠'],
+     scene:'1950~60년대 미국. 흑인들이 차별에 맞서 평등을 요구한 민권 운동의 시대였어요.',
+     why:'교회 가스펠의 뜨거운 창법을 사랑 노래와 사회 이야기에 담았어요. 흑인으로서의 자부심을 노래했죠.',
+     tool:'자동차 도시 디트로이트의 음반사 “모타운”(1959년 시작)은 공장처럼 작곡가·연주자·가수를 한 팀으로 묶어 히트곡을 만들었어요.',
+     sound:'온몸으로 내지르는 보컬, 박수, 관악기, 따라 부르는 코러스.',
+     name:'soul = 영혼. 영혼을 담아 부른다는 뜻이에요.',
+     wow:'모타운의 “히트곡 공장” 방식은 K-팝 기획사 시스템과 비교되기도 해요.'},
+    {id:'funk',ko:'펑크(Funk)',en:'Funk',e:'🕺',fam:'rt',yr:1965,when:'1960년대 중반',where:'미국',par:['soul','jazz'],
+     scene:'1960년대, 소울 음악이 더 춤추기 좋은 쪽으로 변하던 때.',
+     why:'멜로디보다 “리듬” 자체를 주인공으로! 모든 악기가 드럼처럼 리듬을 쪼개 맞물리게 했어요.',
+     tool:'마디 첫 박(“더 원”)을 쾅 강조하는 규칙, 손가락으로 튕기는 베이스, 짧게 끊어 치는 기타.',
+     sound:'첫 박이 강하고, 베이스와 기타가 톡톡 튀며 톱니바퀴처럼 맞물리는 그루브.',
+     name:'funky는 원래 “꾸밈없고 땀내 나는” 느낌을 뜻하던 속어에서 왔다고들 해요. 록의 펑크(Punk)와는 다른 말!',
+     wow:'펑크 음반의 드럼 부분을 반복해 틀다가 힙합이 태어났어요.'},
+    {id:'reggae',ko:'레게',en:'Reggae',e:'🌴',fam:'wo',yr:1968,when:'1960년대 말',where:'자메이카',par:['스카·록스테디','rnb'],
+     scene:'1962년 영국에서 독립한 자메이카. 1950년대 말엔 미국 R&B를 섞은 신나는 “스카”, 60년대 중반엔 느긋한 “록스테디”가 유행했어요.',
+     why:'리듬을 더 느리고 무겁게 바꾸고, 가난·평화·자유에 대한 메시지를 담았어요.',
+     tool:'거리의 “사운드 시스템”. 트럭에 거대한 스피커를 싣고 다니며 여는 야외 파티예요.',
+     sound:'기타가 뒷박에서 “칙” 하고 치는 엇박(스캥크), 묵직하게 노래하는 베이스.',
+     name:'1968년 노래 제목 “Do the Reggay”가 처음으로 이 이름을 썼어요.',
+     wow:'자메이카 사운드 시스템 문화는 뉴욕 힙합, 영국 정글·덥스텝, 레게톤까지 이어져요.'},
+    {id:'hiphop',ko:'힙합',en:'Hip Hop',e:'🎤',fam:'hh',yr:1973,when:'1973년',where:'미국 뉴욕 브롱크스',par:['funk','disco','reggae'],
+     scene:'1970년대 뉴욕 브롱크스는 건물이 불타고 버려질 만큼 가난한 동네였어요. 아이들이 놀 곳도 마땅치 않았죠.',
+     why:'1973년 8월 11일 한 아파트 파티에서 자메이카 출신 10대 DJ가 펑크 음반의 “드럼만 나오는 부분(브레이크)”을 계속 이어 틀었어요. 사람들은 그 부분에서 가장 신나게 춤췄거든요.',
+     tool:'턴테이블 2대 + 같은 음반 2장. 한쪽이 끝나면 다른 쪽을 처음으로 돌려 브레이크를 무한 반복!',
+     sound:'반복되는 드럼 브레이크 위에 MC가 말을 얹는 랩. DJ·브레이크댄스·그래피티까지 하나의 문화예요.',
+     name:'hip(멋진) + hop(뛰다). 초기 MC들이 흥을 돋우던 말에서 왔다고 해요.',
+     wow:'돈 없는 동네 아이들이 “음반을 악기로” 바꿔 버렸어요.'},
+    {id:'disco',ko:'디스코',en:'Disco',e:'🪩',fam:'rt',yr:1974,when:'1970년대',where:'미국 뉴욕',par:['funk','soul','라틴 리듬'],
+     scene:'1970년대 초 뉴욕. 흑인·라틴계·성소수자 등 차별받던 사람들이 마음 놓고 춤출 수 있는 클럽과 파티가 생겼어요.',
+     why:'밴드 대신 DJ가 음반을 쉬지 않고 이어 틀며 밤새 춤추게 했어요.',
+     tool:'DJ와 턴테이블, 그리고 춤추기 좋게 길게 늘린 “12인치 리믹스” 음반.',
+     sound:'쿵-쿵-쿵-쿵 매 박 킥(포 온 더 플로어), 치키치키 하이햇, 화려한 현악기.',
+     name:'프랑스어 discothèque(음반을 틀어 주는 클럽)를 줄인 말이에요.',
+     wow:'1979년 한 야구장에서 디스코 음반을 폭파하는 행사까지 열렸지만, 디스코는 하우스로 다시 태어났어요.'},
+    {id:'synthpop',ko:'신스팝',en:'Synth-pop',e:'🕹',fam:'po',yr:1979,when:'1970년대 말~1980년대',where:'영국·유럽',par:['disco','펑크 록','독일 전자음악(크라프트베르크)'],
+     scene:'1970년대 말 영국. 펑크 록의 반항 뒤에 젊은 음악가들이 새 장난감을 찾고 있었어요.',
+     why:'기타 대신 기계로 “미래”를 노래하고 싶었어요. 독일 전자 밴드 크라프트베르크의 영향이 컸어요.',
+     tool:'점점 값싸진 신시사이저와 드럼머신, 1983년 악기끼리 대화하는 규격 MIDI, 그리고 1981년 시작된 뮤직비디오 방송 MTV.',
+     sound:'반짝이는 신스 멜로디, 기계처럼 정확한 비트, 차분한 보컬.',
+     name:'synthesizer(신시사이저) + pop.',
+     wow:'1979년 한 펑크 밴드가 녹음실에서 우연히 신시사이저를 만나 영국 차트 1위를 했어요.'},
+    {id:'house',ko:'하우스',en:'House',e:'🏠',fam:'el',yr:1982,when:'1980년대 초',where:'미국 시카고',par:['disco','synthpop'],
+     scene:'1979년 시카고 야구장에서 디스코 음반을 폭파하는 “디스코 파괴의 밤”이 열렸어요. 주류 사회는 “디스코는 끝났다”고 했죠.',
+     why:'하지만 시카고의 흑인·라틴계·성소수자 공동체는 춤을 멈추지 않았어요. 클럽 “The Warehouse”의 DJ가 디스코를 기계로 다시 다듬었어요.',
+     tool:'드럼머신 + 테이프 편집. 노래를 더 길게, 킥을 더 단단하게.',
+     sound:'쿵-쿵-쿵-쿵 매 박 킥, 통통 튀는 피아노 화음, 소울풀한 보컬.',
+     name:'클럽 이름 Warehouse(창고)에서 왔다는 이야기가 가장 유명해요. “그 창고 클럽 음악”을 줄여 house!',
+     wow:'쫓겨난 음악이 모양을 바꿔 세계 클럽 음악의 기본이 됐어요.'},
+    {id:'techno',ko:'테크노',en:'Techno',e:'🤖',fam:'el',yr:1985,when:'1980년대 중반',where:'미국 디트로이트',par:['funk','synthpop','house'],
+     scene:'1980년대 디트로이트는 자동차 공장이 문을 닫으며 텅 비어 가던 도시였어요.',
+     why:'근처 고등학교 친구 세 명이 독일 전자음악과 미국 펑크(Funk)를 함께 들으며 “기계와 사람이 함께 만드는 미래 음악”을 꿈꿨어요.',
+     tool:'중고로 싸게 풀린 롤랜드 드럼머신(TR-808·909)과 신시사이저.',
+     sound:'끝없이 반복되는 기계 비트, 차갑고 미래적인 신스.',
+     name:'1988년 영국에 음반을 소개하면서 시카고 하우스와 구별하려고 techno(기술)라는 이름을 골랐어요.',
+     wow:'공장이 멈춘 도시에서 “기계 음악”이 태어났어요.'},
+    {id:'boombap',ko:'붐뱁',en:'Boom Bap',e:'🥁',fam:'hh',yr:1988,when:'1980년대 후반~1990년대',where:'미국 뉴욕',par:['hiphop','jazz','soul'],
+     scene:'1980년대 후반 뉴욕. 힙합이 동네 파티를 넘어 음반으로 팔리기 시작했어요.',
+     why:'초기 랩 음반은 디스코처럼 매끈했어요. 프로듀서들은 동네 파티의 거칠고 묵직한 드럼을 되살리고 싶었어요.',
+     tool:'샘플러(1986년 SP-1200, 1988년 MPC60). 옛 재즈·소울 LP를 잘게 잘라 다시 붙였어요. 저장 용량이 작아 거칠고 따뜻한 소리가 났어요.',
+     sound:'묵직한 “붐”(킥) + 찰진 “뱁”(스네어), 오래된 LP에서 잘라 온 샘플.',
+     name:'킥과 스네어 소리를 흉내 낸 의성어. 1993년 한 래퍼의 앨범 제목 “Return of the Boom Bap”으로 굳어졌어요.',
+     wow:'기계 성능이 낮아서 생긴 거친 소리가 오히려 장르의 매력이 됐어요.'},
+    {id:'dnb',ko:'드럼앤베이스',en:'Drum & Bass (Jungle)',e:'⚡',fam:'el',yr:1993,when:'1990년대 초중반',where:'영국',par:['reggae','hiphop','레이브 음악'],
+     scene:'1990년대 초 영국의 거대한 레이브 파티, 그리고 자메이카 이민자들이 가져온 사운드 시스템 문화.',
+     why:'레이브 음악이 점점 빨라지면서 쪼갠 드럼과 레게의 깊은 베이스가 합쳐졌어요. 처음엔 “정글”이라 불렸어요.',
+     tool:'샘플러. 특히 1969년 미국 노래의 몇 초짜리 드럼 솔로 “아멘 브레이크”를 잘라 160~180 BPM으로 빠르게 돌렸어요.',
+     sound:'드럼은 정신없이 빠른데 베이스는 절반 빠르기로 느긋해요. 두 속도가 동시에!',
+     name:'말 그대로 드럼(drum)과 베이스(bass)가 주인공이라서.',
+     wow:'아멘 브레이크는 세상에서 가장 많이 샘플링된 드럼 중 하나로 꼽혀요.'},
+    {id:'kpop',ko:'K-팝',en:'K-Pop',e:'⭐',fam:'po',yr:1992,when:'1990년대 이후',where:'한국',par:['hiphop','rnb','synthpop','댄스 팝'],
+     scene:'1992년 4월 11일 TV 신인 무대. 랩과 힙합 춤을 들고 나온 3인조(서태지와 아이들)가 심사위원에게 가장 낮은 점수를 받았어요.',
+     why:'하지만 그 노래 “난 알아요”는 대히트! 10대들은 트로트·발라드와 다른 “우리 세대 음악”을 원했어요.',
+     tool:'연습생 시스템. 1990년대 중반부터 기획사가 10대를 오디션으로 뽑아 노래·춤·외국어를 몇 년씩 훈련시켜 그룹으로 데뷔시켰어요.',
+     sound:'여러 장르를 한 곡에 섞는 “장르 비빔밥”, 칼군무, 귀에 꽂히는 후렴(훅).',
+     name:'Korean pop. 해외에서 한국 대중음악을 부르던 말이 이름이 됐어요.',
+     wow:'음악 + 춤 + 영상 + 팬 문화를 한 묶음으로 만든 것이 K-팝의 발명이에요.'},
+    {id:'neosoul',ko:'네오 소울',en:'Neo Soul',e:'🌿',fam:'rb',yr:1996,when:'1990년대 중후반',where:'미국',par:['soul','jazz','boombap'],
+     scene:'1990년대 R&B는 매끈한 기계음 중심이었어요.',
+     why:'몇몇 가수들이 1970년대 소울의 진짜 악기 연주, 재즈 화음, 깊은 메시지를 되살리고 싶어 했어요.',
+     tool:'라이브 밴드(전자 피아노, 베이스) + 재즈 화음 + 힙합 비트.',
+     sound:'따뜻한 전자 피아노, 느슨하게 밀고 당기는 박자, 자유로운 보컬.',
+     name:'neo = 새로운. 1995년 무렵 한 음반 매니저가 “새로운 소울”이라고 이름 붙였어요.',
+     wow:'마케팅 이름으로 시작해서, 이 꼬리표가 맞는지 지금도 논쟁이 있어요.'},
+    {id:'poppunk',ko:'팝 펑크',en:'Pop Punk',e:'🛹',fam:'ro',yr:1994,when:'1990년대',where:'미국 캘리포니아',par:['rock','펑크 록(1970년대)'],
+     scene:'1970년대 중반 뉴욕·런던의 펑크 록: “코드 세 개만 알면 누구나 밴드!”',
+     why:'비싼 기술보다 에너지와 솔직함. 1990년대 캘리포니아 스케이트보드 문화 속 밴드들이 펑크에 따라 부르기 쉬운 팝 멜로디를 입혔어요.',
+     tool:'싸고 단순한 장비. 일렉 기타 + 파워코드(두 음만 누르는 코드), 그리고 MTV.',
+     sound:'빠른 드럼, 꽉 찬 기타, 떼창하기 좋은 후렴, 학교·짝사랑 같은 10대 이야기.',
+     name:'pop + punk.',
+     wow:'1994년 한 밴드의 메이저 데뷔 앨범이 터지며 펑크가 학교 복도의 음악이 됐어요.'},
+    {id:'dubstep',ko:'덥스텝',en:'Dubstep',e:'🐉',fam:'el',yr:2002,when:'2000년대 초',where:'영국 런던 남부(크로이던)',par:['dnb','reggae','UK 개러지'],
+     scene:'2000년대 초 런던 남부 크로이던의 작은 음반 가게. 10대 프로듀서들이 이곳에 모였어요.',
+     why:'영국 개러지(2-step) 음악을 더 어둡고 무겁게, 자메이카 “덥”처럼 공간을 비워 만들고 싶었어요.',
+     tool:'컴퓨터 음악 프로그램 + 클럽의 거대한 스피커. 2001년부터 열린 클럽 파티 “FWD>>”가 실험실이었어요.',
+     sound:'140 BPM인데 하프타임이라 느리게 쿵…짝, 꿈틀대는 “워블” 베이스.',
+     name:'dub(자메이카 덥 음악) + step(2-step 리듬).',
+     wow:'처음엔 조용하고 묵직했는데, 미국에 건너가 훨씬 시끄러운 모습으로 변신했어요.'},
+    {id:'trap',ko:'트랩',en:'Trap',e:'💎',fam:'hh',yr:2003,when:'2000년대 초',where:'미국 애틀랜타',par:['hiphop','808 드럼머신'],
+     scene:'미국 남부 도시 애틀랜타. 뉴욕이 아닌 남부 래퍼들이 자기 동네 이야기를 하기 시작했어요.',
+     why:'가난한 동네에서 불법 거래가 이뤄지던 집을 “트랩 하우스”라고 불렀어요. 한번 들어가면 빠져나오기 힘든 덫(trap). 그 거친 현실을 노래한 랩이에요.',
+     tool:'롤랜드 TR-808 드럼머신의 길게 우는 저음 + 아주 잘게 쪼갠 하이햇(츠츠츠츠).',
+     sound:'140 BPM 근처지만 스네어를 반만 쳐서 느릿하게 들리고(하프타임), 하이햇은 바쁘게 굴러요.',
+     name:'2003년 한 애틀랜타 래퍼의 앨범 “Trap Muzik”이 이 소리에 이름을 붙였어요.',
+     wow:'지금은 K-팝·팝·EDM 어디에서나 트랩 하이햇이 들려요.'},
+    {id:'synthwave',ko:'신스웨이브',en:'Synthwave',e:'🌆',fam:'el',yr:2006,when:'2000년대 중반',where:'프랑스 → 인터넷',par:['synthpop','disco','80년대 영화·게임 음악'],
+     scene:'2000년대 중반, 1980년대 영화와 비디오게임을 보며 자란 세대가 어른이 됐어요. 프랑스 전자음악가들이 인터넷에 곡을 올리기 시작했죠.',
+     why:'직접 겪어 보지도 않은 “80년대 네온 밤거리”에 대한 그리움(레트로 감성)을 소리로 만들고 싶었어요.',
+     tool:'80년대풍 신시사이저 소리 + 인터넷 커뮤니티. 2011년 영화 “드라이브”의 음악으로 세계에 알려졌어요.',
+     sound:'쭉 뻗는 신스 베이스, 쿵-짝 울리는 드럼, 밤에 차를 달리는 듯한 분위기.',
+     name:'synth(신시사이저) + wave(물결). “아웃런”이라는 별명은 1986년 자동차 아케이드 게임 이름에서 왔어요.',
+     wow:'미래가 아니라 “과거가 상상한 미래”를 노래해요.'},
+    {id:'afrobeats',ko:'아프로비츠',en:'Afrobeats',e:'🌍',fam:'wo',yr:2009,when:'2000~2010년대',where:'나이지리아·가나 → 런던',par:['아프로비트(1970년대)','하이라이프','hiphop','rnb'],
+     scene:'1970년대 나이지리아에서는 아프리카 리듬과 미국 펑크·재즈를 섞은 “아프로비트”가 군사 정부와 부패를 비판했어요.',
+     why:'2000년대 나이지리아·가나 젊은이들이 힙합·R&B·댄스홀을 자기네 리듬과 언어로 다시 만들었어요.',
+     tool:'컴퓨터 비트 메이킹 + 해외 이민자 사회. 2011년 무렵 런던의 한 가나 출신 DJ가 “Afrobeats”라는 이름을 널리 썼어요.',
+     sound:'통통 튀는 엇박 퍼커션, 흔들리는 그루브, 영어와 현지어가 섞인 노래.',
+     name:'s 하나 차이! Afrobeat(1970년대, 10분 넘는 정치적인 곡) ≠ Afrobeats(요즘 서아프리카 팝을 묶어 부르는 말).',
+     wow:'이름 끝의 s 하나가 40년의 차이를 품고 있어요.'},
+    {id:'edm',ko:'EDM',en:'Electronic Dance Music',e:'🎆',fam:'el',yr:2011,when:'2010년대 초',where:'미국',par:['house','techno','dubstep','트랜스'],
+     scene:'2010년대 초 미국. 대형 음악 페스티벌이 생기고 유럽의 클럽 음악이 미국 라디오와 팝을 휩쓸었어요.',
+     why:'하우스·테크노·덥스텝·트랜스… 이름이 너무 많아서, 음반사와 언론·공연 기획사가 한 단어로 묶어 알리고 싶었어요.',
+     tool:'거대한 페스티벌 무대, 불꽃·조명 쇼, 스타 DJ, 노트북 하나로 만드는 곡.',
+     sound:'점점 쌓아 올리다(빌드업) 쾅 터지는 “드롭”, 페스티벌 떼창.',
+     name:'Electronic Dance Music의 줄임말. 한 장르라기보다 전자 춤 음악을 다 덮는 “우산 이름”이에요.',
+     wow:'정작 클럽 사람들은 이 말을 잘 안 썼어요. 홍보용 이름이 장르처럼 굳은 예예요.'},
+    {id:'altrnb',ko:'얼터너티브 R&B',en:'Alternative R&B',e:'🌙',fam:'rb',yr:2011,when:'2010년대 초',where:'인터넷(미국·캐나다)',par:['rnb','인디 록','전자음악'],
+     scene:'2011년, 인터넷에 무료 믹스테이프가 쏟아지던 때. 한 달 차이로 두 신인이 “R&B 같지 않은 R&B”를 올렸어요.',
+     why:'노트북으로 혼자 곡을 만드는 세대가 R&B에 록·전자음악·인디의 어둡고 몽롱한 분위기를 섞었어요.',
+     tool:'노트북 작업실 + 인터넷 무료 공개(믹스테이프), 울림이 가득한 신스.',
+     sound:'공간이 넓은 울림, 느린 808, 속삭이듯 고백하는 노래.',
+     name:'alternative = 대안의, 기존과 다른. “원래 R&B와 다른 R&B”라는 뜻이에요.',
+     wow:'음반사 없이 인터넷에서 바로 스타가 될 수 있다는 걸 보여 줬어요.'},
+    {id:'futurebass',ko:'퓨처 베이스',en:'Future Bass',e:'🌈',fam:'el',yr:2012,when:'2010년대 초중반',where:'스코틀랜드·호주 → 인터넷',par:['dubstep','trap'],
+     scene:'2010년대 초, 스코틀랜드·호주 등의 젊은 프로듀서들이 인터넷으로 음악을 주고받았어요.',
+     why:'덥스텝·트랩의 무거운 베이스 대신, 밝고 감성적인 화음을 “터뜨리고” 싶었어요.',
+     tool:'컴퓨터 신시사이저(톱니파를 여러 겹 쌓은 “슈퍼쏘” 화음) + 사이드체인(킥이 칠 때 화음 볼륨이 쑥 줄었다 올라오는 기법).',
+     sound:'와와와 출렁이는 화음, 반짝이는 잘게 자른 보컬, 트랩 하이햇.',
+     name:'“미래의 베이스 음악”이란 뜻의 느슨한 이름이에요.',
+     wow:'2016년 무렵 크게 유행해 팝과 K-팝 곳곳에서도 들려요.'},
+    {id:'drill',ko:'드릴',en:'Drill',e:'🌫',fam:'hh',yr:2012,when:'2010년대 초',where:'미국 시카고 → 영국 런던',par:['trap'],
+     scene:'2010년대 초 시카고 남부. 10대 래퍼들이 직접 찍은 뮤직비디오를 유튜브에 올리며 퍼졌어요.',
+     why:'동네의 갈등과 폭력을 꾸밈없이 말하는 랩이에요. 그래서 폭력적인 가사로 논란도 많았어요.',
+     tool:'유튜브 + 트랩 비트. 2012년 무렵 런던 브릭스턴으로 건너가 “미끄러지는 808 베이스”로 새로 태어났어요(UK 드릴).',
+     sound:'어둡고 차가운 멜로디, 엇박으로 툭툭 끊기는 드럼, 음이 쭉 미끄러지는 베이스.',
+     name:'그 동네에서 싸움·보복을 뜻하던 은어 drill에서 왔어요.',
+     wow:'한 도시의 소리가 바다를 건너가 다른 나라 말투로 다시 태어났어요.'},
+    {id:'phonk',ko:'퐁크',en:'Phonk',e:'🏎',fam:'hh',yr:2013,when:'2010년대 (뿌리는 1990년대)',where:'미국 멤피스 테이프 → 인터넷 → 틱톡',par:['hiphop','멤피스 랩 테이프','촙드 앤 스크루드'],
+     scene:'1990년대 미국 멤피스의 래퍼들은 카세트테이프로 어둡고 거친 랩을 만들었어요. 휴스턴에서는 노래를 느리게 늘어뜨리는 기법이 유행했죠.',
+     why:'2010년대 인터넷 세대가 이 옛날 테이프 소리를 찾아내 다시 섞었어요.',
+     tool:'카세트 녹음 샘플 + TR-808 카우벨. 2010년대 후반 러시아 등에서 빠르고 거친 “드리프트 퐁크”가 나와 틱톡 자동차 영상과 함께 퍼졌어요.',
+     sound:'땡땡거리는 카우벨 멜로디, 찌그러진 베이스, 낮게 늘어진 목소리.',
+     name:'funk를 일부러 비튼 철자 phonk. 2010년대 초 한 래퍼·프로듀서가 쓰면서 퍼졌어요.',
+     wow:'30년 전 동네 테이프가 틱톡에서 부활했어요.'},
+    {id:'amapiano',ko:'아마피아노',en:'Amapiano',e:'🎹',fam:'wo',yr:2015,when:'2010년대 중반',where:'남아프리카공화국 하우텡주',par:['house','크와이토','jazz'],
+     scene:'2010년대 중반 남아공 요하네스버그·프리토리아 근처의 흑인 거주 지역(타운십).',
+     why:'1990년대 민주화 시기의 남아공 하우스 “크와이토”와 딥 하우스를 물려받은 젊은이들이 더 느리고 재즈 같은 하우스를 만들었어요.',
+     tool:'집에서 쓰는 컴퓨터 음악 프로그램 + “로그 드럼”이라 불리는 둥둥 울리는 퍼커션 베이스.',
+     sound:'느긋한 피아노 화음, 통나무 북처럼 둥- 울리는 로그 드럼, 사각사각 셰이커.',
+     name:'줄루어로 “피아노들”(ama = 여럿 + piano).',
+     wow:'방구석 노트북에서 시작한 동네 음악이 세계 클럽으로 나갔어요.'},
+    {id:'lofi',ko:'로파이 힙합',en:'Lo-fi Hip Hop',e:'📼',fam:'hh',yr:2017,when:'2010년대',where:'미국·일본 → 유튜브',par:['boombap','jazz'],
+     scene:'2000년대 미국과 일본의 프로듀서들이 재즈를 섞은 느긋한 힙합 비트를 만들었어요. 일본 프로듀서의 2004년 애니메이션 음악이 애니와 로파이를 이어 줬죠.',
+     why:'2010년대, 공부하거나 일할 때 가사 없이 틀어 둘 음악이 필요한 사람이 많아졌어요.',
+     tool:'유튜브 24시간 라이브 방송. 2017년 2월부터 한 채널이 “공부할 때 듣는 로파이”를 끝없이 틀었고, 공부하는 애니 소녀 그림이 상징이 됐어요.',
+     sound:'일부러 낡게 만든 소리. LP 지지직, 살짝 늘어진 박자, 먹먹한 피아노.',
+     name:'Lo-fi = low fidelity(낮은 음질). 깨끗하지 않은 소리를 일부러 즐겨요.',
+     wow:'“음질이 나쁘다”는 단점이 “편안하다”는 장점이 됐어요.'},
+    {id:'hyperpop',ko:'하이퍼팝',en:'Hyperpop',e:'💥',fam:'po',yr:2019,when:'2010년대 후반',where:'영국 런던 → 인터넷',par:['버블검 팝','dubstep','poppunk'],
+     scene:'2013년 런던의 작은 레이블에서 팝을 일부러 과장하고 비튼 음악들이 나왔어요.',
+     why:'인터넷 세대가 팝을 “너무 달고 너무 시끄럽게” 비틀며 놀았어요. 장르 구분 없이 다 섞었죠.',
+     tool:'노트북, 인터넷 커뮤니티, 그리고 스트리밍 플레이리스트.',
+     sound:'다람쥐처럼 높인 목소리, 찌그러진 베이스, 갑자기 바뀌는 구성.',
+     name:'2019년 8월 스포티파이 편집자가 만든 플레이리스트 이름 “Hyperpop”이 그대로 장르 이름이 됐어요.',
+     wow:'플레이리스트가 장르를 만든 대표적인 예예요.'},
+    {id:'reggaeton',ko:'레게톤',en:'Reggaeton',e:'🔥',fam:'wo',yr:1994,when:'1980~90년대',where:'파나마 → 푸에르토리코',par:['reggae','hiphop','댄스홀'],
+     scene:'파나마 운하를 지으러 온 자메이카·카리브 노동자들이 레게를 가져왔어요. 1980년대 파나마에서 스페인어 레게가 생겼어요.',
+     why:'1990년대 푸에르토리코 젊은이들이 스페인어 레게와 힙합을 섞어 “언더그라운드” 테이프로 돌렸어요.',
+     tool:'자메이카 노래에서 나온 “뎀보우” 리듬을 반복해 이어 붙인 믹스테이프.',
+     sound:'쿵-따닥-쿵-딱 뎀보우 리듬, 스페인어 랩과 노래.',
+     name:'reggae + -ton. “큰 레게”라는 뜻의 스페인어식 꼬리말로 흔히 설명해요.',
+     wow:'원조가 파나마냐 푸에르토리코냐, 지금도 논쟁이에요.'}
+  ];
+  G.sort(function(a,b){ return a.yr-b.yr; });
+  var GX={}; G.forEach(function(g,i){ GX[g.id]=i; });
+  function gg(id){ return G[GX[id]]; }
+  // 자식 장르 계산
+  G.forEach(function(g){ g.kids=[]; }); G.forEach(function(g){ g.par.forEach(function(p){ if(GX[p]!=null) gg(p).kids.push(g.id); }); });
+
+  /* 비트: 32칸(2마디). R()은 16칸 패턴을 두 번 */
+  function R(a){ return a.concat(a.map(function(x){ return x+16; })); }
+  function RP(l){ return l.concat(l.map(function(x){ return [x[0]+16].concat(x.slice(1)); })); }
+  function E8(r1,r2,oct){ var o=[]; for(var s=0;s<32;s+=2){ var r=s<16?r1:r2; o.push([s,(oct&&(s/2)%2)?r+12:r,2]); } return o; }
+  var EV=[0,2,4,6,8,10,12,14], AM=[57,60,64], FM=[53,57,60], GM=[55,59,62];
+  var BEAT={
+    blues:{bpm:84,sw:.33,k:R([0,8]),s:R([4,12]),h:R(EV),bi:'bass',b:[[0,33,4],[4,37,4],[8,40,4],[12,42,4],[16,38,4],[20,42,4],[24,45,4],[28,47,4]],ci:'eguitar',ch:[[0,[57,64],4],[16,[62,69],4]]},
+    jazz:{bpm:120,sw:.33,k:[],s:[],h:R([0,6,8,14]),bi:'bass',b:[[0,38,4],[4,41,4],[8,45,4],[12,48,4],[16,43,4],[20,47,4],[24,50,4],[28,49,4]],ci:'piano',ch:[[3,[60,64,65,69],1],[11,[60,64,65,69],1],[19,[59,62,65,67],1],[27,[59,62,65,67],1]]},
+    swing:{bpm:160,sw:.33,k:R([0,4,8,12]),s:R([4,12]),h:R([0,6,8,14]),bi:'bass',b:[[0,36,4],[4,40,4],[8,43,4],[12,45,4],[16,41,4],[20,45,4],[24,43,4],[28,40,4]],mi:'trumpet',m:[[0,72,2],[2,74,2],[4,76,4],[10,74,2],[12,72,4],[16,69,2],[18,72,2],[20,74,8]]},
+    rnb:{bpm:72,k:R([0,10]),s:[],c:R([4,12]),h:R(EV),bi:'bass',b:[[0,36,8],[16,33,8]],ci:'epiano',ch:[[0,[60,64,67,71],16],[16,[57,60,64,67],16]]},
+    rock:{bpm:128,k:R([0,8,10]),s:R([4,12]),h:R(EV),bi:'bass',b:E8(33,31),ci:'dguitar',ch:[[0,[45],4],[4,[45],4],[8,[43],4],[12,[43],4],[16,[41],4],[20,[41],4],[24,[43],8]]},
+    bossanova:{bpm:130,k:R([0,6,8,14]),rim:[0,3,6,10,13,18,22,26,29],h:R(EV),bi:'bass',b:[[0,38,6],[6,45,2],[8,38,6],[14,45,2],[16,43,6],[22,38,2],[24,43,6],[30,38,2]],ci:'aguitar',ch:RP([[0,[50,57,60,65],2],[3,[50,57,60,65],2],[6,[50,57,60,65],2],[10,[50,57,60,65],2],[13,[50,57,60,65],2]]).map(function(x){ return x[0]>=16?[x[0],[43,53,59,64],2]:x; })},
+    soul:{bpm:100,k:R([0,10]),s:R([4,12]),c:R([4,12]),h:R(EV),bi:'bass',b:[[0,36,3],[6,36,2],[10,43,2],[16,41,3],[22,41,2],[26,36,2]],ci:'organ',ch:[[0,[60,64,67],14],[16,[65,69,72],14]]},
+    funk:{bpm:108,k:R([0,3,10]),s:R([4,12]),h:R([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]),bi:'bass',b:RP([[0,40,1],[3,52,1],[6,40,1],[7,43,1],[10,40,1],[12,45,1],[14,47,1]]),ci:'eguitar',ch:RP([[2,[64,67,71],1],[6,[64,67,71],1],[10,[64,67,71],1],[14,[64,67,71],1]])},
+    reggae:{bpm:76,k:R([8]),s:R([8]),h:R(EV),bi:'bass',b:[[0,45,3],[6,45,2],[10,43,2],[16,43,3],[22,40,4]],ci:'eguitar',ch:[[4,AM,1],[12,AM,1],[20,GM,1],[28,GM,1]]},
+    hiphop:{bpm:100,k:R([0,7,10]),s:R([4,12]),h:R(EV),bi:'bass',b:[[0,40,2],[16,40,2]]},
+    disco:{bpm:120,k:R([0,4,8,12]),s:R([4,12]),h:R([2,6,10,14]),bi:'bass',b:E8(33,31,true),ci:'strings',ch:[[0,[69,72,76],16],[16,[67,71,74],16]]},
+    synthpop:{bpm:118,k:R([0,8]),s:R([4,12]),h:R(EV),bi:'sbass',b:E8(33,29),mi:'lead',m:[[0,69,2],[2,72,2],[4,76,2],[6,72,2],[8,69,2],[10,72,2],[12,76,2],[14,79,2],[16,65,2],[18,69,2],[20,72,2],[22,69,2],[24,67,2],[26,71,2],[28,74,2],[30,71,2]]},
+    house:{bpm:124,k:R([0,4,8,12]),c:R([4,12]),h:R([2,6,10,14]),bi:'bass',b:[[2,33,2],[6,33,2],[10,33,2],[14,33,2],[18,31,2],[22,31,2],[26,31,2],[30,31,2]],ci:'piano',ch:[[0,AM,2],[6,AM,2],[10,AM,2],[16,GM,2],[22,GM,2],[26,GM,2]]},
+    techno:{bpm:132,k:R([0,4,8,12]),c:R([4,12]),h:R([2,6,10,14]),bi:'sbass',b:RP([[0,33,1],[2,33,1],[3,45,1],[6,33,1],[8,33,1],[10,36,1],[11,33,1],[14,45,1]])},
+    boombap:{bpm:90,sw:.12,k:R([0,7,10]),s:R([4,12]),h:R(EV),bi:'bass',b:[[0,33,6],[7,33,3],[10,33,4],[16,38,6],[23,38,3],[26,38,4]],ci:'piano',ch:[[0,[57,60,64,67],14],[16,[50,53,57,60],14]]},
+    dnb:{bpm:172,k:[0,10,16,26],s:[4,12,20,23,28],h:R(EV),bi:'sbass',b:[[0,33,12],[16,29,12]],ci:'pad',ch:[[0,AM,32]]},
+    kpop:{bpm:120,k:R([0,6,8]),c:R([4,12]),h:R(EV),bi:'sbass',b:RP([[0,36,3],[4,36,2],[8,36,3],[12,36,2]]),mi:'lead',m:[[0,72,2],[2,72,2],[4,74,2],[6,76,4],[12,74,4],[16,72,2],[18,71,2],[20,69,4],[26,67,4]]},
+    neosoul:{bpm:84,sw:.18,k:R([0,7,10]),s:R([4,12]),h:R(EV),bi:'bass',b:[[0,38,5],[6,38,2],[10,41,4],[16,36,8]],ci:'epiano',ch:[[0,[62,65,69,72],8],[8,[62,65,69,72],8],[16,[60,64,67,71],16]]},
+    poppunk:{bpm:176,k:R([0,6,8]),s:R([4,12]),h:R(EV),bi:'bass',b:E8(36,31),ci:'dguitar',ch:[[0,[48],8],[8,[48],8],[16,[43],8],[24,[45],8]]},
+    dubstep:{bpm:140,k:[0,22],s:[8,24],h:[0,4,8,12,16,20,24,28],bi:'sbass',b:[[0,33,3],[3,33,3],[6,33,2],[16,31,3],[19,31,3],[22,36,4]]},
+    trap:{bpm:140,k:[0,11,20,27],s:[8,24],h:R(EV),r:[14,28,29,30,31],bi:'b808',b:[[0,33,10],[11,33,5],[20,36,6],[27,31,5]],mi:'glock',m:[[0,69,2],[4,72,2],[8,71,2],[12,67,4],[16,69,2],[20,72,2],[24,76,4]]},
+    synthwave:{bpm:100,k:R([0,8]),s:R([4,12]),h:R(EV),bi:'sbass',b:E8(33,29,true),ci:'pad',ch:[[0,AM,16],[16,FM,16]]},
+    afrobeats:{bpm:104,k:R([0,8]),c:R([6,14]),h:R([0,3,6,8,11,14]),bi:'bass',b:[[0,40,3],[6,40,2],[10,43,3],[16,38,3],[22,38,2],[26,36,3]],mi:'kalimba',m:RP([[0,76,2],[3,79,2],[6,81,2],[10,79,2],[12,76,2]])},
+    edm:{bpm:128,k:R([0,4,8,12]),c:R([4,12]),h:R([2,6,10,14]),bi:'sbass',b:RP([[0,33,2],[3,33,2],[6,33,2],[10,33,2]]),ci:'lead',ch:[[0,[69,72,76],2],[3,[69,72,76],2],[6,[69,72,76],2],[10,[69,72,76],2],[16,[67,71,74],2],[19,[67,71,74],2],[22,[67,71,74],2],[26,[67,71,74],2]]},
+    altrnb:{bpm:70,k:[0,11,20],s:[8,24],h:R(EV),bi:'b808',b:[[0,33,12],[20,29,10]],ci:'pad',ch:[[0,[57,60,64,67],16],[16,[53,57,60,64],16]]},
+    futurebass:{bpm:150,k:[0,20],s:[8,24],h:R(EV),r:[30,31],ci:'lead',ch:[[0,[60,64,67,72],3],[3,[60,64,67,72],3],[6,[60,64,67,72],2],[10,[60,64,67,72],2],[16,[57,60,64,69],3],[19,[57,60,64,69],3],[22,[57,60,64,69],2],[26,[57,60,64,69],2]],bi:'b808',b:[[0,36,8],[16,33,8]]},
+    drill:{bpm:142,k:[0,3,14,19,22],s:[8,24],h:[0,3,6,10,12,16,19,22,26,28],bi:'b808',b:[[0,31,8],[14,34,4],[19,29,8]],ci:'strings',ch:[[0,[55,58,62],16],[16,[53,56,60],16]]},
+    phonk:{bpm:140,k:[0,6,10,16,22,26],s:[8,24],h:R(EV),cow:[0,3,6,10,12,16,19,22,26,28],bi:'b808',b:[[0,33,6],[6,33,4],[16,31,6],[22,31,4]]},
+    amapiano:{bpm:112,k:R([0,4,8,12]),h:R([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]),bi:'b808',b:[[3,33,2],[6,33,3],[10,40,2],[14,38,2],[19,33,2],[22,33,3],[27,36,3]],ci:'piano',ch:[[0,[57,60,64,67],6],[8,[57,60,64,67],6],[16,[53,57,60,64],6],[24,[55,59,62,65],6]]},
+    lofi:{bpm:78,sw:.22,k:R([0,7,10]),s:R([4,12]),h:R(EV),bi:'bass',b:[[0,45,6],[16,41,6]],ci:'epiano',ch:[[0,[57,60,64,67],14],[16,[53,57,60,64],14]]},
+    hyperpop:{bpm:160,k:R([0,6,10]),s:R([4,12]),h:R([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]),bi:'sbass',b:[[0,36,6],[16,33,6]],mi:'lead',m:[[0,84,2],[2,86,2],[4,88,2],[6,91,4],[12,88,4],[16,86,2],[18,84,2],[20,81,4],[26,79,4]]},
+    reggaeton:{bpm:95,k:R([0,4,8,12]),s:R([3,6,11,14]),h:R(EV),bi:'sbass',b:[[0,38,4],[8,38,4],[16,36,4],[24,36,4]],ci:'pad',ch:[[0,[62,65,69],16],[16,[60,64,67],16]]}
+  };
+
+
+  /* ═════════ 소리 ═════════ */
+  function has(a,s){ return a&&a.indexOf(s)>=0; }
+  function playBeat(id,key,onStop){ var p=BEAT[id]; if(!p) return;
+    return SND.loop(p.bpm,function(i,t,dur,b,a){ var s=i%32, tt=t+(!p.sw?0:p.sw>=.3?(s%4===2?dur*.66:0):(s%2?p.sw*dur:0));
+      if(has(p.k,s)) SND.D.kick(a,b,tt); if(has(p.s,s)) SND.D.snare(a,b,tt,.85); if(has(p.c,s)) SND.D.clap(a,b,tt);
+      if(has(p.h,s)) SND.D.hat(a,b,tt,.7); if(has(p.r,s)) SND.D.hat(a,b,tt+dur/2,.55); if(has(p.rim,s)) SND.D.click(a,b,tt,1);
+      if(has(p.cow,s)) SND.D.cow(a,b,tt,1,(s%6===0)?1.12:1);
+      (p.b||[]).forEach(function(x){ if(x[0]===s) SND.I[p.bi](a,b,tt,SND.midi(x[1]),x[2]*dur*.9,.9); });
+      (p.ch||[]).forEach(function(x){ if(x[0]===s) x[1].forEach(function(n,k){ SND.I[p.ci](a,b,tt+(p.ci==='aguitar'||p.ci==='eguitar'?k*.015:0),SND.midi(n),x[2]*dur*.95,.45); }); });
+      (p.m||[]).forEach(function(x){ if(x[0]===s) SND.I[p.mi](a,b,tt,SND.midi(x[1]),x[2]*dur*.9,.75); });
+    },{key:key,onStop:onStop}); }
+  function isKey(k){ var p=SND.playing(); return p&&p.key===k; }
+  function toggleBeat(btn,id,key,label){ if(isKey(key)){ SND.stop(); return; } playBeat(id,key,function(){ btn.textContent=label; }); btn.textContent='■ 멈추기'; }
+
+  /* ═════════ 상태 ═════════ */
+  var KEY='genre-origins-v1', S={ pick:'hiphop', step:6, notes:{}, intro:'lofi', ai:'' };
+  try{ var sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv) S=Object.assign(S,sv); }catch(e){}
+  if(GX[S.pick]==null) S.pick='hiphop'; if(GX[S.intro]==null) S.intro='lofi';
+  S.step=6; function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+  function C(id){ return FAM[gg(id).fam].c; }
+  function label(p){ return GX[p]!=null? gg(p).ko : p; }
+
+  /* ═════════ 3 연표 ═════════ */
+  var Y0=1885, Y1=2025, W=1100, X0=60, X1=1080, LH=66, TOP=46;
+  function xOf(y){ return X0+(y-Y0)/(Y1-Y0)*(X1-X0); }
+  var POS={};
+  FK.forEach(function(f,li){ var last=-99, flip=1; G.filter(function(g){ return g.fam===f; }).forEach(function(g){ var x=xOf(g.yr), y=TOP+li*LH+LH/2;
+      if(x-last<34){ flip=-flip; y+=flip*15; } else flip=1; POS[g.id]=[x,y]; last=x; }); });
+  var svg='';
+  for(var yy=1890; yy<=2020; yy+=10){ svg+='<line x1="'+xOf(yy)+'" y1="'+(TOP-6)+'" x2="'+xOf(yy)+'" y2="'+(TOP+FK.length*LH)+'" stroke="#e7e5f0" stroke-width="1"/><text x="'+xOf(yy)+'" y="'+(TOP+FK.length*LH+16)+'" font-size="11" font-weight="900" fill="#9a97ad" text-anchor="middle">'+yy+'</text>'; }
+  FK.forEach(function(f,li){ svg+='<text x="6" y="'+(TOP+li*LH+LH/2+4)+'" font-size="18">'+FAM[f].e+'</text>'; });
+  [[1917,'첫 재즈 음반'],[1949,'“R&B” 이름'],[1973,'힙합 파티'],[1981,'MTV'],[2005,'유튜브'],[2017,'틱톡(해외)']].forEach(function(m,i){ var x=xOf(m[0]); svg+='<line x1="'+x+'" y1="'+(TOP-4)+'" x2="'+x+'" y2="'+(TOP+FK.length*LH)+'" stroke="#15132b" stroke-dasharray="3 4" opacity=".35"/><text x="'+x+'" y="'+(i%2?30:16)+'" font-size="11" font-weight="900" fill="#15132b" text-anchor="middle">'+m[0]+' '+m[1]+'</text>'; });
+  G.forEach(function(g){ g.par.forEach(function(p){ if(!POS[p]) return; var a=POS[p], b=POS[g.id], mx=(a[0]+b[0])/2;
+    svg+='<path class="tl-link" data-a="'+p+'" data-b="'+g.id+'" d="M'+a[0]+','+a[1]+' C'+mx+','+a[1]+' '+mx+','+b[1]+' '+b[0]+','+b[1]+'" stroke="'+C(g.id)+'"/>'; }); });
+  G.forEach(function(g){ var p=POS[g.id]; svg+='<g class="tl-dot" data-g="'+g.id+'" tabindex="0" role="button" aria-label="'+esc(g.ko)+'"><circle cx="'+p[0]+'" cy="'+p[1]+'" r="15" fill="#fff" stroke="'+C(g.id)+'" stroke-width="3"/><text x="'+p[0]+'" y="'+(p[1]+6)+'" font-size="16" text-anchor="middle">'+g.e+'</text><text x="'+p[0]+'" y="'+(p[1]+30)+'" font-size="10.5" font-weight="900" fill="'+C(g.id)+'" text-anchor="middle">'+esc(g.ko)+'</text></g>'; });
+  $('tl').innerHTML=svg;
+  $('legend').innerHTML=FK.map(function(f){ return '<span><i style="background:'+FAM[f].c+'"></i>'+FAM[f].e+' '+FAM[f].ko+'</span>'; }).join('');
+  function tlSel(id){ var g=gg(id);
+    document.querySelectorAll('.tl-dot').forEach(function(d){ d.classList.toggle('on',d.dataset.g===id); });
+    document.querySelectorAll('.tl-link').forEach(function(l){ l.classList.toggle('on',l.dataset.a===id||l.dataset.b===id); });
+    $('tl-out').innerHTML=g.e+' <b style="color:'+C(id)+'">'+esc(g.ko)+'</b> · '+esc(g.when)+' · '+esc(g.where)+'<br>👪 부모: '+g.par.map(function(p){ return esc(label(p)); }).join(', ')+(g.kids.length?' &nbsp;→&nbsp; 👶 자식: '+g.kids.map(function(k){ return esc(gg(k).ko); }).join(', '):'')+
+      '<br><button class="btn" type="button" id="tl-go" style="background:'+C(id)+';margin-top:6px">📖 '+esc(g.ko)+' 이야기 보기</button>';
+    $('tl-go').addEventListener('click',function(){ pick(id); if(window.__goSlide) window.__goSlide([].slice.call(document.querySelectorAll('.slide')).indexOf(document.getElementById('story').closest('.slide'))); }); }
+  $('tl').addEventListener('click',function(e){ var d=e.target.closest('[data-g]'); if(d) tlSel(d.dataset.g); });
+  $('tl').addEventListener('keydown',function(e){ var d=e.target.closest('[data-g]'); if(d&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); tlSel(d.dataset.g); } });
+
+  /* ═════════ 4 이야기책 ═════════ */
+  function drawList(){ $('glist').innerHTML=FK.map(function(f){ return '<div style="--fc:'+FAM[f].c+'"><h4>'+FAM[f].e+' '+FAM[f].ko+'</h4><div class="grp">'+G.filter(function(g){ return g.fam===f; }).map(function(g){ return '<button type="button" class="gchip" data-p="'+g.id+'" aria-pressed="'+(S.pick===g.id)+'">'+g.e+' '+esc(g.ko)+'</button>'; }).join('')+'</div></div>'; }).join(''); }
+  function chainBtn(p){ return GX[p]!=null? '<button type="button" data-p="'+p+'" style="--cc:'+C(p)+'">'+gg(p).e+' '+esc(gg(p).ko)+'</button>' : '<span class="t">'+esc(p)+'</span>'; }
+  function lead(t){ var m=String(t).match(/^(.+?[.!?])\s+([\s\S]+)$/); return m?'<span class="ld">'+esc(m[1])+'</span> '+esc(m[2]):'<span class="ld">'+esc(t)+'</span>'; }
+  function drawStory(anim){ var g=gg(S.pick), c=C(g.id), st=$('story'); st.style.setProperty('--fc',c);
+    var P=[['🗺','그때 그곳',g.scene],['🤔','왜 생겼을까',g.why],['🔧','비밀 무기',g.tool],['🔊','그래서 이런 소리',g.sound]];
+    st.innerHTML='<div class="top"><span class="big">'+g.e+'</span><div style="flex:1;min-width:200px"><h3>'+esc(g.ko)+'<small>'+esc(g.en)+'</small></h3>'+
+        '<div class="st-when"><span>📅 '+esc(g.when)+'</span><span>📍 '+esc(g.where)+'</span></div></div>'+
+        '<button class="btn" type="button" id="s-beat" style="background:'+c+'">🔊 비트 듣기</button></div>'+
+      '<div class="st-hook"><span class="q">💡</span><p><small>한 줄로 말하면</small>'+esc(g.wow)+'</p></div>'+
+      '<div class="st-strip">'+P.map(function(p,i){ return (i?'<span class="st-arr" aria-hidden="true">→</span>':'')+'<div class="st-cut"><div class="st-h"><span class="n">'+(i+1)+'</span><span class="e">'+p[0]+'</span><b>'+p[1]+'</b></div><p>'+lead(p[2])+'</p></div>'; }).join('')+'</div>'+
+      '<div class="st-foot"><div class="st-name"><b>🏷 이름의 비밀</b><span>'+esc(g.name)+'</span></div>'+
+        '<div class="chain">👪 '+g.par.map(chainBtn).join('')+' → <span class="me">'+g.e+' '+esc(g.ko)+'</span>'+(g.kids.length?' → 👶 '+g.kids.map(chainBtn).join(''):'')+'</div></div>';
+    $('s-beat').addEventListener('click',function(){ toggleBeat(this,g.id,'story','🔊 비트 듣기'); });
+    if(anim&&motion){ gsap.fromTo('#story .big',{scale:.3,rotation:-25},{scale:1,rotation:0,duration:.55,ease:'back.out(3)'});
+      gsap.fromTo('#story .st-hook',{y:-10,opacity:0},{y:0,opacity:1,duration:.4,ease:'power2.out',clearProps:'opacity,transform'});
+      gsap.fromTo('#story .st-cut',{y:14,opacity:0},{y:0,opacity:1,duration:.4,stagger:.12,delay:.15,ease:'power2.out',clearProps:'opacity,transform'}); } }
+  function pick(id){ if(S.pick!==id){ S.pick=id; S.step=6; } save(); SND.stop(); drawList(); drawStory(true); }
+  $('glist').addEventListener('click',function(e){ var b=e.target.closest('[data-p]'); if(b) pick(b.dataset.p); });
+  $('story').addEventListener('click',function(e){ var b=e.target.closest('.chain [data-p]'); if(b) pick(b.dataset.p); });
+
+  window.__storyStop=function(){ SND.stop(); };
+  drawList(); drawStory(); tlSel(S.pick);
 })();
 </script>
 </body>
