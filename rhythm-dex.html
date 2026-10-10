@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리듬 도감</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
+<style>
+/* 방향: 흰 종이 위 드럼 머신. 리듬마다 한 장면 — 직접 듣고, 끄고, 바꿔 보며 '왜 이런 리듬이 생겼는지'까지 */
+:root{
+  color-scheme: light;
+  --bg:#ffffff; --ink:#15132b; --sub:#55536f; --faint:#9a98b0; --line:#ecebf3; --panel:#f7f6fb;
+  --root:#ea580c; --dance:#db2777; --beat:#7c3aed; --kor:#059669;
+  --c:#ea580c;
+  --display:'Black Han Sans','Noto Sans KR',sans-serif; --body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+body{ font-family:var(--body); background:var(--bg); color:var(--ink); overflow:hidden; letter-spacing:-0.01em; word-break:keep-all; }
+[hidden]{ display:none !important; }
+button{ font-family:inherit; cursor:pointer; color:inherit; }
+:focus-visible{ outline:3px solid #a5b4fc; outline-offset:2px; }
+.staff-bg{ position:fixed; inset:0; z-index:0; pointer-events:none; background:repeating-linear-gradient(180deg, transparent 0 46px, #f3f2f8 46px 47px); opacity:.7; }
+
+.deck{ position:relative; z-index:1; width:100%; height:100%; }
+.slide{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:28px 44px 86px;
+  opacity:0; visibility:hidden; transform:translateX(60px); transition:opacity .4s ease, transform .4s ease, visibility .4s; overflow-y:auto; }
+.slide.active{ opacity:1; visibility:visible; transform:none; }
+.slide.prev{ transform:translateX(-60px); }
+.inner{ width:100%; max-width:1180px; display:flex; flex-direction:column; align-items:center; gap:16px; margin:auto; }
+
+.tag{ font-size:12px; font-weight:700; letter-spacing:3px; padding:5px 15px; border-radius:20px; border:1.5px solid currentColor; color:var(--c); }
+h1{ font-family:var(--display); font-weight:400; font-size:clamp(48px,8vw,104px); line-height:1.05; text-align:center; }
+h2{ font-family:var(--display); font-weight:400; font-size:clamp(28px,3.8vw,46px); line-height:1.2; text-align:center; }
+h2 small{ font-family:var(--body); font-size:.42em; font-weight:700; color:var(--faint); letter-spacing:1px; margin-left:6px; }
+.sub{ font-size:clamp(15px,1.6vw,19px); color:var(--sub); text-align:center; line-height:1.75; max-width:780px; }
+.sub b{ color:var(--ink); }
+.hook{ font-size:clamp(15px,1.5vw,18px); font-weight:700; color:var(--c); text-align:center; }
+
+/* 리듬 장면 */
+.rgrid{ width:100%; display:grid; grid-template-columns:minmax(0,1.12fr) minmax(0,1fr); gap:20px; align-items:start; }
+.lab{ display:flex; flex-direction:column; gap:12px; }
+.seq{ --lw:70px; background:#fff; border:1.5px solid var(--line); border-radius:22px; padding:16px 16px 12px; box-shadow:0 10px 30px rgba(21,19,43,.06); display:flex; flex-direction:column; gap:6px; }
+.seq.wl{ --lw:96px; }
+.srow{ display:grid; gap:4px; align-items:center; justify-content:center; }
+.srow > .nm{ font-size:13px; font-weight:900; color:var(--sub); border:none; background:none; text-align:left; padding:4px 2px; border-radius:8px; display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden; }
+.srow > .nm i{ width:9px; height:9px; border-radius:50%; background:var(--rc); flex:none; }
+.srow.muted > .nm{ color:#c9c7d8; text-decoration:line-through; }
+.srow.muted .cell.on{ opacity:.25; }
+.cell{ aspect-ratio:1; max-height:46px; border-radius:7px; background:#f3f2f8; border:none; padding:0; transition:transform .08s; }
+.cell.q{ background:#e9e7f2; }
+.cell.bs{ margin-left:5px; }
+.cell.on{ background:var(--rc); }
+.cell.gh{ background:var(--rc); opacity:.38; }
+.cell.roll{ background:repeating-linear-gradient(90deg,var(--rc) 0 38%, transparent 38% 62%, var(--rc) 62% 100%); }
+.cell.now{ outline:3px solid var(--ink); outline-offset:-1px; }
+.cell.on.now, .cell.gh.now, .cell.roll.now{ transform:scale(1.12); }
+.hdr span, .gu span{ text-align:center; font-size:12px; font-weight:900; color:var(--faint); font-variant-numeric:tabular-nums; }
+.hdr span.b{ color:var(--ink); }
+.hdr span.bsm, .gu span.bsm{ margin-left:5px; }
+.gu span{ font-size:14px; color:var(--c); }
+.gu span.dim{ color:#d4d2e2; font-weight:500; }
+.gu span.gh{ color:var(--faint); font-size:11px; }
+.hdr span.now, .gu span.now{ color:var(--ink); transform:scale(1.25); }
+.gu{ border-top:1.5px dashed var(--line); padding-top:6px; margin-top:2px; }
+.brk{ position:relative; height:22px; }
+.brk span{ position:absolute; top:4px; height:14px; border:2px solid var(--c); border-top:none; border-radius:0 0 8px 8px; font-size:11px; font-weight:900; color:var(--c); text-align:center; line-height:14px; }
+.brk span b{ position:relative; top:8px; background:#fff; padding:0 4px; }
+.ctrl{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.btn{ border:none; border-radius:14px; padding:11px 18px; font-weight:900; font-size:15px; background:var(--c); color:#fff; display:inline-flex; gap:8px; align-items:center; }
+.btn.ghost{ background:#fff; color:var(--ink); border:1.5px solid var(--line); font-size:14px; padding:10px 14px; }
+.btn.ghost[aria-pressed="true"]{ border-color:var(--c); color:var(--c); background:color-mix(in srgb, var(--c) 8%, #fff); }
+.bpmc{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:900; color:var(--sub); background:var(--panel); border-radius:14px; padding:6px 12px; }
+.bpmc input{ width:110px; accent-color:var(--c); }
+.bpmc b{ font-variant-numeric:tabular-nums; color:var(--ink); min-width:62px; }
+.tip{ font-size:12.5px; color:var(--faint); font-weight:700; }
+.altnote{ font-size:14px; line-height:1.6; color:var(--sub); background:var(--panel); border-left:4px solid var(--c); border-radius:0 12px 12px 0; padding:9px 12px; display:none; }
+.altnote.show{ display:block; }
+.altnote b{ color:var(--ink); }
+
+.story{ display:flex; flex-direction:column; gap:10px; }
+.sc{ background:#fff; border:1.5px solid var(--line); border-radius:18px; padding:13px 16px; display:grid; grid-template-columns:34px 1fr; gap:4px 10px; align-items:start; }
+.sc .ic{ grid-row:span 2; width:34px; height:34px; border-radius:11px; display:grid; place-items:center; font-size:17px; background:color-mix(in srgb, var(--c) 10%, #fff); }
+.sc h4{ font-size:13px; font-weight:900; color:var(--c); letter-spacing:.5px; }
+.sc p{ font-size:14.5px; line-height:1.68; color:var(--sub); }
+.sc p b{ color:var(--ink); }
+.songs{ font-size:13.5px; color:var(--sub); padding:2px 4px; line-height:1.6; }
+.songs b{ color:var(--ink); }
+
+/* 이야기 카드: 하나로 */
+.tale{ background:#fff; border:1.5px solid var(--line); border-radius:24px; padding:18px 20px; box-shadow:0 10px 30px rgba(21,19,43,.06); display:flex; flex-direction:column; gap:13px; }
+.tale-top{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; }
+.where{ font-size:14px; font-weight:900; color:#fff; background:var(--c); border-radius:99px; padding:6px 13px; }
+.feels{ display:flex; gap:6px; flex-wrap:wrap; }
+.feels i{ font-style:normal; font-size:13.5px; font-weight:700; color:var(--c); background:color-mix(in srgb, var(--c) 9%, #fff); border-radius:99px; padding:5px 11px; }
+.what{ background:color-mix(in srgb, var(--c) 8%, #fff); border:2px solid color-mix(in srgb, var(--c) 30%, #fff); border-radius:16px; padding:11px 15px; }
+.what small, .say-box small{ display:block; font-size:12.5px; font-weight:900; color:var(--c); letter-spacing:.5px; margin-bottom:2px; }
+.what p{ font-size:18px; font-weight:700; line-height:1.55; color:var(--ink); }
+.what b{ color:var(--c); font-weight:900; }
+.tale-story{ font-size:16px; line-height:1.75; color:var(--sub); }
+.tale-story em, .point em{ display:block; font-style:normal; font-size:12.5px; font-weight:900; color:var(--c); letter-spacing:.5px; }
+.tale-story b{ color:var(--ink); }
+.say-box{ background:var(--panel); border-radius:16px; padding:11px 15px; display:flex; flex-direction:column; gap:3px; }
+.say-big{ font-family:var(--display); font-size:clamp(23px,2.3vw,29px); color:var(--c); letter-spacing:1px; line-height:1.3; }
+.say-box p{ font-size:14.5px; color:var(--sub); line-height:1.6; }
+.say-box p b{ color:var(--ink); }
+.point{ display:grid; grid-template-columns:28px 1fr; gap:8px; align-items:start; border-left:5px solid var(--c); padding:2px 0 2px 12px; }
+.point .pi{ font-size:21px; line-height:1.3; }
+.point p{ font-size:16px; line-height:1.7; color:var(--ink); }
+.point b{ background:linear-gradient(transparent 58%, color-mix(in srgb, var(--c) 22%, #fff) 58%); }
+
+/* 표지 */
+.cover-grid{ display:grid; grid-template-columns:repeat(16,1fr); gap:6px; width:min(640px,100%); }
+.cover-grid i{ aspect-ratio:1; border-radius:6px; background:#f1f0f7; transition:background .12s, transform .12s; }
+.cover-grid i.on{ transform:scale(1.08); }
+.fams{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.fam{ font-size:13.5px; font-weight:900; padding:7px 14px; border-radius:99px; color:#fff; }
+
+/* 읽는 법 */
+.legend{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; width:100%; max-width:1000px; }
+.lg{ background:#fff; border:1.5px solid var(--line); border-radius:18px; padding:14px; display:flex; flex-direction:column; gap:4px; }
+.lg b{ font-size:16px; } .lg span{ font-size:13.5px; color:var(--sub); line-height:1.55; }
+.lg .say{ font-family:var(--display); font-size:26px; color:var(--c); }
+.howto{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; width:100%; max-width:1000px; }
+.howto div{ background:var(--panel); border-radius:16px; padding:12px 14px; font-size:14px; line-height:1.6; color:var(--sub); }
+.howto div b:first-child{ display:block; color:var(--ink); font-size:15px; margin-bottom:2px; }
+
+/* 족보 */
+.tree{ position:relative; width:100%; max-width:1120px; }
+.tree svg{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
+.eras{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; position:relative; }
+.era{ display:flex; flex-direction:column; gap:12px; align-items:center; }
+.era h5{ font-size:12.5px; font-weight:900; color:var(--faint); letter-spacing:1px; }
+.node{ border:2px solid var(--nc); background:#fff; color:var(--ink); border-radius:16px; padding:9px 12px; font-size:14px; font-weight:900; text-align:center; min-width:120px; position:relative; z-index:1; transition:transform .15s, background .15s; }
+.node small{ display:block; font-size:11px; font-weight:700; color:var(--faint); margin-top:1px; }
+.node.go:hover{ transform:translateY(-2px); background:color-mix(in srgb, var(--nc) 10%, #fff); }
+.node.plain{ border-style:dashed; cursor:default; }
+.kor-lane{ margin-top:18px; display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap; border-top:1.5px dashed var(--line); padding-top:16px; }
+.kor-lane span{ font-size:13px; font-weight:900; color:var(--kor); }
+
+/* 퀴즈 */
+.quiz-opts{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; width:100%; max-width:720px; }
+.qo{ border:2px solid var(--line); background:#fff; border-radius:16px; padding:14px; font-size:17px; font-weight:900; transition:transform .12s, border-color .15s, background .15s; }
+.qo:hover{ transform:translateY(-2px); border-color:var(--c); }
+.qo.ok{ background:#d1fae5; border-color:#059669; } .qo.no{ background:#ffe4e6; border-color:#e11d48; }
+.qmsg{ min-height:28px; font-size:16px; font-weight:700; color:var(--sub); text-align:center; }
+.score{ font-weight:900; color:var(--c); font-variant-numeric:tabular-nums; }
+.seq.hide .cell.on, .seq.hide .cell.gh, .seq.hide .cell.roll{ background:#cfcbe3; opacity:1; }
+.seq.hide .nm, .seq.hide .gu span{ visibility:hidden; }
+
+.end-quote{ font-family:var(--display); font-size:clamp(30px,4.6vw,58px); line-height:1.3; text-align:center; }
+
+/* 내비 */
+.nav{ position:fixed; bottom:0; left:0; right:0; z-index:5; display:flex; align-items:center; justify-content:center; gap:16px; padding:14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); background:linear-gradient(0deg,#fff 60%,rgba(255,255,255,0)); }
+.nav-btn{ width:48px; height:48px; border-radius:50%; border:1.5px solid var(--line); background:#fff; font-size:18px; font-weight:900; }
+.nav-btn:disabled{ opacity:.3; cursor:default; }
+.slide-num{ font-weight:900; color:var(--sub); font-variant-numeric:tabular-nums; min-width:70px; text-align:center; }
+.mapbtn{ position:fixed; top:14px; right:16px; z-index:5; border:1.5px solid var(--line); background:#fff; border-radius:99px; padding:8px 14px; font-weight:900; font-size:13.5px; box-shadow:0 6px 18px rgba(21,19,43,.08); }
+
+@media (max-width:900px){
+  .rgrid{ grid-template-columns:minmax(0,1fr); }
+  .eras{ grid-template-columns:1fr 1fr; }
+  .tree svg{ display:none; }
+}
+@media (max-width:760px){
+  .slide{ padding:56px 16px 92px; align-items:flex-start; }
+  .seq{ --lw:50px; padding:12px 8px 10px; } .seq.wl{ --lw:62px; }
+  .srow{ gap:2px; } .cell.bs{ margin-left:3px; } .cell{ border-radius:4px; }
+  .srow > .nm{ font-size:11px; }
+  .gu span{ font-size:11px; } .hdr span{ font-size:10px; }
+  .quiz-opts{ grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion:reduce){ .slide{ transition:none; transform:none; } }
+</style>
+</head>
+<body>
+<div class="staff-bg" aria-hidden="true"></div>
+<button class="mapbtn" id="mapbtn" type="button">🗺 리듬 족보</button>
+
+<div class="deck" id="deck">
+  <!-- 표지 -->
+  <section class="slide" style="--c:var(--root)">
+    <div class="inner">
+      <div class="cover-grid" id="cover-grid" aria-hidden="true"></div>
+      <span class="tag">RHYTHM FIELD GUIDE</span>
+      <h1>리듬 <span style="color:var(--dance)">도감</span></h1>
+      <p class="sub">같은 빠르기라도 <b>어디를 치고 어디를 비우느냐</b>에 따라 전혀 다른 음악이 돼요.<br>11가지 리듬을 직접 듣고, 끄고, 바꿔 보면서 <b>어디서 왔고 왜 그렇게 치는지</b> 알아봐요.</p>
+      <div class="fams">
+        <span class="fam" style="background:var(--root)">뿌리 리듬</span>
+        <span class="fam" style="background:var(--dance)">춤의 리듬</span>
+        <span class="fam" style="background:var(--beat)">힙합·전자</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 족보 -->
+  <section class="slide" id="tree-slide" style="--c:var(--dance)">
+    <div class="inner">
+      <span class="tag">FAMILY TREE</span>
+      <h2>리듬에도 <span style="color:var(--dance)">족보</span>가 있어요</h2>
+      <p class="sub">리듬은 사람과 함께 바다를 건너고, 다른 리듬과 만나 새 리듬을 낳았어요. <b>이름을 누르면</b> 그 리듬으로 가요.</p>
+      <div class="tree" id="tree">
+        <svg id="tree-svg" aria-hidden="true"></svg>
+        <div class="eras" id="eras"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 여기에 리듬 장면이 들어가요 -->
+  <div id="rhythm-anchor" hidden></div>
+
+</div>
+
+<div class="nav">
+  <button class="nav-btn" id="prev" type="button" aria-label="이전">◀</button>
+  <span class="slide-num" id="num">1 / 1</span>
+  <button class="nav-btn" id="next" type="button" aria-label="다음">▶</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  var $=function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function range(a,b,s){ var r=[]; for(var i=a;i<b;i+=(s||1)) r.push(i); return r; }
+  var EIGHTHS=range(0,16,2), SIXTEENTHS=range(0,16);
+  var FAM={ root:['뿌리 리듬','var(--root)'], dance:['춤의 리듬','var(--dance)'], beat:['힙합·전자','var(--beat)'], kor:['우리 장단','var(--kor)'] };
+
+  /* ── 리듬 데이터 ──
+     rows: n 이름, s 소리, st 칸, g 고스트(작게), acc 강세(나머지는 작게), roll 32분음표 롤, v 음량
+     len 칸 수, per 한 박의 칸 수, swing 홀수 칸을 늦추는 정도, br 묶음 표시 [시작,끝,글자] */
+  var R=[
+    { id:'backbeat', fam:'root', name:'백비트', en:'Backbeat', bpm:100,
+      hook:'2박과 4박에 “탁!” — 대중음악의 심장 박동',
+      rows:[ {n:'킥',s:'kick',st:[0,8,10]}, {n:'스네어',s:'snare',st:[4,12]}, {n:'하이햇',s:'hat',st:EIGHTHS} ],
+      alt:{ label:'행진곡처럼 1·3박 강조', note:'강조를 <b>1·3박</b>으로 옮기면 “쿵-쿵” 하는 행진곡이 돼요. 몸이 들썩이던 느낌이 사라지고 <b>걷는</b> 느낌만 남죠.',
+        rows:[ {n:'킥',s:'kick',st:[0,8]}, {n:'스네어',s:'snare',st:[0,8]}, {n:'하이햇',s:'hat',st:EIGHTHS} ] },
+      tale:{"where": "1950년대 · 미국", "feel": ["들썩들썩", "안정감", "고개 끄덕"], "what": "<b>2박과 4박</b>에 스네어(박수)를 세게 치는 리듬", "story": "흑인 교회에서 사람들이 2·4박에 손뼉을 쳤어요. 드러머들이 이 손뼉을 드럼으로 옮겼고, <b>로큰롤</b>을 타고 전 세계로 퍼졌어요.", "say": "쿵 츠 탁 츠 쿵 츠 탁 츠", "body": "쿵 = 발 구르기 · 탁 = 박수 · 츠 = 입으로", "point": "원래 약하게 치던 <b>2·4박을 세게!</b> 강약을 뒤집었더니 몸이 움직이기 시작했어요. 팝·록·K-팝 대부분이 이 리듬 위에 있어요."},
+      songs:'퀸 ‘We Will Rock You’(발 쿵쿵, 박수 짝: 이 박수가 백비트예요), 대부분의 록·팝·K-팝' },
+
+    { id:'tresillo', fam:'root', name:'트레시요', en:'Tresillo · 3-3-2', bpm:100,
+      hook:'8칸을 3·3·2로 묶으면 생기는 마법',
+      rows:[ {n:'킥',s:'kick',st:[0,6,12]}, {n:'클랩',s:'clap',st:[4,12]}, {n:'하이햇',s:'hat',st:EIGHTHS,v:.7} ],
+      br:[[0,6,'3'],[6,12,'3'],[12,16,'2']],
+      alt:{ label:'2·2·2·2로 똑같이 나누기', note:'똑같이 나누면 반듯하지만 <b>밀고 당기는 맛</b>이 사라져요. 트레시요는 두 번째 “쿵”이 박보다 <b>먼저</b> 들어와서 몸이 앞으로 쏠려요.',
+        rows:[ {n:'킥',s:'kick',st:[0,4,8,12]}, {n:'클랩',s:'clap',st:[4,12]}, {n:'하이햇',s:'hat',st:EIGHTHS,v:.7} ], br:[[0,4,'2'],[4,8,'2'],[8,12,'2'],[12,16,'2']] },
+      tale:{"where": "19세기 · 아프리카 → 쿠바", "feel": ["살랑살랑", "밀고 당기기", "춤추고 싶은"], "what": "8칸을 <b>3 + 3 + 2</b>로 묶어서, 묶음마다 첫 칸을 치는 리듬", "story": "이름은 스페인어로 <b>‘셋으로 나눈 것’</b>이에요. 아프리카 리듬이 바다를 건너 쿠바에 닿았고, 거기서 라틴 음악 전체로 퍼졌어요.", "say": "쿵 . . 쿵 . . 쿵 .", "body": "“하나 둘 셋 / 하나 둘 셋 / 하나 둘”로 세고 <b>‘하나’마다 발!</b>", "point": "똑같은 8칸인데 <b>묶는 방법</b>만 바꿨더니 춤이 돼요. 레게톤, 라틴 팝, 요즘 팝까지 수많은 리듬의 <b>할머니</b>예요."},
+      songs:'에드 시런 ‘Shape of You’의 마림바, 레게톤과 라틴 팝 대부분' },
+
+    { id:'swing', fam:'root', name:'스윙', en:'Swing', bpm:140, len:12, per:3,
+      hook:'길게-짧게, 길게-짧게 출렁이는 박',
+      rows:[ {n:'라이드',s:'ride',st:[0,3,5,6,9,11]}, {n:'하이햇(발)',s:'hatc',st:[3,9]}, {n:'킥',s:'kickSoft',st:[0,3,6,9],v:.45} ],
+      alt:{ label:'스윙 없이 반듯하게', note:'박을 <b>반반</b>으로 나누면 똑같은 위치를 쳐도 딱딱하고 기계 같아요. 스윙은 박을 <b>셋으로 나눠 2:1</b>로 치는 거예요.', len:16, per:4,
+        rows:[ {n:'라이드',s:'ride',st:[0,4,6,8,12,14]}, {n:'하이햇(발)',s:'hatc',st:[4,12]}, {n:'킥',s:'kickSoft',st:[0,4,8,12],v:.45} ] },
+      tale:{"where": "1930년대 · 미국 재즈", "feel": ["출렁출렁", "여유", "그네 타는 듯"], "what": "한 박을 셋으로 나눠 <b>길게-짧게(2:1)</b>로 치는 리듬", "story": "큰 악단이 춤 음악을 연주하던 <b>재즈 빅밴드</b> 시대의 리듬이에요. “스윙이 없으면 의미가 없다”는 노래 제목이 있을 정도예요.", "say": "칭 · 칭-가 · 칭 · 칭-가", "body": "한 박을 “하나-둘-셋”으로 세고 <b>하나</b>와 <b>셋</b>만 쳐요 (길게-짧게)", "point": "악보엔 똑같이 적혀 있어도 연주자가 <b>느낌으로 비틀어요</b>. 리듬은 숫자가 아니라 사람의 감각! 로파이 힙합의 느긋함도 여기서 왔어요."},
+      songs:'베니 굿맨 ‘Sing, Sing, Sing’, 프랭크 시나트라 ‘Fly Me to the Moon’' },
+
+    { id:'onedrop', fam:'dance', name:'원 드롭', en:'One Drop', bpm:76, swing:.12,
+      hook:'첫 박을 비워 두는 레게의 여유',
+      rows:[ {n:'킥',s:'kick',st:[8]}, {n:'림',s:'rim',st:[8]}, {n:'하이햇',s:'hat',st:EIGHTHS,v:.7}, {n:'기타',s:'skank',st:[4,12]} ],
+      alt:{ label:'1박에 킥 넣어 보기', note:'1박에 “쿵”을 넣는 순간 평범한 록 비트처럼 들려요. 원 드롭은 <b>가장 중요한 자리를 비워 둬서</b> 둥실 떠 있는 느낌을 만들어요.',
+        rows:[ {n:'킥',s:'kick',st:[0,8]}, {n:'림',s:'rim',st:[8]}, {n:'하이햇',s:'hat',st:EIGHTHS,v:.7}, {n:'기타',s:'skank',st:[4,12]} ] },
+      tale:{"where": "1970년대 · 자메이카", "feel": ["둥실둥실", "느긋", "여유만만"], "what": "<b>1박을 비우고, 3박</b>에 킥과 림을 함께 치는 레게 리듬", "story": "<b>레게</b>의 대표 리듬이에요. 밥 말리 밴드의 드러머 칼튼 배럿이 유명하게 만들었어요.", "say": "(쉼) 츠 착 츠 쿵 츠 착 츠", "body": "1박은 <b>참고 쉬기</b> → 3박에 발+박수 같이 “쿵!” · 착 = 기타 짧게", "point": "<b>비워 두는 것도 리듬</b>이에요. 모두가 기다리는 첫 박을 비우면, 듣는 사람이 그 빈자리를 몸으로 채워요."},
+      songs:'밥 말리 ‘One Drop’(곡 제목이 바로 리듬 이름)' },
+
+    { id:'funk', fam:'dance', name:'펑크', en:'Funk · The One', bpm:100,
+      hook:'첫 박 “더 원”과 숨어 있는 고스트 노트',
+      rows:[ {n:'킥',s:'kick',st:[0,2,10]}, {n:'스네어',s:'snare',st:[4,12],g:[7,9,15]}, {n:'하이햇',s:'hat',st:SIXTEENTHS,acc:EIGHTHS} ],
+      alt:{ label:'고스트 노트 빼기', note:'작은 “따닥”(고스트 노트)을 빼면 갑자기 <b>심심한 록 비트</b>가 돼요. 펑크의 쫀득함은 들릴락 말락 한 작은 소리에서 나와요.',
+        rows:[ {n:'킥',s:'kick',st:[0,2,10]}, {n:'스네어',s:'snare',st:[4,12]}, {n:'하이햇',s:'hat',st:SIXTEENTHS,acc:EIGHTHS} ] },
+      tale:{"where": "1960년대 · 미국", "feel": ["쫀득쫀득", "통통", "신나는"], "what": "<b>첫 박(The One)</b>을 세게 치고, 16분음표 사이사이에 <b>작은 고스트 노트</b>를 넣는 리듬", "story": "<b>제임스 브라운</b>이 멜로디보다 리듬을 주인공으로 만든 음악이에요. 기타도 베이스도 드럼처럼 리듬을 쳐요.", "say": "쾅! 츠츠 탁 (따닥) 탁", "body": "첫 박은 <b>무조건 세게</b> · 사이사이 아주 작게 “따닥” (고스트 노트)", "point": "들릴락 말락 한 <b>작은 소리</b>가 쫀득함의 비밀이에요. 펑크 레코드의 드럼은 나중에 잘려서 <b>힙합의 재료</b>가 됐어요."},
+      songs:'제임스 브라운 ‘I Got You (I Feel Good)’, 브루노 마스 ‘Uptown Funk’' },
+
+    { id:'four', fam:'dance', name:'포 온 더 플로어', en:'Four on the Floor', bpm:124,
+      hook:'바닥을 쿵쿵쿵쿵 — 모두를 한 박자로',
+      rows:[ {n:'킥',s:'kick',st:[0,4,8,12]}, {n:'클랩',s:'clap',st:[4,12]}, {n:'오픈햇',s:'ohat',st:[2,6,10,14]} ],
+      alt:{ label:'킥을 1·3박에만', note:'킥이 두 번으로 줄면 록이나 팝 비트처럼 들려요. 네 박 모두 밟아야 수백 명이 <b>같은 박에 발을 맞추는</b> 클럽 리듬이 돼요.',
+        rows:[ {n:'킥',s:'kick',st:[0,8]}, {n:'클랩',s:'clap',st:[4,12]}, {n:'오픈햇',s:'ohat',st:[2,6,10,14]} ] },
+      tale:{"where": "1970년대 · 미국 디스코", "feel": ["쿵쿵쿵쿵", "일정한", "다 같이"], "what": "<b>네 박 모두</b>에 킥을 쿵쿵 밟는 춤 음악 리듬", "story": "<b>디스코</b> 클럽에서 시작해 시카고의 <b>하우스</b>, 지금의 EDM까지 이어진 춤 음악의 바닥이에요.", "say": "쿵 치 쾅 치 쿵 치 쾅 치", "body": "모든 박에 발 · 2·4박에 박수 · 사이에 “치—”", "point": "심장처럼 일정해서 처음 듣는 사람도 바로 맞출 수 있어요. 수백 명을 <b>한 박자로 묶는</b> 공동체의 리듬!"},
+      songs:'비지스 ‘Stayin’ Alive’, 다프트 펑크 ‘One More Time’, BTS ‘Dynamite’' },
+
+    { id:'bossa', fam:'dance', name:'보사노바', en:'Bossa Nova', bpm:120,
+      hook:'커다란 삼바를 작은 방으로 데려온 속삭이는 리듬',
+      rows:[ {n:'베이스 북',s:'kickSoft',st:[0,6,8,14]}, {n:'림',s:'rim',st:[0,3,6,10,13]}, {n:'셰이커',s:'shaker',st:SIXTEENTHS,acc:[0,4,8,12]} ],
+      br:[[0,3,'3'],[3,6,'3'],[6,10,'4'],[10,13,'3'],[13,16,'3']],
+      alt:{ label:'삼바처럼 빠르게', bpm:190, note:'빠르게 몰아치면 카니발 거리의 <b>삼바</b>에 가까워져요. 보사노바는 삼바의 뼈대를 그대로 두고 <b>느리고 작게</b> 줄인 리듬이에요.' },
+      tale:{"where": "1958년 · 브라질", "feel": ["살랑", "세련된", "속삭이듯"], "what": "브라질 <b>삼바를 작고 부드럽게</b> 줄인 리듬. 림 소리가 <b>3-3-4-3-3</b>으로 엇갈려요", "story": "시끌벅적한 삼바 리듬을 <b>기타 하나</b>로 줄여 조용히 친 데서 시작했어요. ‘보사 노바’는 <b>‘새로운 경향’</b>이라는 뜻이에요.", "say": "쿵 . . 쿵 쿵 . . 쿵", "body": "손끝으로 책상을 톡톡 · 아주 <b>작게</b> 치는 게 포인트", "point": "거리의 커다란 삼바를 <b>거실</b>로 데려온 리듬이에요. 크게 치는 것만 멋진 게 아니라, <b>작게</b> 줄여서 새 장르가 됐어요."},
+      songs:'‘The Girl from Ipanema’(이파네마에서 온 소녀)' },
+
+    { id:'dembow', fam:'dance', name:'뎀보', en:'Dembow', bpm:95,
+      hook:'쿵-따-쿵따, 레게톤의 심장',
+      rows:[ {n:'킥',s:'kick',st:[0,4,8,12]}, {n:'스네어',s:'snare',st:[3,6,11,14]}, {n:'하이햇',s:'hat',st:[2,10],v:.6} ],
+      br:[[0,3,'3'],[3,6,'3'],[6,8,'2'],[8,11,'3'],[11,14,'3'],[14,16,'2']],
+      alt:{ label:'스네어 빼고 킥만', note:'킥만 남기면 그냥 <b>포 온 더 플로어</b>예요. 그 위에 <b>3-3-2 트레시요</b> 스네어를 얹은 것이 뎀보예요. 두 리듬의 합체죠!',
+        rows:[ {n:'킥',s:'kick',st:[0,4,8,12]}, {n:'스네어',s:'snare',st:[]}, {n:'하이햇',s:'hat',st:[2,10],v:.6} ] },
+      tale:{"where": "1990년대 · 자메이카 → 푸에르토리코", "feel": ["흔들흔들", "중독성", "반복"], "what": "4박 내내 치는 킥 위에 <b>3-3-2로 엇갈리는 스네어</b>를 얹은 레게톤 리듬", "story": "자메이카 노래 <b>‘Dem Bow’</b>에서 이름이 왔고, 푸에르토리코에서 <b>레게톤</b>의 심장이 됐어요.", "say": "쿵 . . 따 쿵 . 따 .", "body": "발은 4박 내내 쿵쿵 · 박수는 <b>트레시요</b>처럼 엇갈리게", "point": "포 온 더 플로어 + 트레시요 = 뎀보! 두 리듬을 <b>합체</b>해서 ‘Despacito’ 같은 세계적인 히트곡이 나왔어요."},
+      songs:'대디 양키 ‘Gasolina’(2004), 루이스 폰시 ‘Despacito’(2017)' },
+
+    { id:'boombap', fam:'beat', name:'붐뱁', en:'Boom Bap', bpm:90, swing:.22,
+      hook:'“붐”(킥)과 “뱁”(스네어) — 고개를 끄덕이게 하는 힙합',
+      rows:[ {n:'킥',s:'kick',st:[0,7,10]}, {n:'스네어',s:'snare',st:[4,12]}, {n:'하이햇',s:'hat',st:SIXTEENTHS,acc:EIGHTHS} ],
+      alt:{ label:'스윙 끄기(로봇처럼)', swing:0, note:'스윙을 끄면 칸에 딱 맞아서 <b>반듯하지만 딱딱해요</b>. 붐뱁은 홀수 칸을 살짝 늦게 쳐서 사람이 친 듯 <b>출렁이는 맛</b>을 내요.' },
+      tale:{"where": "1973년~ · 미국 뉴욕", "feel": ["끄덕끄덕", "둔탁", "묵직"], "what": "<b>묵직한 킥(붐)</b>과 <b>딱 부러지는 스네어(뱁)</b>에, 살짝 늦게 미는 <b>스윙</b>을 더한 힙합 리듬", "story": "DJ가 펑크 레코드에서 <b>드럼만 나오는 부분</b>을 계속 이어 틀면서 <b>힙합</b>이 시작됐어요. 그 드럼을 잘라 붙인 게 붐뱁이에요.", "say": "붐 — 뱁 — 붐 붐 — 뱁", "body": "스네어는 2·4박에 꽉 · 하이햇은 일부러 <b>살짝 늦게</b>", "point": "악기 없이 <b>레코드판</b>으로 음악을 만든 발명이에요! 이걸 느리게 하고 지지직 잡음을 입히면 바로 <b>로파이 힙합</b>이에요."},
+      songs:'누자베스 ‘Feather’, 90년대 뉴욕 힙합' },
+
+    { id:'trap', fam:'beat', name:'트랩', en:'Trap · Half-time', bpm:140,
+      hook:'빠른 하이햇 + 느린 스네어 = 두 개의 속도가 동시에',
+      rows:[ {n:'808',s:'k808',st:[0,3,10]}, {n:'스네어',s:'clap',st:[8]}, {n:'하이햇',s:'hat',st:SIXTEENTHS,acc:EIGHTHS,roll:[13,14,15]} ],
+      alt:{ label:'스네어를 2·4박으로', note:'스네어를 2·4박에 치면 갑자기 <b>두 배 빠른</b> 노래처럼 들려요. 트랩은 스네어를 3박에 한 번만 쳐서 140 BPM을 <b>70 BPM처럼 무겁게</b> 느끼게 해요.',
+        rows:[ {n:'808',s:'k808',st:[0,3,10]}, {n:'스네어',s:'clap',st:[4,12]}, {n:'하이햇',s:'hat',st:SIXTEENTHS,acc:EIGHTHS} ] },
+      tale:{"where": "2000년대 · 미국 애틀랜타", "feel": ["긴장감", "묵직", "다다닥"], "what": "빠른 <b>하이햇 롤</b> + <b>3박에만</b> 치는 스네어 + 길게 울리는 <b>808 베이스</b>로 된 힙합 리듬", "story": "남부 힙합에서 시작해 지금은 <b>K-팝·팝</b>까지 퍼진 비트예요. 드럼 머신 TR-808의 “우웅” 베이스가 트레이드마크예요.", "say": "츠츠츠츠 · 짝! · 츠르르륵", "body": "손은 하이햇처럼 빠르게 · 박수는 <b>3박에 딱 한 번</b>", "point": "하이햇은 빠르고 스네어는 느려요. 한 곡에 <b>두 개의 속도</b>를 동시에 담는 방법이에요."},
+      songs:'블랙핑크 ‘뚜두뚜두(DDU-DU DDU-DU)’, 요즘 힙합 대부분' },
+
+    { id:'dnb', fam:'beat', name:'드럼앤베이스', en:'Drum & Bass · Breakbeat', bpm:172,
+      hook:'힙합 드럼을 두 배로 빠르게 돌리면?',
+      rows:[ {n:'킥',s:'kick',st:[0,10]}, {n:'스네어',s:'snare',st:[4,12],g:[7,15]}, {n:'하이햇',s:'hat',st:EIGHTHS,v:.8} ],
+      alt:{ label:'절반 속도로 듣기', bpm:86, note:'반으로 느리게 하면 <b>힙합 비트</b>와 거의 똑같아요! 드럼앤베이스는 힙합처럼 펑크 레코드의 드럼을 잘라 쓰되 <b>두 배로 빠르게</b> 돌린 음악이에요.' },
+      tale:{"where": "1990년대 · 영국", "feel": ["질주", "두근두근", "빠름"], "what": "킥은 1박·3박 반, 스네어는 2·4박인 <b>브레이크비트</b>를 <b>170 BPM 안팎</b>으로 빠르게 돌린 리듬", "story": "1969년 노래 속 <b>6초짜리 드럼 솔로</b>(아멘 브레이크)를 영국 젊은이들이 아주 빠르게 돌려서 만들었어요.", "say": "쿵 . 탁 . . 쿵 탁 .", "body": "너무 빠르니까 박수는 <b>스네어(2·4박)</b>만 따라 해요", "point": "느리게 하면 힙합, 빠르게 하면 드럼앤베이스! 남의 음반 <b>몇 초</b>가 수많은 장르를 낳았어요."},
+      songs:'뉴진스 ‘Super Shy’처럼 요즘 K-팝 속 빠른 브레이크비트' }
+  ];
+  var BYID={}; R.forEach(function(r){ BYID[r.id]=r; });
+
+  /* ── 장면 만들기 ── */
+  var famCount={};
+  var html=R.map(function(r,idx){
+    famCount[r.fam]=(famCount[r.fam]||0)+1;
+    var f=FAM[r.fam], t=r.tale;
+    return '<section class="slide" data-rid="'+r.id+'" style="--c:'+f[1]+'"><div class="inner">'+
+      '<span class="tag">'+f[0]+' · '+String(idx+1).padStart(2,'0')+'</span>'+
+      '<h2>'+r.name+'<small>'+r.en+'</small></h2><p class="hook">'+r.hook+'</p>'+
+      '<div class="rgrid"><div class="lab" data-in>'+
+        '<div class="seq" id="seq-'+r.id+'"></div>'+
+        '<div class="ctrl"><button class="btn" type="button" data-play="'+r.id+'">▶ 듣기</button>'+
+        '<label class="bpmc">빠르기 <input type="range" data-bpm="'+r.id+'" min="'+Math.round(r.bpm*.5)+'" max="'+Math.round(r.bpm*1.5)+'" value="'+r.bpm+'"><b data-bpmv="'+r.id+'">'+r.bpm+' BPM</b></label>'+
+        (r.alt?'<button class="btn ghost" type="button" data-alt="'+r.id+'" aria-pressed="false">⇄ '+r.alt.label+'</button>':'')+
+        '<button class="btn ghost" type="button" data-reset="'+r.id+'" hidden>↺ 되돌리기</button></div>'+
+        '<p class="altnote" id="an-'+r.id+'">'+(r.alt?r.alt.note:'')+'</p>'+
+        '<p class="tip">줄 이름을 누르면 그 소리를 끄고, 칸을 누르면 직접 바꿀 수 있어요.</p>'+
+      '</div><div class="tale">'+
+        '<div class="tale-top" data-in><span class="where">📍 '+t.where+'</span><span class="feels">'+t.feel.map(function(x){ return '<i>#'+x+'</i>'; }).join('')+'</span></div>'+
+        '<div class="what" data-in><small>🔍 이 리듬의 정체</small><p>'+t.what+'</p></div>'+
+        '<p class="tale-story" data-in><em>📖 어디서 왔을까?</em>'+t.story+'</p>'+
+        '<div class="say-box" data-in><small>🥁 따라 해 봐요</small><div class="say-big">'+t.say+'</div><p>'+t.body+'</p></div>'+
+        '<div class="point" data-in><span class="pi">💡</span><p><em>한마디로</em>'+t.point+'</p></div>'+
+        '<p class="songs" data-in>🎧 <b>들어 볼 곡</b> · '+r.songs+'</p>'+
+      '</div></div></div></section>';
+  }).join('');
+  $('rhythm-anchor').insertAdjacentHTML('beforebegin',html);
+
+  /* ── 상태 ── */
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function build(r,altOn){
+    var a=altOn&&r.alt?r.alt:{};
+    return { bpm:a.bpm||r.bpm, len:a.len||r.len||16, per:a.per||r.per||4, swing:(a.swing!==undefined?a.swing:(r.swing||0)),
+      rows:clone(a.rows||r.rows), br:a.br||(a.len?null:r.br)||null };
+  }
+  var ST={}; R.forEach(function(r){ ST[r.id]={ alt:false, cfg:build(r,false), muted:{}, edited:false }; });
+
+  /* ── 구음 ── */
+  var SAY={ kick:'쿵', kickSoft:'쿵', k808:'쿵', snare:'탁', clap:'짝', rim:'딱', skank:'착', ride:'칭', ohat:'치', hat:'츠', hatc:'칙', shaker:'스' };
+  var PRI=['kick','kickSoft','k808','snare','clap','rim','skank','ride','ohat','hat','hatc','shaker'];
+  function say(cfg,i){
+    var on={}, gh=false;
+    cfg.rows.forEach(function(row){ if(row.st.indexOf(i)>=0) on[row.s]=1; else if(row.g&&row.g.indexOf(i)>=0) gh=true; });
+    if(on.gung&&on.chae) return ['덩',''];
+    if(on.gung) return ['쿵','']; if(on.chae) return ['덕',''];
+    var k=on.kick||on.kickSoft||on.k808, sn=on.snare||on.clap;
+    if(k&&sn) return ['쾅',''];
+    for(var p=0;p<PRI.length;p++) if(on[PRI[p]]) return [SAY[PRI[p]],''];
+    if(gh) return ['따','gh'];
+    return ['·','dim'];
+  }
+  var RC=['var(--c)','#f59e0b','#38bdf8','#a78bfa'];
+  function cols(cfg){ return 'var(--lw) repeat('+cfg.len+',minmax(0,46px))'; }
+  function render(el,cfg,muted){
+    var g=cols(cfg), h='';
+    h+='<div class="srow hdr" style="grid-template-columns:'+g+'"><span></span>';
+    for(var i=0;i<cfg.len;i++){ var b=i%cfg.per===0; h+='<span class="'+(b?'b':'')+(b&&i?' bsm':'')+'" data-i="'+i+'">'+(b?(i/cfg.per+1):(cfg.per===4&&i%cfg.per===2?'&':'·'))+'</span>'; }
+    h+='</div>';
+    if(cfg.br){
+      h+='<div class="srow" style="grid-template-columns:'+g+'"><span></span><div class="brk" style="grid-column:2 / span '+cfg.len+'">';
+      cfg.br.forEach(function(b){ h+='<span style="left:calc('+(b[0]/cfg.len*100)+'% + 2px);width:calc('+((b[1]-b[0])/cfg.len*100)+'% - 4px)"><b>'+b[2]+'</b></span>'; });
+      h+='</div></div>';
+    }
+    cfg.rows.forEach(function(row,ri){
+      h+='<div class="srow'+(muted&&muted[ri]?' muted':'')+'" style="grid-template-columns:'+g+';--rc:'+RC[ri%4]+'"><button type="button" class="nm" data-mute="'+ri+'" title="끄기/켜기"><i></i>'+esc(row.n)+'</button>';
+      for(var i=0;i<cfg.len;i++){
+        var on=row.st.indexOf(i)>=0, gh=row.g&&row.g.indexOf(i)>=0, roll=row.roll&&row.roll.indexOf(i)>=0;
+        h+='<button type="button" class="cell'+(i%cfg.per===0?' q':'')+(i%cfg.per===0&&i?' bs':'')+(on?' on':'')+(gh?' gh':'')+(roll&&on?' roll':'')+'" data-r="'+ri+'" data-i="'+i+'" aria-label="'+esc(row.n)+' '+(i+1)+'번 칸"></button>';
+      }
+      h+='</div>';
+    });
+    h+='<div class="srow gu" style="grid-template-columns:'+g+'"><span style="font-size:11px;color:var(--faint);text-align:left">구음</span>';
+    for(var i=0;i<cfg.len;i++){ var sy=say(cfg,i); h+='<span class="'+sy[1]+(i%cfg.per===0&&i?' bsm':'')+'" data-i="'+i+'">'+sy[0]+'</span>'; }
+    h+='</div>';
+    el.innerHTML=h; el.classList.toggle('wl',cfg.rows.some(function(r){ return r.n.length>4; }));
+  }
+  function draw(id){
+    var s=ST[id]; render($('seq-'+id),s.cfg,s.muted);
+    var bp=document.querySelector('[data-bpm="'+id+'"]'); bp.value=s.cfg.bpm; document.querySelector('[data-bpmv="'+id+'"]').textContent=s.cfg.bpm+' BPM';
+    var ab=document.querySelector('[data-alt="'+id+'"]');
+    if(ab){ ab.setAttribute('aria-pressed',s.alt); ab.textContent=s.alt?'↩ 원래 리듬으로':'⇄ '+BYID[id].alt.label; }
+    $('an-'+id).classList.toggle('show',s.alt);
+    document.querySelector('[data-reset="'+id+'"]').hidden=!s.edited;
+  }
+  R.forEach(function(r){ draw(r.id); });
+
+  /* ── 오디오 ── */
+  var A=null, OUT=null, NB=null;
+  function ac(){
+    if(!A){ var C=window.AudioContext||window.webkitAudioContext; if(!C) return null; A=new C();
+      var comp=A.createDynamicsCompressor(); comp.threshold.value=-14; comp.ratio.value=4; OUT=A.createGain(); OUT.gain.value=.85; OUT.connect(comp).connect(A.destination);
+      NB=A.createBuffer(1,A.sampleRate,A.sampleRate); var d=NB.getChannelData(0); for(var i=0;i<d.length;i++) d[i]=Math.random()*2-1; }
+    if(A.state==='suspended') A.resume(); return A;
+  }
+  function env(g,t,v,len,att){ g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(Math.max(v,.0002),t+(att||.002)); g.gain.exponentialRampToValueAtTime(.0001,t+len); }
+  function tone(t,type,f0,f1,fall,len,v){ var o=A.createOscillator(), g=A.createGain(); o.type=type; o.frequency.setValueAtTime(f0,t); if(f1) o.frequency.exponentialRampToValueAtTime(f1,t+fall); env(g,t,v,len); o.connect(g).connect(OUT); o.start(t); o.stop(t+len+.05); }
+  function nz(t,ft,f,len,v,q,att){ var s=A.createBufferSource(); s.buffer=NB; var fl=A.createBiquadFilter(); fl.type=ft; fl.frequency.value=f; if(q) fl.Q.value=q; var g=A.createGain(); env(g,t,v,len,att); s.connect(fl).connect(g).connect(OUT); s.start(t,Math.random()*.4); s.stop(t+len+.05); }
+  var SND={
+    kick:function(t,v){ tone(t,'sine',150,45,.12,.32,.95*v); tone(t,'triangle',900,200,.01,.015,.25*v); },
+    kickSoft:function(t,v){ tone(t,'sine',110,52,.1,.25,.6*v); },
+    k808:function(t,v){ tone(t,'sine',120,48,.07,.95,.9*v); tone(t,'square',600,100,.01,.012,.12*v); },
+    snare:function(t,v){ nz(t,'bandpass',1900,.17,.6*v,.8); tone(t,'triangle',200,150,.08,.1,.35*v); },
+    clap:function(t,v){ [0,.011,.022].forEach(function(d){ nz(t+d,'bandpass',1300,.03,.5*v,1.2); }); nz(t+.03,'bandpass',1300,.16,.38*v,1); },
+    hat:function(t,v){ nz(t,'highpass',8000,.045,.3*v); },
+    hatc:function(t,v){ nz(t,'highpass',6500,.05,.22*v); },
+    ohat:function(t,v){ nz(t,'highpass',7500,.28,.22*v); },
+    ride:function(t,v){ nz(t,'highpass',5200,.45,.14*v); tone(t,'triangle',2650,0,0,.35,.05*v); tone(t,'triangle',3950,0,0,.25,.03*v); },
+    rim:function(t,v){ tone(t,'triangle',1750,0,0,.035,.4*v); nz(t,'bandpass',3200,.03,.35*v,2); },
+    shaker:function(t,v){ nz(t,'bandpass',6500,.07,.18*v,1,.015); },
+    skank:function(t,v){ [220,261.6,329.6].forEach(function(f){ tone(t,'sawtooth',f,0,0,.11,.05*v); }); nz(t,'bandpass',2500,.04,.12*v,1); },
+    gung:function(t,v){ tone(t,'sine',100,68,.25,.45,.9*v); nz(t,'lowpass',380,.09,.35*v); },
+    chae:function(t,v){ nz(t,'bandpass',3300,.07,.65*v,2.2); tone(t,'triangle',1150,780,.04,.06,.28*v); }
+  };
+
+  /* ── 재생(앞당겨 예약하는 방식) ── */
+  var P={ id:null, cfg:null, muted:null, el:null, step:0, next:0, timer:null, btn:null };
+  function dur(cfg){ return 60/cfg.bpm/cfg.per; }
+  function hitStep(cfg,muted,i,t){
+    var d=dur(cfg), sw=(cfg.per===4&&i%2===1)?cfg.swing*d:0, tt=t+sw;
+    cfg.rows.forEach(function(row,ri){
+      if(muted&&muted[ri]) return; var fn=SND[row.s], v=row.v||1;
+      if(row.st.indexOf(i)>=0){ var vv=v*(row.acc&&row.acc.indexOf(i)<0?.45:1); fn(tt,vv); if(row.roll&&row.roll.indexOf(i)>=0) fn(tt+d/2,vv*.8); }
+      else if(row.g&&row.g.indexOf(i)>=0) fn(tt,v*.2);
+    });
+    return tt;
+  }
+  function tick(){
+    var cfg=P.cfg;
+    while(P.next<A.currentTime+.12){
+      var i=P.step, tt=hitStep(cfg,P.muted,i,P.next);
+      (function(i,delay,el){ setTimeout(function(){ if(!P.timer||P.el!==el) return;
+        el.querySelectorAll('.now').forEach(function(c){ c.classList.remove('now'); });
+        el.querySelectorAll('[data-i="'+i+'"]').forEach(function(c){ c.classList.add('now'); }); }, Math.max(0,delay)); })(i,(tt-A.currentTime)*1000,P.el);
+      P.next+=dur(cfg); P.step=(P.step+1)%cfg.len;
+    }
+  }
+  function start(cfg,muted,el,btn,id){
+    if(!ac()) return; stop();
+    P.id=id; P.cfg=cfg; P.muted=muted; P.el=el; P.btn=btn; P.step=0; P.next=A.currentTime+.05;
+    P.timer=setInterval(tick,25); tick(); if(btn) btn.textContent='■ 멈추기';
+  }
+  function stop(){
+    if(P.timer){ clearInterval(P.timer); P.timer=null; }
+    if(P.el) P.el.querySelectorAll('.now').forEach(function(c){ c.classList.remove('now'); });
+    if(P.btn) P.btn.textContent=P.id==='quiz'?'▶ 문제 듣기':'▶ 듣기';
+    P.id=null; P.btn=null;
+  }
+  function playRhythm(id){ var s=ST[id]; start(s.cfg,s.muted,$('seq-'+id),document.querySelector('[data-play="'+id+'"]'),id); }
+
+  /* ── 장면 조작 ── */
+  document.addEventListener('click',function(e){
+    var b;
+    if((b=e.target.closest('[data-play]'))){ var id=b.dataset.play; if(P.id===id) stop(); else playRhythm(id); return; }
+    if((b=e.target.closest('[data-alt]'))){ var id=b.dataset.alt, s=ST[id]; s.alt=!s.alt; s.cfg=build(BYID[id],s.alt); s.muted={}; s.edited=false; draw(id); if(P.id===id) playRhythm(id); return; }
+    if((b=e.target.closest('[data-reset]'))){ var id=b.dataset.reset, s=ST[id]; s.cfg=build(BYID[id],s.alt); s.muted={}; s.edited=false; draw(id); if(P.id===id) playRhythm(id); return; }
+    var seq=e.target.closest('.seq[id^="seq-"]'); if(!seq||seq.id==='seq-quiz') return;
+    var id=seq.id.slice(4), s=ST[id];
+    if((b=e.target.closest('[data-mute]'))){ var ri=+b.dataset.mute; s.muted[ri]=!s.muted[ri]; b.parentNode.classList.toggle('muted',!!s.muted[ri]); return; }
+    if((b=e.target.closest('.cell'))){
+      var row=s.cfg.rows[+b.dataset.r], i=+b.dataset.i, k=row.st.indexOf(i);
+      if(k>=0) row.st.splice(k,1); else if(row.g&&row.g.indexOf(i)>=0) row.g.splice(row.g.indexOf(i),1); else row.st.push(i);
+      s.edited=true; var playing=P.id===id; draw(id); if(playing){ P.el=$('seq-'+id); }
+    }
+  });
+  document.addEventListener('input',function(e){
+    var id=e.target.dataset&&e.target.dataset.bpm; if(!id) return;
+    ST[id].cfg.bpm=+e.target.value; document.querySelector('[data-bpmv="'+id+'"]').textContent=e.target.value+' BPM';
+  });
+
+  /* ── 족보 ── */
+  var ERAS=[
+    ['~1940 뿌리',[['af','서아프리카 리듬','고향'],['gb','가스펠·블루스','미국 흑인 교회'],['tresillo','트레시요','쿠바 하바네라']]],
+    ['1930~50',[['swing','스윙','재즈 빅밴드'],['backbeat','백비트','로큰롤']]],
+    ['1958~70',[['bossa','보사노바','브라질'],['onedrop','원 드롭','자메이카 레게'],['funk','펑크','제임스 브라운']]],
+    ['1970~90',[['four','포 온 더 플로어','디스코·하우스'],['boombap','붐뱁','뉴욕 힙합'],['dembow','뎀보','레게톤'],['dnb','드럼앤베이스','영국 레이브']]],
+    ['2000~',[['trap','트랩','애틀랜타'],['now','지금의 K-팝·팝','모두 섞어 써요']]]
+  ];
+  var LINKS=[['af','tresillo'],['af','gb'],['gb','swing'],['gb','backbeat'],['tresillo','bossa'],['tresillo','dembow'],['onedrop','dembow'],['backbeat','funk'],['funk','four'],['funk','boombap'],['funk','dnb'],['swing','boombap'],['boombap','trap'],['four','now'],['trap','now'],['dnb','now'],['dembow','now']];
+  $('eras').innerHTML=ERAS.map(function(e){ return '<div class="era"><h5>'+e[0]+'</h5>'+e[1].map(function(n){
+    var r=BYID[n[0]], col=r?FAM[r.fam][1]:'#c3c1d3';
+    return '<button type="button" class="node '+(r?'go':'plain')+'" data-node="'+n[0]+'" style="--nc:'+col+'"'+(r?'':' tabindex="-1"')+'>'+n[1]+'<small>'+n[2]+'</small></button>'; }).join('')+'</div>'; }).join('');
+  function drawTree(){
+    var svg=$('tree-svg'), box=$('tree').getBoundingClientRect(); if(!box.width) return;
+    var p='';
+    LINKS.forEach(function(l){
+      var a=document.querySelector('[data-node="'+l[0]+'"]').getBoundingClientRect(), b=document.querySelector('[data-node="'+l[1]+'"]').getBoundingClientRect();
+      var same=Math.abs(a.left-b.left)<10, x1,y1,x2,y2;
+      if(same){ x1=a.left+a.width/2-box.left; y1=a.bottom-box.top; x2=b.left+b.width/2-box.left; y2=b.top-box.top; p+='<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" />'; }
+      else { x1=a.right-box.left; y1=a.top+a.height/2-box.top; x2=b.left-box.left; y2=b.top+b.height/2-box.top; var mx=(x1+x2)/2; p+='<path d="M'+x1+' '+y1+' C'+mx+' '+y1+' '+mx+' '+y2+' '+x2+' '+y2+'" />'; }
+    });
+    svg.setAttribute('viewBox','0 0 '+box.width+' '+box.height);
+    svg.innerHTML='<g fill="none" stroke="#d6d3e6" stroke-width="2" stroke-linecap="round">'+p+'</g>';
+  }
+  addEventListener('resize',drawTree);
+  document.addEventListener('click',function(e){ var n=e.target.closest('.node.go'); if(!n) return; goId(n.dataset.node); });
+
+  /* ── 표지 그리드 ── */
+  var cg=$('cover-grid'), CPAT=[[0,4,8,12],[4,12],[2,6,10,14],[0,3,6,10,13]], CCOL=['var(--root)','var(--dance)','var(--beat)','var(--kor)'];
+  for(var r=0;r<4;r++) for(var i=0;i<16;i++){ var c=document.createElement('i'); c.dataset.r=r; c.dataset.i=i; cg.appendChild(c); }
+  var cstep=0;
+  setInterval(function(){
+    if(!document.querySelector('.slide.active .cover-grid')) return;
+    var i=cstep%16; [].forEach.call(cg.children,function(c){ var r=+c.dataset.r, ci=+c.dataset.i, hit=CPAT[r].indexOf(ci)>=0;
+      c.style.background=hit?(ci===i?CCOL[r]:'color-mix(in srgb, '+CCOL[r]+' 28%, #fff)'):(ci===i?'#dcd9ea':'#f1f0f7'); c.classList.toggle('on',hit&&ci===i); });
+    cstep++; },125);
+
+  /* ── 슬라이드 이동 ── */
+  var slides=[].slice.call(document.querySelectorAll('.slide')), cur=0;
+  function animIn(sl){
+    if(sl.id==='tree-slide') setTimeout(drawTree,30);
+    if(!window.gsap||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var items=sl.querySelectorAll('[data-in], .node, .lg, .howto div');
+    if(items.length) gsap.fromTo(items,{y:16,opacity:0},{y:0,opacity:1,duration:.45,stagger:.035,ease:'power2.out',onComplete:sl.id==='tree-slide'?drawTree:null});
+  }
+  function go(n){
+    n=Math.max(0,Math.min(slides.length-1,n)); if(n!==cur) stop();
+    cur=n; slides.forEach(function(s,i){ s.classList.toggle('active',i===n); s.classList.toggle('prev',i<n); s.setAttribute('aria-hidden',i===n?'false':'true'); });
+    $('num').textContent=(n+1)+' / '+slides.length; $('prev').disabled=n===0; $('next').disabled=n===slides.length-1;
+    slides[n].scrollTop=0; animIn(slides[n]);
+  }
+  function goId(id){ var i=slides.findIndex(function(s){ return s.dataset.rid===id; }); if(i>=0) go(i); }
+  $('mapbtn').addEventListener('click',function(){ go(slides.indexOf($('tree-slide'))); });
+  $('prev').addEventListener('click',function(){go(cur-1);}); $('next').addEventListener('click',function(){go(cur+1);});
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT') return;
+    if(e.key==='ArrowRight'||e.key==='PageDown'){ e.preventDefault(); go(cur+1); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(cur-1); }
+    else if(e.key===' '){ var rid=slides[cur].dataset.rid; if(rid){ e.preventDefault(); if(P.id===rid) stop(); else playRhythm(rid); } }
+  });
+  var sx=null,sy=null;
+  document.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
+  document.addEventListener('touchend',function(e){ if(sx===null) return; var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) go(cur+(dx<0?1:-1)); sx=null; });
+
+  go((parseInt(location.hash.slice(1),10)||1)-1);
+})();
+</script>
+</body>
+</html>
