@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>장르 캐릭터 도감</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
+<style>
+/* 방향: 흰 종이 위 음악 스튜디오. 카테고리마다 고유 색, 직접 눌러 듣고 고르는 인터랙티브 덱 */
+:root{
+  color-scheme: light;
+  --bg:#ffffff; --ink:#15132b; --sub:#55536f; --faint:#9a98b0; --line:#ecebf3; --panel:#f7f6fb;
+  --genre:#e11d48; --mood:#7c3aed; --tempo:#0891b2; --rhythm:#ea580c; --inst:#059669; --vocal:#db2777; --prod:#2563eb; --era:#b45309;
+  --display:'Black Han Sans','Noto Sans KR',sans-serif; --body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+body{ font-family:var(--body); background:var(--bg); color:var(--ink); overflow:hidden; letter-spacing:-0.01em; }
+button{ font-family:inherit; cursor:pointer; color:inherit; }
+:focus-visible{ outline:3px solid #a5b4fc; outline-offset:2px; }
+
+/* 배경 오선 */
+.staff-bg{ position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:repeating-linear-gradient(180deg, transparent 0 46px, #f3f2f8 46px 47px); opacity:.7; }
+
+/* 덱 */
+.deck{ position:relative; z-index:1; width:100%; height:100%; }
+.slide{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  padding:30px 48px 86px; opacity:0; visibility:hidden; transform:translateX(60px);
+  transition:opacity .4s ease, transform .4s ease, visibility .4s; overflow-y:auto; }
+.slide.active{ opacity:1; visibility:visible; transform:none; }
+.slide.prev{ transform:translateX(-60px); }
+.inner{ width:100%; max-width:1140px; display:flex; flex-direction:column; align-items:center; gap:18px; margin:auto; }
+
+.tag{ font-size:12px; font-weight:700; letter-spacing:3px; padding:5px 15px; border-radius:20px; border:1.5px solid currentColor; }
+h1{ font-family:var(--display); font-weight:400; font-size:clamp(40px,6.4vw,84px); line-height:1.08; text-align:center; letter-spacing:-0.01em; }
+h2{ font-family:var(--display); font-weight:400; font-size:clamp(28px,3.8vw,48px); line-height:1.2; text-align:center; }
+.sub{ font-size:clamp(15px,1.6vw,19px); color:var(--sub); text-align:center; line-height:1.75; max-width:760px; }
+.sub b{ color:var(--ink); }
+.c-genre{color:var(--genre)} .c-mood{color:var(--mood)} .c-tempo{color:var(--tempo)} .c-rhythm{color:var(--rhythm)}
+.c-inst{color:var(--inst)} .c-vocal{color:var(--vocal)} .c-prod{color:var(--prod)} .c-era{color:var(--era)}
+
+/* 표지 이퀄라이저 */
+.eq{ display:flex; gap:7px; align-items:flex-end; height:120px; }
+.eq span{ width:16px; border-radius:8px; height:30%; }
+
+/* 두 칸 */
+.two{ display:grid; grid-template-columns:1fr 1fr; gap:22px; width:100%; max-width:960px; }
+.field{ border:2px solid var(--line); border-radius:24px; padding:22px; background:#fff; box-shadow:0 10px 30px rgba(21,19,43,.06); display:flex; flex-direction:column; gap:12px; }
+.field h3{ font-size:20px; font-weight:900; display:flex; align-items:center; gap:10px; }
+.field .k{ font-size:13px; color:var(--faint); font-weight:700; }
+.code{ font-family:'Consolas','D2Coding',monospace; font-size:14.5px; line-height:1.8; background:var(--panel); border-radius:14px; padding:14px 16px; color:#2b2770; white-space:pre-wrap; word-break:keep-all; overflow-wrap:anywhere; }
+.code .st{ color:var(--rhythm); font-weight:700; }
+
+/* 공식 */
+.formula{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; }
+.fpart{ padding:12px 18px; border-radius:16px; font-weight:900; font-size:clamp(15px,1.6vw,19px); color:#fff; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:96px; }
+.fpart small{ font-size:11px; font-weight:700; opacity:.85; letter-spacing:1px; }
+.plus{ font-size:24px; color:var(--faint); font-weight:900; }
+.weight{ display:flex; align-items:flex-end; gap:8px; height:80px; }
+.weight i{ display:block; width:96px; border-radius:10px 10px 4px 4px; background:linear-gradient(180deg,#c7c4ff,#eceaff); }
+.weight-cap{ font-size:14px; color:var(--sub); font-weight:700; }
+
+/* 칩 그리드 */
+.groups{ width:100%; display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; }
+.group{ background:#fff; border:1.5px solid var(--line); border-radius:20px; padding:14px; display:flex; flex-direction:column; gap:10px; }
+.group h4{ font-size:14px; font-weight:900; color:var(--sub); }
+.chips{ display:flex; flex-wrap:wrap; gap:7px; }
+.chip{ border:1.5px solid var(--line); background:#fff; border-radius:99px; padding:7px 13px; font-size:14px; font-weight:700; display:inline-flex; align-items:center; gap:6px; transition:transform .12s, background .15s, border-color .15s, color .15s; }
+.chip em{ font-style:normal; font-weight:500; font-size:12px; color:var(--faint); font-family:'Consolas','D2Coding',monospace; }
+.chip:hover{ transform:translateY(-2px); border-color:var(--cc,#c7c4ff); }
+.chip[aria-pressed="true"]{ background:var(--cc); border-color:var(--cc); color:#fff; }
+.chip[aria-pressed="true"] em{ color:rgba(255,255,255,.85); }
+.chip[aria-pressed="true"]::before{ content:'✓'; }
+.detail{ width:100%; max-width:900px; min-height:58px; border-radius:16px; background:var(--panel); padding:14px 18px; font-size:15.5px; line-height:1.65; color:var(--sub); display:flex; gap:12px; align-items:center; }
+.detail b{ color:var(--ink); }
+.detail code{ font-family:'Consolas','D2Coding',monospace; background:#fff; border:1px solid var(--line); border-radius:8px; padding:2px 8px; color:#2b2770; font-size:14px; }
+.cart-hint{ font-size:13px; color:var(--faint); font-weight:700; }
+
+/* 분위기 지도 */
+.moodmap{ position:relative; width:100%; max-width:820px; aspect-ratio:16/9; border-radius:24px; border:1.5px solid var(--line);
+  background:
+    linear-gradient(90deg, rgba(55,48,163,.07), rgba(250,204,21,.12)),
+    linear-gradient(0deg, rgba(255,255,255,0), rgba(225,29,72,.06));
+  max-height:52vh; }
+.axis{ position:absolute; font-size:12.5px; font-weight:900; color:var(--faint); }
+.axis.l{ left:12px; top:50%; transform:translateY(-50%); } .axis.r{ right:12px; top:50%; transform:translateY(-50%); }
+.axis.t{ top:10px; left:50%; transform:translateX(-50%); } .axis.b{ bottom:10px; left:50%; transform:translateX(-50%); }
+.moodmap::before{ content:''; position:absolute; left:50%; top:8%; bottom:8%; border-left:1.5px dashed #dddbe9; }
+.moodmap::after{ content:''; position:absolute; top:50%; left:6%; right:6%; border-top:1.5px dashed #dddbe9; }
+.mdot{ position:absolute; transform:translate(-50%,-50%); --cc:var(--mood); z-index:2; white-space:nowrap; }
+
+/* 템포 */
+.tempo-box{ width:100%; max-width:900px; display:flex; flex-direction:column; gap:16px; align-items:center; }
+.bpm-big{ font-family:var(--display); font-size:clamp(64px,10vw,120px); line-height:1; color:var(--tempo); display:flex; align-items:baseline; gap:10px; }
+.bpm-big small{ font-family:var(--body); font-size:22px; font-weight:900; color:var(--faint); }
+.beat-dot{ width:22px; height:22px; border-radius:50%; background:#e0f2f7; transition:background .05s, transform .05s; }
+.beat-dot.on{ background:var(--tempo); transform:scale(1.25); }
+.slider-wrap{ position:relative; width:100%; padding-top:34px; }
+input[type=range]{ width:100%; accent-color:var(--tempo); height:28px; }
+.marks{ position:absolute; left:0; right:0; top:0; height:30px; }
+.mark{ position:absolute; transform:translateX(-50%); font-size:11.5px; font-weight:700; color:var(--sub); background:#fff; border:1px solid var(--line); border-radius:8px; padding:2px 6px; white-space:nowrap; cursor:pointer; }
+.mark:hover{ border-color:var(--tempo); color:var(--tempo); }
+.btn{ border:none; border-radius:14px; padding:11px 20px; font-weight:900; font-size:15px; background:var(--ink); color:#fff; display:inline-flex; gap:8px; align-items:center; }
+.btn.ghost{ background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+.btn.t{ background:var(--tempo); } .btn.r{ background:var(--rhythm); }
+.row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center; }
+
+/* 시퀀서 */
+.seq{ width:100%; max-width:900px; display:flex; flex-direction:column; gap:8px; background:#fff; border:1.5px solid var(--line); border-radius:22px; padding:16px; }
+.seq-row{ display:grid; grid-template-columns:72px repeat(16,1fr); gap:5px; align-items:center; }
+.seq-row b{ font-size:13px; color:var(--sub); }
+.cell{ aspect-ratio:1; border-radius:7px; background:#f3f2f8; }
+.cell.q{ background:#ebe9f3; }
+.cell.on.k{ background:var(--rhythm); } .cell.on.s{ background:#f59e0b; } .cell.on.h{ background:#fbbf77; }
+.cell.roll{ background:repeating-linear-gradient(90deg,#fbbf77 0 40%, transparent 40% 60%, #fbbf77 60% 100%); }
+.cell.now{ outline:3px solid var(--ink); outline-offset:-1px; }
+
+/* 가사 */
+.lyric{ width:100%; max-width:760px; font-size:17px; line-height:2; background:#fff; border:1.5px solid var(--line); border-radius:22px; padding:20px 24px; }
+.mt{ display:inline-block; font-family:'Consolas','D2Coding',monospace; font-weight:700; color:var(--rhythm); background:#fff1e6; border-radius:8px; padding:0 8px; cursor:pointer; border:none; font-size:15px; }
+.mt.p{ color:var(--vocal); background:#fde7f1; }
+
+/* 비교 */
+.vs{ display:grid; grid-template-columns:1fr 1fr; gap:18px; width:100%; max-width:980px; }
+.vs .card{ border-radius:22px; padding:20px; border:2px solid var(--line); display:flex; flex-direction:column; gap:10px; background:#fff; }
+.vs .bad{ border-color:#fecdd3; } .vs .good{ border-color:#a7f3d0; }
+.vs h3{ font-size:18px; font-weight:900; }
+.mistakes{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; width:100%; max-width:980px; }
+.mis{ background:var(--panel); border-radius:16px; padding:12px 14px; font-size:14px; line-height:1.55; color:var(--sub); }
+.mis b{ display:block; color:var(--ink); font-size:15px; margin-bottom:2px; }
+
+/* 트렌드 */
+.bars{ width:100%; max-width:720px; display:flex; flex-direction:column; gap:9px; }
+.bar-row{ display:grid; grid-template-columns:120px 1fr 52px; gap:10px; align-items:center; font-size:14.5px; font-weight:700; }
+.bar-track{ height:22px; background:#f3f2f8; border-radius:99px; overflow:hidden; }
+.bar-fill{ height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,#fda4af,var(--genre)); }
+.bar-row .v{ text-align:right; font-variant-numeric:tabular-nums; color:var(--sub); }
+.trend-cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; width:100%; max-width:1000px; }
+.tcard{ border-radius:18px; padding:14px 16px; background:#fff; border:1.5px solid var(--line); display:flex; flex-direction:column; gap:4px; }
+.tcard b{ font-size:16px; } .tcard span{ font-size:13.5px; color:var(--sub); line-height:1.55; } .tcard code{ font-size:12.5px; color:#2b2770; font-family:'Consolas','D2Coding',monospace; }
+.src{ font-size:12px; color:var(--faint); text-align:center; }
+
+/* 조립기 */
+.builder{ width:100%; max-width:1100px; display:grid; grid-template-columns:1.1fr 1fr; gap:18px; align-items:start; }
+.picked{ display:flex; flex-direction:column; gap:8px; }
+.pk{ display:grid; grid-template-columns:72px 1fr; gap:8px; align-items:start; }
+.pk > b{ font-size:13px; font-weight:900; padding-top:6px; }
+.pk .chips{ min-height:32px; }
+.pk .empty{ font-size:13px; color:#c3c1d3; padding-top:6px; }
+.chip.rm{ --cc:#15132b; }
+.out{ background:#15132b; color:#e9e7ff; border-radius:22px; padding:18px; display:flex; flex-direction:column; gap:12px; }
+.out .code{ background:#221f42; color:#fff; min-height:110px; font-size:15px; }
+.meter{ display:flex; gap:4px; } .meter i{ flex:1; height:8px; border-radius:99px; background:#2f2b57; }
+.meter i.on{ background:#34d399; } .meter i.on.w{ background:#fbbf24; } .meter i.on.x{ background:#fb7185; }
+.warns{ display:flex; flex-direction:column; gap:6px; font-size:13.5px; line-height:1.5; }
+.warns div{ background:#221f42; border-radius:10px; padding:7px 10px; }
+.out label{ font-size:12.5px; color:#a5a3c9; font-weight:700; }
+.out input{ width:100%; border:none; border-radius:10px; padding:9px 12px; background:#221f42; color:#fff; font-family:inherit; font-size:14px; }
+.presets{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+
+/* 마무리 */
+.end-quote{ font-family:var(--display); font-size:clamp(32px,5vw,62px); line-height:1.25; text-align:center; }
+
+/* 내비 */
+.nav{ position:fixed; bottom:0; left:0; right:0; z-index:5; display:flex; align-items:center; justify-content:center; gap:16px; padding:14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); background:linear-gradient(0deg,#fff 60%,rgba(255,255,255,0)); }
+.nav-btn{ width:48px; height:48px; border-radius:50%; border:1.5px solid var(--line); background:#fff; font-size:18px; font-weight:900; }
+.nav-btn:disabled{ opacity:.3; cursor:default; }
+.slide-num{ font-weight:900; color:var(--sub); font-variant-numeric:tabular-nums; min-width:70px; text-align:center; }
+.cart{ position:fixed; top:14px; right:16px; z-index:5; border:1.5px solid var(--line); background:#fff; border-radius:99px; padding:8px 14px; font-weight:900; font-size:13.5px; display:flex; gap:6px; align-items:center; box-shadow:0 6px 18px rgba(21,19,43,.08); }
+.cart i{ font-style:normal; background:var(--ink); color:#fff; border-radius:99px; padding:1px 8px; font-variant-numeric:tabular-nums; }
+
+@media (max-width:760px){
+  .slide{ padding:56px 16px 92px; align-items:flex-start; }
+  .two, .vs, .builder{ grid-template-columns:1fr; }
+  .seq-row{ grid-template-columns:46px repeat(16,1fr); gap:3px; }
+  .weight i{ width:52px; }
+  .moodmap{ aspect-ratio:4/5; max-height:none; }
+  .mark{ font-size:10px; padding:1px 4px; }
+}
+@media (prefers-reduced-motion:reduce){ .slide{ transition:none; transform:none; } }
+</style>
+<style>
+/* ── 장르 캐릭터 도감 전용 ── */
+:root{ --hh:#ea580c; --rb:#db2777; --el:#2563eb; --po:#7c3aed; --wo:#059669; --ro:#e11d48; }
+.c-hh{color:var(--hh)} .c-rb{color:var(--rb)} .c-el{color:var(--el)} .c-po{color:var(--po)} .c-wo{color:var(--wo)} .c-ro{color:var(--ro)}
+.deckfan{ position:relative; width:320px; height:190px; }
+.deckfan .mini{ position:absolute; left:50%; top:10px; width:120px; height:160px; margin-left:-60px; border-radius:16px; color:#fff; padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 10px 24px rgba(21,19,43,.18); font-weight:900; }
+.deckfan .mini small{ font-size:11px; opacity:.85; } .deckfan .mini b{ font-size:17px; line-height:1.2; }
+/* 가족 나무 */
+.roots{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+.root{ background:#f3efe7; border-radius:99px; padding:6px 14px; font-size:13.5px; font-weight:900; color:#78350f; }
+.families{ display:grid; grid-template-columns:repeat(6,1fr); gap:10px; width:100%; max-width:1120px; }
+.fam{ border:2px solid var(--line); background:#fff; border-radius:22px; padding:14px 10px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.fam .ic{ font-size:34px; } .fam b{ font-size:16px; } .fam span{ font-size:12.5px; color:var(--sub); text-align:center; line-height:1.4; }
+.fam[aria-pressed="true"]{ border-color:var(--fc); background:var(--fc); color:#fff; } .fam[aria-pressed="true"] span{ color:rgba(255,255,255,.88); }
+.members{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-width:1000px; }
+.member{ border:2px solid var(--fc); color:var(--fc); background:#fff; border-radius:99px; padding:8px 14px; font-weight:900; font-size:15px; }
+.member:hover{ background:var(--fc); color:#fff; }
+/* A/B 비교 */
+.ab{ display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; max-width:1000px; }
+.abc{ border:2px solid var(--line); background:#fff; border-radius:24px; padding:18px; display:flex; flex-direction:column; gap:10px; }
+.abc.on{ border-color:var(--ac); box-shadow:0 12px 30px rgba(21,19,43,.08); }
+.abc h3{ font-size:20px; font-weight:900; } .abc p{ font-size:14.5px; color:var(--sub); line-height:1.6; }
+.abc ul{ list-style:none; display:flex; flex-direction:column; gap:6px; }
+.abc li{ font-size:14.5px; line-height:1.5; display:flex; gap:8px; } .abc li::before{ content:'•'; color:var(--ac); font-weight:900; }
+.playbtn{ align-self:flex-start; border:none; border-radius:14px; padding:11px 18px; font-weight:900; font-size:15px; color:#fff; background:var(--ac); }
+.why{ width:100%; max-width:1000px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.whyc{ background:var(--panel); border-radius:18px; padding:14px; font-size:14px; line-height:1.6; color:var(--sub); }
+.whyc b{ display:block; font-size:16px; color:var(--ink); margin-bottom:2px; }
+.eqbars{ display:flex; align-items:flex-end; gap:3px; height:34px; }
+.eqbars i{ width:6px; border-radius:3px; background:var(--ac); height:20%; transition:height .1s; }
+/* 도감 */
+.dex{ display:grid; grid-template-columns:300px 1fr; gap:18px; width:100%; max-width:1140px; align-items:start; }
+.dexlist{ display:flex; flex-direction:column; gap:8px; }
+.dexgrid{ display:grid; grid-template-columns:1fr 1fr; gap:6px; max-height:50vh; overflow-y:auto; padding:2px; }
+.dbtn{ border:2px solid var(--line); background:#fff; border-radius:14px; padding:8px 10px; text-align:left; display:flex; flex-direction:column; gap:1px; }
+.dbtn b{ font-size:14px; } .dbtn small{ font-size:11px; color:var(--faint); font-weight:700; }
+.dbtn[aria-current="true"]{ border-color:var(--fc); background:var(--fc); color:#fff; } .dbtn[aria-current="true"] small{ color:rgba(255,255,255,.85); }
+.dbtn .star{ color:#f59e0b; }
+.card{ border-radius:28px; padding:6px; background:linear-gradient(135deg,var(--fc),#fbbf24 120%); box-shadow:0 18px 40px rgba(21,19,43,.15); }
+.card-in{ background:#fff; border-radius:23px; padding:18px 20px; display:flex; flex-direction:column; gap:12px; }
+.card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+.card-name{ font-family:var(--display); font-size:clamp(32px,4vw,48px); line-height:1.05; }
+.card-name small{ display:block; font-family:'Consolas','D2Coding',monospace; font-size:15px; color:var(--faint); margin-top:4px; }
+.famtag{ border-radius:99px; padding:4px 12px; font-size:12.5px; font-weight:900; color:#fff; background:var(--fc); white-space:nowrap; }
+.persona{ font-size:18px; font-weight:900; line-height:1.5; background:linear-gradient(135deg,#f5f3ff,#fff7ed); border-radius:16px; padding:12px 14px; }
+.facts{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.fact{ background:var(--panel); border-radius:14px; padding:10px 12px; font-size:14px; line-height:1.5; }
+.fact small{ display:block; font-size:11.5px; font-weight:900; color:var(--faint); letter-spacing:.5px; }
+.stats{ display:flex; flex-direction:column; gap:6px; }
+.stat{ display:grid; grid-template-columns:70px 1fr 64px; gap:8px; align-items:center; font-size:13px; font-weight:900; }
+.stat .tr{ height:12px; background:#efeef5; border-radius:99px; overflow:hidden; } .stat .fl{ height:100%; background:var(--fc); border-radius:99px; }
+.stat span:last-child{ color:var(--sub); text-align:right; font-variant-numeric:tabular-nums; }
+.cardbtns{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.starbtn{ border:2px solid #fde68a; background:#fffbeb; color:#b45309; border-radius:14px; padding:10px 14px; font-weight:900; font-size:14.5px; }
+.starbtn[aria-pressed="true"]{ background:#f59e0b; color:#fff; border-color:#f59e0b; }
+.kits{ font-size:12.5px; color:var(--sub); } .kits code{ font-family:'Consolas','D2Coding',monospace; background:var(--panel); border-radius:6px; padding:1px 6px; }
+/* 배틀 */
+.battle{ display:grid; grid-template-columns:1fr 60px 1fr; gap:10px; width:100%; max-width:1000px; align-items:stretch; }
+.bc{ border:2px solid var(--line); border-radius:22px; padding:16px; display:flex; flex-direction:column; gap:8px; background:#fff; }
+.bc.on{ border-color:var(--fc); }
+.bc h3{ font-family:var(--display); font-weight:400; font-size:30px; color:var(--fc); }
+.bc p{ font-size:14.5px; line-height:1.55; color:var(--sub); }
+.vs{ font-family:var(--display); font-size:34px; display:grid; place-items:center; color:var(--faint); }
+.pairs{ display:flex; gap:7px; flex-wrap:wrap; justify-content:center; }
+/* 퀴즈 */
+.ear{ width:100%; max-width:760px; display:flex; flex-direction:column; gap:14px; align-items:center; }
+.mystery{ width:150px; height:150px; border-radius:50%; border:none; background:conic-gradient(var(--hh),var(--rb),var(--el),var(--po),var(--wo),var(--hh)); color:#fff; font-family:var(--display); font-size:24px; box-shadow:0 14px 30px rgba(21,19,43,.2); }
+.mystery span{ display:grid; place-items:center; width:118px; height:118px; margin:auto; border-radius:50%; background:#15132b; }
+.qo{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; }
+.qo button{ border:2px solid var(--line); background:#fff; border-radius:16px; padding:14px; font-size:17px; font-weight:900; }
+.qo button.right{ border-color:#10b981; background:#ecfdf5; } .qo button.wrong{ border-color:#fb7185; background:#fff1f2; }
+@media (max-width:760px){
+  .families{ grid-template-columns:repeat(2,1fr); }
+  .ab, .why, .dex, .battle, .facts{ grid-template-columns:1fr; }
+  .vs{ font-size:24px; }
+  .dexgrid{ max-height:none; }
+  .qo{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="staff-bg" aria-hidden="true"></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 표지 -->
+  <section class="slide">
+    <div class="inner">
+      <div class="deckfan" id="fan" aria-hidden="true"></div>
+      <span class="tag c-po">GENRE DEX</span>
+      <h1>장르 <span class="c-po">캐릭터 도감</span></h1>
+      <p class="sub">로파이 힙합, 얼터너티브 R&B, 아마피아노…<br>낯선 장르 이름을 <b>성격 있는 캐릭터</b>로 만나요. 버튼 하나면 소리도 들려줘요.</p>
+      <p class="cart-hint">🔊 소리가 나와요. 처음엔 버튼을 눌러야 들려요.</p>
+    </div>
+  </section>
+
+  <!-- 3 로파이 -->
+  <section class="slide" style="--ac:var(--hh)">
+    <div class="inner">
+      <span class="tag c-hh">오늘의 주인공 ① · LO-FI HIP HOP</span>
+      <h2>로파이 = <span class="c-hh">"일부러 낮은 음질"</span></h2>
+      <p class="sub">Lo-fi는 <b>Low Fidelity(낮은 충실도)</b>의 줄임말이에요. 깨끗한 소리를 일부러 낡게 만들어서 포근하게 해요. 직접 비교해 봐요!</p>
+      <div class="ab">
+        <div class="abc" id="ab-clean" data-in>
+          <h3>✨ 깨끗한 비트</h3>
+          <p>박자가 반듯하고, 높은 소리까지 선명해요.</p>
+          <div class="eqbars" id="eq-clean"></div>
+          <button class="playbtn" type="button" data-ab="clean">▶ 들어 보기</button>
+        </div>
+        <div class="abc" id="ab-lofi" data-in>
+          <h3>📼 로파이 비트</h3>
+          <p>지지직 LP 잡음 + 먹먹한 소리 + 살짝 늦게 치는 드럼 + 재즈 화음.</p>
+          <div class="eqbars" id="eq-lofi"></div>
+          <button class="playbtn" type="button" data-ab="lofi">▶ 들어 보기</button>
+        </div>
+      </div>
+      <div class="why">
+        <div class="whyc" data-in><b>🐌 느긋한 빠르기</b>대략 70~90 BPM. 걷는 것보다 조금 느려요.</div>
+        <div class="whyc" data-in><b>🎹 재즈 화음</b>재즈 코드가 "생각에 잠긴" 기분을 만들어요.</div>
+        <div class="whyc" data-in><b>📺 공부 음악의 대표</b>2013년쯤부터 유튜브 24시간 생방송으로 퍼졌어요. 뿌리는 J Dilla와 Nujabes의 음악이에요.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 얼터너티브 R&B -->
+  <section class="slide" style="--ac:var(--rb)">
+    <div class="inner">
+      <span class="tag c-rb">오늘의 주인공 ② · ALTERNATIVE R&B</span>
+      <h2>R&B의 <span class="c-rb">밤 버전</span>, 얼터너티브 R&B</h2>
+      <div class="ab">
+        <div class="abc" id="ab-rnb" data-in>
+          <h3>☀️ 전통 R&B</h3>
+          <ul><li>매끈하고 화려한 보컬</li><li>또렷한 비트, 밝은 사랑 노래</li><li>라디오에 어울리는 깔끔한 소리</li></ul>
+          <div class="eqbars" id="eq-rnb"></div>
+          <button class="playbtn" type="button" data-ab="rnb">▶ 들어 보기</button>
+        </div>
+        <div class="abc" id="ab-alt" data-in>
+          <h3>🌙 얼터너티브 R&B</h3>
+          <ul><li>몽환적인 신스와 울리는 공간감</li><li>느리고 텅 빈 듯한 비트</li><li>속마음을 털어놓는 가사</li></ul>
+          <div class="eqbars" id="eq-alt"></div>
+          <button class="playbtn" type="button" data-ab="alt">▶ 들어 보기</button>
+        </div>
+      </div>
+      <div class="detail">2010년대 초에 크게 알려졌어요. <b>The Weeknd</b>의 2011년 믹스테이프들과 <b>Frank Ocean</b>의 《nostalgia, ULTRA》(2011)가 대표적인 출발점으로 꼽혀요. R&B 보컬에 전자음악·힙합·록의 소리를 섞은 게 특징이에요.</div>
+    </div>
+  </section>
+
+  <!-- 5 도감 -->
+  <section class="slide">
+    <div class="inner">
+      <span class="tag c-po">STEP 2 · 장르 도감</span>
+      <h2>캐릭터를 골라 <span class="c-po">들어 보고 찜하기</span></h2>
+      <div class="dex">
+        <div class="dexlist">
+          <div class="chips" id="dex-fam"></div>
+          <div class="dexgrid" id="dexgrid"></div>
+        </div>
+        <div class="card" id="card"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 배틀 -->
+  <section class="slide">
+    <div class="inner">
+      <span class="tag c-ro">STEP 3 · 헷갈리는 쌍 배틀</span>
+      <h2>비슷해 보이는데 <span class="c-ro">뭐가 다를까?</span></h2>
+      <div class="pairs" id="pairs"></div>
+      <div class="battle" id="battle"></div>
+      <div class="detail" id="battle-out"></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button class="nav-btn" id="prev" type="button" aria-label="이전">◀</button>
+  <span class="slide-num" id="num">1</span>
+  <button class="nav-btn" id="next" type="button" aria-label="다음">▶</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var motion=!!window.gsap && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ═════════ 데이터 ═════════ */
+  var FAM={
+    hh:{name:'힙합 가족',ic:'🎤',color:'var(--hh)',line:'1970년대 뉴욕에서 태어났어요. 쿵-탁 비트 위에 말하듯 랩해요.'},
+    rb:{name:'R&B·소울 가족',ic:'💜',color:'var(--rb)',line:'노래하는 목소리가 주인공. 부드럽고 감정이 풍부해요.'},
+    el:{name:'전자음악 가족',ic:'🎛',color:'var(--el)',line:'컴퓨터와 기계로 만든 소리. 춤추는 클럽에서 자랐어요.'},
+    po:{name:'팝 가족',ic:'✨',color:'var(--po)',line:'모두가 따라 부를 수 있는 후렴. 여러 장르를 섞는 걸 좋아해요.'},
+    wo:{name:'세계 리듬 가족',ic:'🌍',color:'var(--wo)',line:'아프리카·라틴의 몸이 저절로 움직이는 리듬.'},
+    ro:{name:'밴드 가족',ic:'🎸',color:'var(--ro)',line:'기타·베이스·드럼, 사람이 직접 연주하는 소리.'}
+  };
+  // id, 이름, 영어, 가족, 고향·시대, BPM[lo,hi], 성격(캐릭터), 필살기(대표 소리), 어두움1~5, 에너지1~5, Suno 태그, 밴드랩 키트 예시, 소리 패턴
+  var G=[
+    {id:'boombap',ko:'붐뱁',en:'Boom Bap',fam:'hh',home:'1990년대 미국 뉴욕',bpm:[85,95],persona:'옛날 LP를 모으는 이야기꾼. "쿵! 탁!" 소리로 말해요.',move:'또렷한 킥·스네어, 재즈·소울을 잘라 붙인 샘플',dark:3,energy:3,suno:'boom bap',kits:['Boom Bap','Classic Hip Hop'],
+      p:{bpm:90,k:[0,7,10],s:[4,12],h:[0,2,4,6,8,10,12,14],swing:.12}},
+    {id:'trap',ko:'트랩',en:'Trap',fam:'hh',home:'2000년대 미국 애틀랜타',bpm:[130,160],persona:'무게 잡는 센 친구. 말은 느린데 발은 엄청 빨라요.',move:'"따다다닥" 굴러가는 하이햇 + 바닥을 울리는 808 베이스',dark:4,energy:4,suno:'trap',kits:['Trap Vol. 1','Underground Trap'],
+      p:{bpm:140,k:[0,6,10],s:[8],h:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],roll:[13,14,15],b:[[0,55,6],[10,49,6]]}},
+    {id:'lofi',ko:'로파이 힙합',en:'Lo-fi Hip Hop',fam:'hh',home:'2010년대 유튜브 (뿌리: J Dilla·Nujabes)',bpm:[70,90],persona:'도서관 창가에서 졸고 있는 친구. 비 오는 날을 제일 좋아해요.',move:'LP 지지직 + 먹먹한 소리 + 재즈 화음 + 살짝 늦는 드럼',dark:2,energy:1,suno:'lo-fi hip hop',kits:['LoFi','Hush Child','Bedroom Beats'],
+      p:{bpm:78,k:[0,7,10],s:[4,12],h:[0,2,4,6,8,10,12,14],hv:.12,swing:.22,lp:1600,crackle:1,chord:{f:[[220,261.6,329.6,392],[174.6,220,261.6,329.6]],type:'triangle',vol:.05}}},
+    {id:'drill',ko:'드릴',en:'Drill',fam:'hh',home:'2010년대 초 시카고 → 영국(UK 드릴)',bpm:[140,150],persona:'밤거리를 걷는 차가운 친구. 미끄러지듯 말해요.',move:'미끄러지는(슬라이드) 808 베이스 + 엇박 하이햇',dark:5,energy:4,suno:'drill',kits:['Drill Vol. 1','Drill Vol. 2'],
+      p:{bpm:142,k:[0,11],s:[6,14],h:[0,3,6,8,11,14],b:[[0,55,4,73],[8,49,6]]}},
+    {id:'phonk',ko:'퐁크',en:'Phonk',fam:'hh',home:'1990년대 멤피스 랩에서 출발 → 2020년대 인터넷',bpm:[130,160],persona:'카우벨을 울리며 드리프트하는 친구.',move:'"팅팅" 카우벨 멜로디 + 거칠게 찌그러진 808',dark:5,energy:5,suno:'phonk, cowbell',kits:['Swung Phonk','Pocket Phonk'],
+      p:{bpm:140,k:[0,6,10],s:[8],h:[0,2,4,6,8,10,12,14],cow:[[0,820],[3,820],[6,980],[10,740],[12,820]]}},
+    {id:'rnb',ko:'R&B',en:'Contemporary R&B',fam:'rb',home:'1980년대 이후 미국',bpm:[60,100],persona:'노래로 고백하는 로맨티스트.',move:'매끈한 보컬과 화음, 부드러운 비트',dark:2,energy:2,suno:'contemporary R&B',kits:['RnB Vol. 1','RnB Vol. 2'],
+      p:{bpm:90,k:[0,10],s:[4,12],h:[0,2,4,6,8,10,12,14],chord:{f:[[261.6,329.6,392,493.9],[220,277.2,329.6,415.3]],type:'triangle',vol:.05}}},
+    {id:'neosoul',ko:'네오 소울',en:'Neo Soul',fam:'rb',home:'1990년대 후반 미국',bpm:[70,95],persona:'따뜻한 차 한 잔 같은 친구. 재즈도 좋아해요.',move:'몽글몽글한 로즈 건반 + 사람이 친 듯한 드럼',dark:2,energy:2,suno:'neo soul, Rhodes',kits:['Neo Soul Finger Drummer Kit'],
+      p:{bpm:84,k:[0,9],s:[4,12],h:[0,2,4,6,8,10,12,14],swing:.18,chord:{f:[[196,246.9,293.7,370],[220,261.6,329.6,392]],type:'sine',vol:.07}}},
+    {id:'altrnb',ko:'얼터너티브 R&B',en:'Alternative R&B',fam:'rb',home:'2010년대 초 (The Weeknd·Frank Ocean)',bpm:[60,100],persona:'새벽 3시에 일기를 쓰는 친구. 몽환적이고 솔직해요.',move:'울리는 신스 공간 + 텅 빈 느린 비트 + 고백하는 가사',dark:4,energy:1,suno:'alternative R&B, atmospheric',kits:[],
+      p:{bpm:70,k:[0,11],s:[8],h:[2,6,10,14],hv:.1,lp:3000,chord:{f:[[146.8,220,261.6,349.2],[130.8,196,246.9,329.6]],type:'sawtooth',vol:.025,lp:900}}},
+    {id:'house',ko:'하우스',en:'House',fam:'el',home:'1980년대 미국 시카고',bpm:[118,130],persona:'밤새 춤추는 파티 주인. 박자가 절대 안 흔들려요.',move:'"쿵쿵쿵쿵" 4박 내내 일정한 킥(포 온 더 플로어)',dark:2,energy:4,suno:'house',kits:['Funky Tech House','Mallin'],
+      p:{bpm:124,k:[0,4,8,12],clap:[4,12],h:[2,6,10,14]}},
+    {id:'techno',ko:'테크노',en:'Techno',fam:'el',home:'1980년대 미국 디트로이트',bpm:[125,140],persona:'공장 기계처럼 정확한 로봇.',move:'반복, 반복, 또 반복되는 기계음',dark:4,energy:4,suno:'techno',kits:['Minimal Techno','Warehouse Techno'],
+      p:{bpm:130,k:[0,4,8,12],h:[2,6,10,14],rim:[3,7,11,15],hv:.12}},
+    {id:'dnb',ko:'드럼앤베이스',en:'Drum & Bass',fam:'el',home:'1990년대 영국',bpm:[160,180],persona:'달리기 선수. 심장이 엄청 빨리 뛰어요.',move:'아주 빠르게 쪼개지는 드럼 + 깊은 베이스',dark:3,energy:5,suno:'drum and bass',kits:['Sample This: Drum n Bass','D&B Hyperpop'],
+      p:{bpm:174,k:[0,10],s:[4,12],h:[0,2,4,6,8,10,12,14],b:[[0,49,8]]}},
+    {id:'dubstep',ko:'덥스텝',en:'Dubstep',fam:'el',home:'2000년대 영국 런던',bpm:[138,145],persona:'덩치 큰 괴물. 빠른데 쿵—하고 무겁게 걸어요.',move:'하프타임 비트 + "워블워블" 떨리는 베이스',dark:4,energy:5,suno:'dubstep, wobble bass',kits:['Dubstep'],
+      p:{bpm:140,k:[0],s:[8],h:[0,2,4,6,8,10,12,14],b:[[0,41,8,0,1],[10,46,6,0,1]]}},
+    {id:'futurebass',ko:'퓨처 베이스',en:'Future Bass',fam:'el',home:'2010년대 인터넷',bpm:[130,160],persona:'반짝이 스티커를 붙인 친구. 화음이 부풀었다 꺼져요.',move:'"우와앙" 부풀어 오르는 화려한 신스 화음',dark:1,energy:4,suno:'future bass',kits:['Future Bass','Kawaii Future Bass'],
+      p:{bpm:150,k:[0,7],s:[8],h:[0,2,4,6,8,10,12,14],chord:{f:[[261.6,329.6,392,493.9],[293.7,349.2,440,523.3]],type:'sawtooth',vol:.03,pump:1}}},
+    {id:'kpop',ko:'K-팝',en:'K-Pop',fam:'po',home:'1990년대 이후 한국',bpm:[100,130],persona:'뭐든 다 잘하는 만능 친구. 여러 장르를 섞어요.',move:'중독적인 후렴 + 장르 섞기 + 퍼포먼스',dark:2,energy:4,suno:'K-pop',kits:['K-Pop','K-Pop Expanded'],
+      p:{bpm:120,k:[0,4,8,12],s:[4,12],clap:[4,12],h:[0,2,4,6,8,10,12,14]}},
+    {id:'hyperpop',ko:'하이퍼팝',en:'Hyperpop',fam:'po',home:'2010년대 후반 인터넷',bpm:[140,180],persona:'볼륨을 끝까지 올린 친구. 모든 게 과장돼요.',move:'높게 올린 목소리 + 지글지글 반짝이는 소리',dark:2,energy:5,suno:'hyperpop',kits:['Hyperpop Explosion Vol. 3','Metallic Hyperpop'],
+      p:{bpm:160,k:[0,4,8,10,12],s:[4,12],h:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],chord:{f:[[523.3,659.3,784],[587.3,740,880]],type:'square',vol:.02}}},
+    {id:'synthpop',ko:'신스팝',en:'Synth-pop',fam:'po',home:'1980년대 영국·유럽',bpm:[110,130],persona:'80년대 비디오테이프를 좋아하는 레트로 친구.',move:'반짝이는 신시사이저 + 큰 울림 드럼',dark:2,energy:3,suno:'synth-pop, 1980s',kits:['Synth Pop','Retro Synthwave Vol. 3'],
+      p:{bpm:118,k:[0,8],s:[4,12],h:[0,2,4,6,8,10,12,14],chord:{f:[[220,277.2,329.6],[196,246.9,293.7]],type:'sawtooth',vol:.03}}},
+    {id:'afrobeats',ko:'아프로비츠',en:'Afrobeats',fam:'wo',home:'2000~2010년대 나이지리아·가나',bpm:[95,115],persona:'어깨가 먼저 들썩이는 친구.',move:'통통 튀는 퍼커션 + 흔들리는 그루브',dark:1,energy:4,suno:'afrobeats',kits:['Afrobeat','Burning Afro Kit'],
+      p:{bpm:104,k:[0,7,10],rim:[3,6,11,14],shk:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]}},
+    {id:'amapiano',ko:'아마피아노',en:'Amapiano',fam:'wo',home:'2010년대 중반 남아공 (요하네스버그·프리토리아)',bpm:[108,115],persona:'느긋하게 춤추는 친구. 낮게 "둥둥" 울려요.',move:'"둥- 둥-" 미끄러지는 로그 드럼 + 재즈 피아노',dark:2,energy:3,suno:'amapiano, log drum',kits:['Amapiano Groove Chill Kit'],
+      p:{bpm:112,k:[0,4,8,12],shk:[1,3,5,7,9,11,13,15],log:[[0,65],[3,65],[6,73],[10,58],[13,65]],chord:{f:[[261.6,329.6,392,466.2]],type:'triangle',vol:.04}}},
+    {id:'reggaeton',ko:'레게톤',en:'Reggaeton',fam:'wo',home:'1990년대 푸에르토리코',bpm:[90,100],persona:'댄스 플로어의 터줏대감.',move:'"쿵-따-쿵따" 뎀보 리듬',dark:2,energy:4,suno:'reggaeton, dembow',kits:['Latin'],
+      p:{bpm:95,k:[0,4,8,12],s:[3,6,11,14],h:[2,6,10,14]}},
+    {id:'rock',ko:'록',en:'Rock',fam:'ro',home:'1950년대 미국 → 전 세계',bpm:[110,150],persona:'목소리 큰 대장. 직접 연주하는 걸 자랑스러워해요.',move:'찌그러진 기타 + 힘찬 라이브 드럼',dark:3,energy:5,suno:'rock, distorted guitar',kits:['Dwilly Rock Drum Kit'],
+      p:{bpm:122,k:[0,8,10],s:[4,12],h:[0,2,4,6,8,10,12,14]}},
+    {id:'poppunk',ko:'팝 펑크',en:'Pop Punk',fam:'ro',home:'1990~2000년대 미국',bpm:[150,190],persona:'스케이트보드 타는 장난꾸러기. 엄청 빠르고 신나요.',move:'빠르게 몰아치는 드럼 + 따라 부르기 쉬운 후렴',dark:1,energy:5,suno:'pop punk',kits:[],
+      p:{bpm:170,k:[0,8],s:[4,12],h:[0,2,4,6,8,10,12,14]}}
+  ];
+  function gById(id){ for(var i=0;i<G.length;i++) if(G[i].id===id) return G[i]; return null; }
+  var PAIRS=[['boombap','trap','둘 다 힙합! 붐뱁은 스네어가 2·4박에 또렷하게, 트랩은 3박에 한 번이라 하프타임처럼 느리게 느껴져요. 대신 하이햇이 엄청 빨라요.'],
+    ['house','techno','둘 다 4박 킥! 하우스는 손뼉 소리와 따뜻함, 테크노는 차갑고 기계적인 반복이에요.'],
+    ['trap','drill','둘 다 어두운 808! 드릴은 베이스가 미끄러지고 하이햇이 엇박으로 끊겨요.'],
+    ['rnb','altrnb','R&B는 밝고 또렷, 얼터너티브 R&B는 몽환적이고 텅 빈 느낌이에요.'],
+    ['lofi','boombap','로파이는 붐뱁의 동생! 같은 쿵-탁인데 더 느리고, 먹먹하고, 지지직거려요.'],
+    ['afrobeats','amapiano','둘 다 아프리카에서! 아프로비츠는 통통 튀는 퍼커션, 아마피아노는 "둥-" 로그 드럼이 주인공이에요.']];
+
+  /* ═════════ 상태 ═════════ */
+  var KEY='genre-dex-v1', S={ star:[], cur:'lofi', fam:'' };
+  try{ var sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv) S=Object.assign(S,sv); }catch(e){}
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+
+  /* ═════════ 소리 엔진 ═════════ */
+  var AC=null, NB=null, playing=null;
+  function ac(){ if(!AC){ var C=window.AudioContext||window.webkitAudioContext; if(C) AC=new C(); } if(AC&&AC.state==='suspended') AC.resume(); return AC; }
+  function noiseBuf(a){ if(!NB){ NB=a.createBuffer(1,a.sampleRate*.6,a.sampleRate); var d=NB.getChannelData(0); for(var i=0;i<d.length;i++) d[i]=Math.random()*2-1; } return NB; }
+  function env(a,bus,t,vol,len){ var g=a.createGain(); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+len); g.connect(bus); return g; }
+  function kick(a,bus,t){ var o=a.createOscillator(); o.frequency.setValueAtTime(140,t); o.frequency.exponentialRampToValueAtTime(42,t+.12); o.connect(env(a,bus,t,.9,.32)); o.start(t); o.stop(t+.34); }
+  function noise(a,bus,t,f,len,vol,type){ var s=a.createBufferSource(); s.buffer=noiseBuf(a); var fl=a.createBiquadFilter(); fl.type=type; fl.frequency.value=f; s.connect(fl).connect(env(a,bus,t,vol,len)); s.start(t); s.stop(t+len+.02); }
+  function snare(a,bus,t){ noise(a,bus,t,1800,.18,.45,'bandpass'); }
+  function clap(a,bus,t){ [0,.012,.024].forEach(function(d){ noise(a,bus,t+d,1400,.12,.35,'bandpass'); }); }
+  function hat(a,bus,t,v){ noise(a,bus,t,8000,.045,v||.2,'highpass'); }
+  function shaker(a,bus,t){ noise(a,bus,t,6000,.03,.08,'highpass'); }
+  function rim(a,bus,t){ var o=a.createOscillator(); o.type='square'; o.frequency.value=1700; o.connect(env(a,bus,t,.12,.04)); o.start(t); o.stop(t+.05); }
+  function cow(a,bus,t,f){ [f,f*1.48].forEach(function(fr){ var o=a.createOscillator(); o.type='square'; o.frequency.value=fr; var bp=a.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=fr; o.connect(bp).connect(env(a,bus,t,.09,.22)); o.start(t); o.stop(t+.24); }); }
+  function b808(a,bus,t,f,len,slide,wob){ var o=a.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(f,t); if(slide) o.frequency.exponentialRampToValueAtTime(slide,t+len*.6);
+    var g=a.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.8,t+.01); g.gain.exponentialRampToValueAtTime(.001,t+len);
+    if(wob){ var lfo=a.createOscillator(), lg=a.createGain(); lfo.frequency.value=6; lg.gain.value=.4; lfo.connect(lg).connect(g.gain); lfo.start(t); lfo.stop(t+len); var sh=a.createWaveShaper(); var c=new Float32Array(256); for(var i=0;i<256;i++){ var x=i/128-1; c[i]=Math.tanh(x*4); } sh.curve=c; o.connect(sh).connect(g); } else o.connect(g);
+    g.connect(bus); o.start(t); o.stop(t+len+.05); }
+  function logd(a,bus,t,f){ var o=a.createOscillator(); o.frequency.setValueAtTime(f*2,t); o.frequency.exponentialRampToValueAtTime(f,t+.07); o.connect(env(a,bus,t,.55,.45)); o.start(t); o.stop(t+.5); }
+  function chord(a,bus,t,fs,len,c){ var fl=a.createBiquadFilter(); fl.type='lowpass'; fl.frequency.value=c.lp||4000; var g=a.createGain(); g.gain.setValueAtTime(.0001,t);
+    if(c.pump){ g.gain.exponentialRampToValueAtTime(c.vol,t+len*.85); g.gain.exponentialRampToValueAtTime(.0001,t+len); } else { g.gain.exponentialRampToValueAtTime(c.vol,t+.05); g.gain.setValueAtTime(c.vol,t+len*.8); g.gain.exponentialRampToValueAtTime(.0001,t+len); }
+    fl.connect(g).connect(bus); fs.forEach(function(f){ var o=a.createOscillator(); o.type=c.type||'triangle'; o.frequency.value=f; o.detune.value=(Math.random()-.5)*8; o.connect(fl); o.start(t); o.stop(t+len+.05); }); }
+  function stopAll(){ if(playing){ clearInterval(playing.id); if(playing.cr) clearInterval(playing.cr); try{ playing.bus.gain.setTargetAtTime(0,AC.currentTime,.05); }catch(e){} if(playing.onStop) playing.onStop(); playing=null; } }
+  function play(p,opt){ stopAll(); var a=ac(); if(!a) return; opt=opt||{};
+    var bus=a.createGain(); bus.gain.value=.8; var out=bus;
+    if(p.lp){ var lp=a.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=p.lp; bus.connect(lp); out=lp; }
+    out.connect(a.destination);
+    var step=0, dur=60/p.bpm/4, bar=0;
+    var tick=function(){ var i=step%16, t=a.currentTime+.03+((i%2&&p.swing)?p.swing*dur:0);
+      if(p.k&&p.k.indexOf(i)>=0) kick(a,bus,t); if(p.s&&p.s.indexOf(i)>=0) snare(a,bus,t); if(p.clap&&p.clap.indexOf(i)>=0) clap(a,bus,t);
+      if(p.h&&p.h.indexOf(i)>=0) hat(a,bus,t,p.hv); if(p.roll&&p.roll.indexOf(i)>=0) hat(a,bus,t+dur/2,p.hv);
+      if(p.rim&&p.rim.indexOf(i)>=0) rim(a,bus,t); if(p.shk&&p.shk.indexOf(i)>=0) shaker(a,bus,t);
+      (p.cow||[]).forEach(function(c){ if(c[0]===i) cow(a,bus,t,c[1]); });
+      (p.b||[]).forEach(function(b){ if(b[0]===i) b808(a,bus,t,b[1],b[2]*dur,b[3],b[4]); });
+      (p.log||[]).forEach(function(l){ if(l[0]===i) logd(a,bus,t,l[1]); });
+      if(p.chord&&i===0){ var fs=p.chord.f[bar%p.chord.f.length]; chord(a,bus,t,fs,dur*16,p.chord); bar++; }
+      if(opt.onStep) opt.onStep(i); step++; };
+    tick(); playing={id:setInterval(tick,dur*1000),bus:bus,onStop:opt.onStop};
+    if(p.crackle){ playing.cr=setInterval(function(){ var t=a.currentTime+Math.random()*.1; noise(a,bus,t,3000+Math.random()*4000,.01,.05+Math.random()*.08,'highpass'); },90); }
+  }
+  function eqAnim(id,on){ var box=$(id); if(!box) return; if(!box.children.length){ for(var i=0;i<12;i++) box.appendChild(document.createElement('i')); } [].forEach.call(box.children,function(b){ b.style.height=on?(15+Math.random()*85)+'%':'20%'; }); }
+
+  /* ═════════ 1 표지 ═════════ */
+  var fan=$('fan'); ['lofi','altrnb','amapiano','house','hyperpop'].forEach(function(id,i){ var g=gById(id), d=document.createElement('div'); d.className='mini'; d.style.background=FAM[g.fam].color; d.innerHTML='<small>No.'+(G.indexOf(g)+1)+'</small><b>'+esc(g.ko)+'</b><small>'+FAM[g.fam].ic+' '+esc(g.en)+'</small>'; fan.appendChild(d);
+    var rot=(i-2)*14, x=(i-2)*46; if(motion) gsap.fromTo(d,{rotation:0,x:0},{rotation:rot,x:x,duration:.9,delay:.2+i*.08,ease:'back.out(1.6)'}); else d.style.transform='translateX('+x+'px) rotate('+rot+'deg)'; });
+
+  /* ═════════ 3·4 A/B ═════════ */
+  var lofiP=gById('lofi').p, cleanP={bpm:78,k:lofiP.k,s:lofiP.s,h:lofiP.h,hv:.22,chord:{f:lofiP.chord.f,type:'triangle',vol:.05}};
+  var AB={ clean:[cleanP,'eq-clean','ab-clean'], lofi:[lofiP,'eq-lofi','ab-lofi'], rnb:[gById('rnb').p,'eq-rnb','ab-rnb'], alt:[gById('altrnb').p,'eq-alt','ab-alt'] };
+  document.querySelectorAll('[data-ab]').forEach(function(btn){ btn.addEventListener('click',function(){ var k=btn.dataset.ab, x=AB[k];
+    if(playing&&playing.key===k){ stopAll(); return; }
+    play(x[0],{onStep:function(i){ if(i%2===0) eqAnim(x[1],true); },onStop:function(){ btn.textContent='▶ 들어 보기'; $(x[2]).classList.remove('on'); eqAnim(x[1],false); }});
+    if(playing) playing.key=k; btn.textContent='■ 멈추기'; $(x[2]).classList.add('on'); }); });
+  Object.keys(AB).forEach(function(k){ eqAnim(AB[k][1],false); });
+
+  /* ═════════ 5 도감 ═════════ */
+  $('dex-fam').innerHTML='<button type="button" class="chip" data-df="" style="--cc:var(--ink)" aria-pressed="true">전체</button>'+Object.keys(FAM).map(function(k){ return '<button type="button" class="chip" data-df="'+k+'" style="--cc:'+FAM[k].color+'" aria-pressed="false">'+FAM[k].ic+'</button>'; }).join('');
+  $('dex-fam').addEventListener('click',function(e){ var b=e.target.closest('[data-df]'); if(!b) return; S.fam=b.dataset.df; save(); drawDex(); });
+  $('dexgrid').addEventListener('click',function(e){ var b=e.target.closest('[data-g]'); if(!b) return; stopAll(); S.cur=b.dataset.g; save(); drawDex(true); });
+  function bar(lbl,v,max,txt,col){ return '<div class="stat"><span>'+lbl+'</span><span class="tr"><span class="fl" style="width:'+(v/max*100)+'%;background:'+(col||'var(--fc)')+'"></span></span><span>'+txt+'</span></div>'; }
+  function drawDex(anim){
+    [].forEach.call($('dex-fam').children,function(b){ b.setAttribute('aria-pressed',b.dataset.df===S.fam?'true':'false'); });
+    $('dexgrid').innerHTML=G.filter(function(g){ return !S.fam||g.fam===S.fam; }).map(function(g){ return '<button type="button" class="dbtn" data-g="'+g.id+'" style="--fc:'+FAM[g.fam].color+'" aria-current="'+(g.id===S.cur)+'"><b>'+(S.star.indexOf(g.id)>=0?'<span class="star">★</span> ':'')+esc(g.ko)+'</b><small>No.'+(G.indexOf(g)+1)+' · '+esc(g.en)+'</small></button>'; }).join('');
+    var g=gById(S.cur)||G[0], f=FAM[g.fam], starred=S.star.indexOf(g.id)>=0, mid=Math.round((g.bpm[0]+g.bpm[1])/2);
+    $('card').style.setProperty('--fc',f.color);
+    $('card').innerHTML='<div class="card-in"><div class="card-top"><div class="card-name">'+esc(g.ko)+'<small>No.'+(G.indexOf(g)+1)+' · '+esc(g.en)+'</small></div><span class="famtag">'+f.ic+' '+f.name+'</span></div>'+
+      '<div class="persona">🗣 "'+esc(g.persona)+'"</div>'+
+      '<div class="facts"><div class="fact"><small>고향 · 태어난 때</small>'+esc(g.home)+'</div><div class="fact"><small>필살기 (대표 소리)</small>'+esc(g.move)+'</div></div>'+
+      '<div class="stats">'+bar('빠르기',mid-50,150,g.bpm[0]+'~'+g.bpm[1])+bar('어두움',g.dark,5,'★'.repeat(g.dark),'#475569')+bar('에너지',g.energy,5,'★'.repeat(g.energy),'#f59e0b')+'</div>'+
+      '<div class="kits">Suno 태그 <code>'+esc(g.suno)+'</code>'+(g.kits.length?' · 밴드랩 키트 친구 '+g.kits.map(function(k){return '<code>'+esc(k)+'</code>';}).join(' '):'')+'</div>'+
+      '<div class="cardbtns"><button type="button" class="btn" id="card-play" style="background:'+f.color+'">▶ 들어 보기</button><button type="button" class="starbtn" id="card-star" aria-pressed="'+starred+'">'+(starred?'★ 찜했어요':'☆ 찜하기')+'</button><div class="eqbars" id="eq-card" style="--ac:'+f.color+'"></div></div></div>';
+    eqAnim('eq-card',false);
+    $('card-play').addEventListener('click',function(){ var btn=this; if(playing&&playing.key==='card'){ stopAll(); return; }
+      play(g.p,{onStep:function(i){ if(i%2===0) eqAnim('eq-card',true); },onStop:function(){ btn.textContent='▶ 들어 보기'; eqAnim('eq-card',false); }}); if(playing) playing.key='card'; btn.textContent='■ 멈추기'; });
+    $('card-star').addEventListener('click',function(){ var i=S.star.indexOf(g.id); if(i>=0) S.star.splice(i,1); else S.star.push(g.id); save(); drawDex(); refreshStar(); if(motion&&i<0) gsap.fromTo('#cart',{scale:1.25,rotation:-8},{scale:1,rotation:0,duration:.5,ease:'back.out(3)'}); });
+    if(motion&&anim) gsap.fromTo('#card .card-in > *',{y:12,opacity:0},{y:0,opacity:1,duration:.35,stagger:.05,ease:'power2.out'});
+  }
+
+  /* ═════════ 6 배틀 ═════════ */
+  var curPair=0;
+  $('pairs').innerHTML=PAIRS.map(function(p,i){ return '<button type="button" class="chip" data-pair="'+i+'" style="--cc:var(--ro)" aria-pressed="false">'+esc(gById(p[0]).ko)+' vs '+esc(gById(p[1]).ko)+'</button>'; }).join('');
+  $('pairs').addEventListener('click',function(e){ var b=e.target.closest('[data-pair]'); if(!b) return; stopAll(); curPair=+b.dataset.pair; drawBattle(true); });
+  function drawBattle(anim){ var p=PAIRS[curPair];
+    [].forEach.call($('pairs').children,function(b,i){ b.setAttribute('aria-pressed',i===curPair); });
+    $('battle').innerHTML=[p[0],null,p[1]].map(function(id,j){ if(!id) return '<div class="vs">VS</div>'; var g=gById(id), f=FAM[g.fam];
+      return '<div class="bc" id="bc-'+j+'" style="--fc:'+f.color+'"><h3>'+esc(g.ko)+'</h3><p>'+g.bpm[0]+'~'+g.bpm[1]+' BPM · '+esc(g.move)+'</p><button type="button" class="playbtn" data-bp="'+id+'" data-j="'+j+'" style="--ac:'+f.color+'">▶ 들어 보기</button></div>'; }).join('');
+    $('battle-out').innerHTML='⚔️ '+esc(p[2]);
+    if(motion&&anim){ gsap.fromTo('#bc-0',{x:-50,opacity:0},{x:0,opacity:1,duration:.45,ease:'power3.out'}); gsap.fromTo('#bc-2',{x:50,opacity:0},{x:0,opacity:1,duration:.45,ease:'power3.out'}); gsap.fromTo('#battle .vs',{scale:0},{scale:1,duration:.5,delay:.2,ease:'back.out(3)'}); } }
+  $('battle').addEventListener('click',function(e){ var b=e.target.closest('[data-bp]'); if(!b) return; var k='b'+b.dataset.j;
+    if(playing&&playing.key===k){ stopAll(); return; }
+    play(gById(b.dataset.bp).p,{onStop:function(){ b.textContent='▶ 들어 보기'; $('bc-'+b.dataset.j).classList.remove('on'); }}); if(playing) playing.key=k; b.textContent='■ 멈추기'; $('bc-'+b.dataset.j).classList.add('on'); });
+
+  function refreshStar(){}
+
+  /* ═════════ 이동 ═════════ */
+  var slides=[].slice.call(document.querySelectorAll('.slide')), cur=0;
+  function animIn(sl){ if(!motion) return; var it=sl.querySelectorAll('[data-in]'); if(it.length) gsap.fromTo(it,{y:16,opacity:0},{y:0,opacity:1,duration:.45,stagger:.06,ease:'power2.out'}); }
+  function go(n){ n=Math.max(0,Math.min(slides.length-1,n)); if(n!==cur) stopAll(); cur=n;
+    slides.forEach(function(s,i){ s.classList.toggle('active',i===n); s.classList.toggle('prev',i<n); s.setAttribute('aria-hidden',i===n?'false':'true'); });
+    $('num').textContent=(n+1)+' / '+slides.length; $('prev').disabled=n===0; $('next').disabled=n===slides.length-1; slides[n].scrollTop=0; animIn(slides[n]);
+    if(n===3) drawDex(true); if(n===4) drawBattle(true); }
+  $('prev').addEventListener('click',function(){go(cur-1);}); $('next').addEventListener('click',function(){go(cur+1);});
+  document.addEventListener('keydown',function(e){ if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return; if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();go(cur+1);} else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1);} });
+  var sx=null,sy=null;
+  document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',function(e){ if(sx===null) return; var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) go(cur+(dx<0?1:-1)); sx=null; });
+
+  drawDex(); drawBattle(); go(0);
+})();
+</script>
+</body>
+</html>
