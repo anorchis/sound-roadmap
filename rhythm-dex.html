@@ -172,6 +172,24 @@ h2 small{ font-family:var(--body); font-size:.42em; font-weight:700; color:var(-
   .quiz-opts{ grid-template-columns:1fr; }
 }
 @media (prefers-reduced-motion:reduce){ .slide{ transition:none; transform:none; } }
+:root{ --slow:#0891b2; --mid:#7c3aed; --fast:#e11d48; --kit:#ea580c; --pad:#2563eb; }
+.player{ width:100%; max-width:900px; background:#fff; border:2px solid var(--line); border-radius:24px; padding:18px; display:flex; flex-direction:column; gap:12px; }
+.pbpm{ font-family:var(--display); font-size:clamp(56px,8vw,96px); line-height:1; text-align:center; }
+.pbpm small{ font-family:var(--body); font-size:18px; color:var(--faint); font-weight:900; }
+.pzone{ text-align:center; font-weight:900; font-size:15px; }
+.beats{ display:grid; grid-template-columns:repeat(16,1fr); gap:4px; }
+.beats i{ aspect-ratio:1; border-radius:6px; background:#f0eff6; }
+.beats i.k{ background:#fed7aa; } .beats i.s{ background:#fde68a; }
+.beats i.now{ outline:3px solid var(--ink); outline-offset:-1px; }
+.qbtns{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.qbtns button{ border:1.5px solid var(--line); background:#fff; border-radius:12px; padding:7px 12px; font-weight:900; font-size:14px; }
+.qbtns button:hover{ border-color:var(--mid); }
+.feelrow{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.feelrow button{ border:1.5px solid var(--line); background:#fff; border-radius:99px; padding:5px 12px; font-size:13.5px; font-weight:700; }
+.feelrow button[aria-pressed="true"]{ background:var(--mid); border-color:var(--mid); color:#fff; }
+.flog{ font-size:14px; color:var(--sub); text-align:center; min-height:20px; }
+.row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center; }
+.player .btn{ font-size:15px; }
 </style>
 </head>
 <body>
@@ -190,6 +208,24 @@ h2 small{ font-family:var(--body); font-size:.42em; font-weight:700; color:var(-
         <span class="fam" style="background:var(--root)">뿌리 리듬</span>
         <span class="fam" style="background:var(--dance)">춤의 리듬</span>
         <span class="fam" style="background:var(--beat)">힙합·전자</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 같은 비트 다른 빠르기 -->
+  <section class="slide" style="--c:var(--kit)">
+    <div class="inner">
+      <span class="tag" style="color:var(--kit)">TEMPO · 같은 비트, 다른 빠르기</span>
+      <h2>박자만 바꾸면 <span style="color:var(--kit)">다른 노래</span>가 돼요</h2>
+      <div class="player">
+        <div class="pbpm" id="pbpm">100<small> BPM</small></div>
+        <div class="pzone" id="pzone"></div>
+        <input type="range" id="pslider" min="60" max="180" value="100" aria-label="빠르기" style="accent-color:var(--kit)">
+        <div class="qbtns" id="qbtns"></div>
+        <div class="beats" id="beats"></div>
+        <div class="row"><button class="btn r" id="play" type="button" style="background:var(--kit)">▶ 비트 듣기</button></div>
+        <div class="feelrow" id="feelrow"></div>
+        <div class="flog" id="flog">빠르기를 바꿔 들으며 느낌 단어를 눌러 기록해요.</div>
       </div>
     </div>
   </section>
@@ -535,7 +571,7 @@ h2 small{ font-family:var(--body); font-size:.42em; font-weight:700; color:var(-
     if(items.length) gsap.fromTo(items,{y:16,opacity:0},{y:0,opacity:1,duration:.45,stagger:.035,ease:'power2.out',onComplete:sl.id==='tree-slide'?drawTree:null});
   }
   function go(n){
-    n=Math.max(0,Math.min(slides.length-1,n)); if(n!==cur) stop();
+    n=Math.max(0,Math.min(slides.length-1,n)); if(n!==cur){ stop(); if(window.__drumStop) window.__drumStop(); }
     cur=n; slides.forEach(function(s,i){ s.classList.toggle('active',i===n); s.classList.toggle('prev',i<n); s.setAttribute('aria-hidden',i===n?'false':'true'); });
     $('num').textContent=(n+1)+' / '+slides.length; $('prev').disabled=n===0; $('next').disabled=n===slides.length-1;
     slides[n].scrollTop=0; animIn(slides[n]);
@@ -554,6 +590,52 @@ h2 small{ font-family:var(--body); font-size:.42em; font-weight:700; color:var(-
   document.addEventListener('touchend',function(e){ if(sx===null) return; var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) go(cur+(dx<0?1:-1)); sx=null; });
 
   go((parseInt(location.hash.slice(1),10)||1)-1);
+})();
+</script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var FEELS=['느긋한','편안한','신나는','긴장되는','급한','무거운','통통 튀는','설레는'];
+  function zoneOf(b){ return b<90?'s':(b<=120?'m':'f'); }
+  var ZN={s:['🐢 느림','var(--slow)'],m:['🚶 중간','var(--mid)'],f:['🏃 빠름','var(--fast)']};
+  var KEY='tempo-quest-v1', S={ feelLog:[] };
+  try{ var sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv&&sv.feelLog) S.feelLog=sv.feelLog; }catch(e){}
+  function save(){ try{ var o=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; o.feelLog=S.feelLog; localStorage.setItem(KEY,JSON.stringify(o)); }catch(e){} }
+  var OG=null; function OUT(a){ if(!OG){ OG=a.createGain(); OG.gain.value=window.__getVol?window.__getVol():.6; OG.connect(a.destination); } return OG; }
+  var _sv=window.__setVol; window.__setVol=function(v){ if(_sv) _sv(v); if(OG) OG.gain.setTargetAtTime(v,AC.currentTime,.03); };
+  /* ═════════ 소리 ═════════ */
+  var AC=null, NB=null;
+  function ac(){ if(!AC){ var C=window.AudioContext||window.webkitAudioContext; if(C) AC=new C(); } if(AC&&AC.state==='suspended') AC.resume(); return AC; }
+  function kick(t){ var a=ac(), o=a.createOscillator(), g=a.createGain(); o.frequency.setValueAtTime(140,t); o.frequency.exponentialRampToValueAtTime(40,t+.12); g.gain.setValueAtTime(.9,t); g.gain.exponentialRampToValueAtTime(.001,t+.3); o.connect(g).connect(OUT(a)); o.start(t); o.stop(t+.32); }
+  function noise(t,f,len,vol,type){ var a=ac(); if(!NB){ NB=a.createBuffer(1,a.sampleRate*.5,a.sampleRate); var d=NB.getChannelData(0); for(var i=0;i<d.length;i++) d[i]=Math.random()*2-1; } var s=a.createBufferSource(); s.buffer=NB; var fl=a.createBiquadFilter(); fl.type=type; fl.frequency.value=f; var g=a.createGain(); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+len); s.connect(fl).connect(g).connect(OUT(a)); s.start(t); s.stop(t+len+.02); }
+  function snare(t){ noise(t,1800,.18,.5,'bandpass'); } function hat(t){ noise(t,8000,.05,.22,'highpass'); }
+  var PAT={ basic:{k:[0,8],s:[4,12],h:[0,2,4,6,8,10,12,14]}, half:{k:[0,3,10],s:[8],h:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]} };
+  var loop=null, lstep=0, lgrid=null;
+  function drawGrid(el,p){ var h=''; for(var i=0;i<16;i++){ var c=p.k.indexOf(i)>=0?'k':(p.s.indexOf(i)>=0?'s':''); h+='<i class="'+c+'" data-i="'+i+'"></i>'; } el.innerHTML=h; }
+  function start(p,bpm,grid,onStop){ stop(); var a=ac(); if(!a) return; lstep=0; lgrid=grid; var dur=60/bpm/4;
+    var tick=function(){ var t=a.currentTime+.02, i=lstep%16; if(p.k.indexOf(i)>=0) kick(t); if(p.s.indexOf(i)>=0) snare(t); if(p.h.indexOf(i)>=0) hat(t);
+      if(lgrid) [].forEach.call(lgrid.children,function(c){ c.classList.toggle('now',+c.dataset.i===i); }); lstep++; };
+    tick(); loop={id:setInterval(tick,dur*1000),onStop:onStop}; }
+  function stop(){ if(loop){ clearInterval(loop.id); if(loop.onStop) loop.onStop(); loop=null; } if(lgrid) [].forEach.call(lgrid.children,function(c){c.classList.remove('now');}); }
+  /* ═════════ 3 같은 비트 ═════════ */
+  drawGrid($('beats'),PAT.basic);
+  $('qbtns').innerHTML=[70,100,130,160].map(function(b){ return '<button type="button" data-q="'+b+'">'+b+'</button>'; }).join('');
+  $('feelrow').innerHTML=FEELS.map(function(f){ return '<button type="button" data-f="'+f+'" aria-pressed="false">'+f+'</button>'; }).join('');
+  function setP(b){ $('pslider').value=b; $('pbpm').innerHTML=b+'<small> BPM</small>'; var z=ZN[zoneOf(b)]; $('pzone').innerHTML='<span style="color:'+z[1]+'">'+z[0]+'</span>'; $('pbpm').style.color=z[1];
+    if(loop&&lgrid===$('beats')){ start(PAT.basic,b,$('beats'),resetPlay); $('play').textContent='■ 멈추기'; } drawFeel(); }
+  function resetPlay(){ $('play').textContent='▶ 비트 듣기'; }
+  $('pslider').addEventListener('input',function(){ setP(+this.value); });
+  $('qbtns').addEventListener('click',function(e){ var b=e.target.closest('[data-q]'); if(b) setP(+b.dataset.q); });
+  $('play').addEventListener('click',function(){ if(loop&&lgrid===$('beats')){ stop(); return; } start(PAT.basic,+$('pslider').value,$('beats'),resetPlay); this.textContent='■ 멈추기'; });
+  function curFeel(){ var b=+$('pslider').value; for(var i=0;i<S.feelLog.length;i++) if(S.feelLog[i][0]===b) return S.feelLog[i][1]; return ''; }
+  $('feelrow').addEventListener('click',function(e){ var b=e.target.closest('[data-f]'); if(!b) return; var bpm=+$('pslider').value;
+    S.feelLog=S.feelLog.filter(function(x){return x[0]!==bpm;}); if(curFeel()!==b.dataset.f) S.feelLog.push([bpm,b.dataset.f]); S.feelLog.sort(function(a,c){return a[0]-c[0];}); save(); drawFeel(); });
+  function drawFeel(){ var cf=curFeel(); [].forEach.call($('feelrow').children,function(b){ b.setAttribute('aria-pressed',b.dataset.f===cf?'true':'false'); });
+    $('flog').innerHTML=S.feelLog.length?'내 기록: '+S.feelLog.map(function(x){ return '<b>'+x[0]+'</b> '+esc(x[1]); }).join(' → '):'빠르기를 바꿔 들으며 느낌 단어를 눌러 기록해요.'; }
+
+  window.__drumStop=stop;
+  setP(100);
 })();
 </script>
 </body>
