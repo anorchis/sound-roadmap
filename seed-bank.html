@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>씨앗 은행 슬라이드</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
+<style>
+/* 방향: 흰 종이 위 음악 스튜디오. 카테고리마다 고유 색, 직접 눌러 듣고 고르는 인터랙티브 덱 */
+:root{
+  color-scheme: light;
+  --bg:#ffffff; --ink:#15132b; --sub:#55536f; --faint:#9a98b0; --line:#ecebf3; --panel:#f7f6fb;
+  --genre:#e11d48; --mood:#7c3aed; --tempo:#0891b2; --rhythm:#ea580c; --inst:#059669; --vocal:#db2777; --prod:#2563eb; --era:#b45309;
+  --display:'Black Han Sans','Noto Sans KR',sans-serif; --body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+body{ font-family:var(--body); background:var(--bg); color:var(--ink); overflow:hidden; letter-spacing:-0.01em; }
+button{ font-family:inherit; cursor:pointer; color:inherit; }
+:focus-visible{ outline:3px solid #a5b4fc; outline-offset:2px; }
+
+/* 배경 오선 */
+.staff-bg{ position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:repeating-linear-gradient(180deg, transparent 0 46px, #f3f2f8 46px 47px); opacity:.7; }
+
+/* 덱 */
+.deck{ position:relative; z-index:1; width:100%; height:100%; overflow:hidden; }
+.slide{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  padding:30px 48px 86px; opacity:0; visibility:hidden; transform:translateX(60px);
+  transition:opacity .4s ease, transform .4s ease, visibility .4s; overflow-y:auto; }
+.slide.active{ opacity:1; visibility:visible; transform:none; }
+.slide.prev{ transform:translateX(-60px); }
+.inner{ width:100%; max-width:1140px; display:flex; flex-direction:column; align-items:center; gap:18px; margin:auto; }
+
+.tag{ font-size:12px; font-weight:700; letter-spacing:3px; padding:5px 15px; border-radius:20px; border:1.5px solid currentColor; }
+h1{ font-family:var(--display); font-weight:400; font-size:clamp(40px,6.4vw,84px); line-height:1.08; text-align:center; letter-spacing:-0.01em; }
+h2{ font-family:var(--display); font-weight:400; font-size:clamp(28px,3.8vw,48px); line-height:1.2; text-align:center; }
+.sub{ font-size:clamp(15px,1.6vw,19px); color:var(--sub); text-align:center; line-height:1.75; max-width:760px; }
+.sub b{ color:var(--ink); }
+.c-genre{color:var(--genre)} .c-mood{color:var(--mood)} .c-tempo{color:var(--tempo)} .c-rhythm{color:var(--rhythm)}
+.c-inst{color:var(--inst)} .c-vocal{color:var(--vocal)} .c-prod{color:var(--prod)} .c-era{color:var(--era)}
+
+/* 표지 이퀄라이저 */
+.eq{ display:flex; gap:7px; align-items:flex-end; height:120px; }
+.eq span{ width:16px; border-radius:8px; height:30%; }
+
+/* 두 칸 */
+.two{ display:grid; grid-template-columns:1fr 1fr; gap:22px; width:100%; max-width:960px; }
+.field{ border:2px solid var(--line); border-radius:24px; padding:22px; background:#fff; box-shadow:0 10px 30px rgba(21,19,43,.06); display:flex; flex-direction:column; gap:12px; }
+.field h3{ font-size:20px; font-weight:900; display:flex; align-items:center; gap:10px; }
+.field .k{ font-size:13px; color:var(--faint); font-weight:700; }
+.code{ font-family:'Consolas','D2Coding',monospace; font-size:14.5px; line-height:1.8; background:var(--panel); border-radius:14px; padding:14px 16px; color:#2b2770; white-space:pre-wrap; word-break:keep-all; overflow-wrap:anywhere; }
+.code .st{ color:var(--rhythm); font-weight:700; }
+
+/* 공식 */
+.formula{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; }
+.fpart{ padding:12px 18px; border-radius:16px; font-weight:900; font-size:clamp(15px,1.6vw,19px); color:#fff; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:96px; }
+.fpart small{ font-size:11px; font-weight:700; opacity:.85; letter-spacing:1px; }
+.plus{ font-size:24px; color:var(--faint); font-weight:900; }
+.weight{ display:flex; align-items:flex-end; gap:8px; height:80px; }
+.weight i{ display:block; width:96px; border-radius:10px 10px 4px 4px; background:linear-gradient(180deg,#c7c4ff,#eceaff); }
+.weight-cap{ font-size:14px; color:var(--sub); font-weight:700; }
+
+/* 칩 그리드 */
+.groups{ width:100%; display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; }
+.group{ background:#fff; border:1.5px solid var(--line); border-radius:20px; padding:14px; display:flex; flex-direction:column; gap:10px; }
+.group h4{ font-size:14px; font-weight:900; color:var(--sub); }
+.chips{ display:flex; flex-wrap:wrap; gap:7px; }
+.chip{ border:1.5px solid var(--line); background:#fff; border-radius:99px; padding:7px 13px; font-size:14px; font-weight:700; display:inline-flex; align-items:center; gap:6px; transition:transform .12s, background .15s, border-color .15s, color .15s; }
+.chip em{ font-style:normal; font-weight:500; font-size:12px; color:var(--faint); font-family:'Consolas','D2Coding',monospace; }
+.chip:hover{ transform:translateY(-2px); border-color:var(--cc,#c7c4ff); }
+.chip[aria-pressed="true"]{ background:var(--cc); border-color:var(--cc); color:#fff; }
+.chip[aria-pressed="true"] em{ color:rgba(255,255,255,.85); }
+.chip[aria-pressed="true"]::before{ content:'✓'; }
+.detail{ width:100%; max-width:900px; min-height:58px; border-radius:16px; background:var(--panel); padding:14px 18px; font-size:15.5px; line-height:1.65; color:var(--sub); display:flex; gap:12px; align-items:center; }
+.detail b{ color:var(--ink); }
+.detail code{ font-family:'Consolas','D2Coding',monospace; background:#fff; border:1px solid var(--line); border-radius:8px; padding:2px 8px; color:#2b2770; font-size:14px; }
+.cart-hint{ font-size:13px; color:var(--faint); font-weight:700; }
+
+/* 분위기 지도 */
+.moodmap{ position:relative; width:100%; max-width:820px; aspect-ratio:16/9; border-radius:24px; border:1.5px solid var(--line);
+  background:
+    linear-gradient(90deg, rgba(55,48,163,.07), rgba(250,204,21,.12)),
+    linear-gradient(0deg, rgba(255,255,255,0), rgba(225,29,72,.06));
+  max-height:52vh; }
+.axis{ position:absolute; font-size:12.5px; font-weight:900; color:var(--faint); }
+.axis.l{ left:12px; top:50%; transform:translateY(-50%); } .axis.r{ right:12px; top:50%; transform:translateY(-50%); }
+.axis.t{ top:10px; left:50%; transform:translateX(-50%); } .axis.b{ bottom:10px; left:50%; transform:translateX(-50%); }
+.moodmap::before{ content:''; position:absolute; left:50%; top:8%; bottom:8%; border-left:1.5px dashed #dddbe9; }
+.moodmap::after{ content:''; position:absolute; top:50%; left:6%; right:6%; border-top:1.5px dashed #dddbe9; }
+.mdot{ position:absolute; transform:translate(-50%,-50%); --cc:var(--mood); z-index:2; white-space:nowrap; }
+
+/* 템포 */
+.tempo-box{ width:100%; max-width:900px; display:flex; flex-direction:column; gap:16px; align-items:center; }
+.bpm-big{ font-family:var(--display); font-size:clamp(64px,10vw,120px); line-height:1; color:var(--tempo); display:flex; align-items:baseline; gap:10px; }
+.bpm-big small{ font-family:var(--body); font-size:22px; font-weight:900; color:var(--faint); }
+.beat-dot{ width:22px; height:22px; border-radius:50%; background:#e0f2f7; transition:background .05s, transform .05s; }
+.beat-dot.on{ background:var(--tempo); transform:scale(1.25); }
+.slider-wrap{ position:relative; width:100%; padding-top:34px; }
+input[type=range]{ width:100%; accent-color:var(--tempo); height:28px; }
+.marks{ position:absolute; left:0; right:0; top:0; height:30px; }
+.mark{ position:absolute; transform:translateX(-50%); font-size:11.5px; font-weight:700; color:var(--sub); background:#fff; border:1px solid var(--line); border-radius:8px; padding:2px 6px; white-space:nowrap; cursor:pointer; }
+.mark:hover{ border-color:var(--tempo); color:var(--tempo); }
+.btn{ border:none; border-radius:14px; padding:11px 20px; font-weight:900; font-size:15px; background:var(--ink); color:#fff; display:inline-flex; gap:8px; align-items:center; }
+.btn.ghost{ background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+.btn.t{ background:var(--tempo); } .btn.r{ background:var(--rhythm); }
+.row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center; }
+
+/* 시퀀서 */
+.seq{ width:100%; max-width:900px; display:flex; flex-direction:column; gap:8px; background:#fff; border:1.5px solid var(--line); border-radius:22px; padding:16px; }
+.seq-row{ display:grid; grid-template-columns:72px repeat(16,1fr); gap:5px; align-items:center; }
+.seq-row b{ font-size:13px; color:var(--sub); }
+.cell{ aspect-ratio:1; border-radius:7px; background:#f3f2f8; }
+.cell.q{ background:#ebe9f3; }
+.cell.on.k{ background:var(--rhythm); } .cell.on.s{ background:#f59e0b; } .cell.on.h{ background:#fbbf77; }
+.cell.roll{ background:repeating-linear-gradient(90deg,#fbbf77 0 40%, transparent 40% 60%, #fbbf77 60% 100%); }
+.cell.now{ outline:3px solid var(--ink); outline-offset:-1px; }
+
+/* 가사 */
+.lyric{ width:100%; max-width:760px; font-size:17px; line-height:2; background:#fff; border:1.5px solid var(--line); border-radius:22px; padding:20px 24px; }
+.mt{ display:inline-block; font-family:'Consolas','D2Coding',monospace; font-weight:700; color:var(--rhythm); background:#fff1e6; border-radius:8px; padding:0 8px; cursor:pointer; border:none; font-size:15px; }
+.mt.p{ color:var(--vocal); background:#fde7f1; }
+
+/* 비교 */
+.vs{ display:grid; grid-template-columns:1fr 1fr; gap:18px; width:100%; max-width:980px; }
+.vs .card{ border-radius:22px; padding:20px; border:2px solid var(--line); display:flex; flex-direction:column; gap:10px; background:#fff; }
+.vs .bad{ border-color:#fecdd3; } .vs .good{ border-color:#a7f3d0; }
+.vs h3{ font-size:18px; font-weight:900; }
+.mistakes{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; width:100%; max-width:980px; }
+.mis{ background:var(--panel); border-radius:16px; padding:12px 14px; font-size:14px; line-height:1.55; color:var(--sub); }
+.mis b{ display:block; color:var(--ink); font-size:15px; margin-bottom:2px; }
+
+/* 트렌드 */
+.bars{ width:100%; max-width:720px; display:flex; flex-direction:column; gap:9px; }
+.bar-row{ display:grid; grid-template-columns:120px 1fr 52px; gap:10px; align-items:center; font-size:14.5px; font-weight:700; }
+.bar-track{ height:22px; background:#f3f2f8; border-radius:99px; overflow:hidden; }
+.bar-fill{ height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,#fda4af,var(--genre)); }
+.bar-row .v{ text-align:right; font-variant-numeric:tabular-nums; color:var(--sub); }
+.trend-cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; width:100%; max-width:1000px; }
+.tcard{ border-radius:18px; padding:14px 16px; background:#fff; border:1.5px solid var(--line); display:flex; flex-direction:column; gap:4px; }
+.tcard b{ font-size:16px; } .tcard span{ font-size:13.5px; color:var(--sub); line-height:1.55; } .tcard code{ font-size:12.5px; color:#2b2770; font-family:'Consolas','D2Coding',monospace; }
+.src{ font-size:12px; color:var(--faint); text-align:center; }
+
+/* 조립기 */
+.builder{ width:100%; max-width:1100px; display:grid; grid-template-columns:1.1fr 1fr; gap:18px; align-items:start; }
+.picked{ display:flex; flex-direction:column; gap:8px; }
+.pk{ display:grid; grid-template-columns:72px 1fr; gap:8px; align-items:start; }
+.pk > b{ font-size:13px; font-weight:900; padding-top:6px; }
+.pk .chips{ min-height:32px; }
+.pk .empty{ font-size:13px; color:#c3c1d3; padding-top:6px; }
+.chip.rm{ --cc:#15132b; }
+.out{ background:#15132b; color:#e9e7ff; border-radius:22px; padding:18px; display:flex; flex-direction:column; gap:12px; }
+.out .code{ background:#221f42; color:#fff; min-height:110px; font-size:15px; }
+.meter{ display:flex; gap:4px; } .meter i{ flex:1; height:8px; border-radius:99px; background:#2f2b57; }
+.meter i.on{ background:#34d399; } .meter i.on.w{ background:#fbbf24; } .meter i.on.x{ background:#fb7185; }
+.warns{ display:flex; flex-direction:column; gap:6px; font-size:13.5px; line-height:1.5; }
+.warns div{ background:#221f42; border-radius:10px; padding:7px 10px; }
+.out label{ font-size:12.5px; color:#a5a3c9; font-weight:700; }
+.out input{ width:100%; border:none; border-radius:10px; padding:9px 12px; background:#221f42; color:#fff; font-family:inherit; font-size:14px; }
+.presets{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+
+/* 마무리 */
+.end-quote{ font-family:var(--display); font-size:clamp(32px,5vw,62px); line-height:1.25; text-align:center; }
+
+/* 내비 */
+.nav{ position:fixed; bottom:0; left:0; right:0; z-index:5; display:flex; align-items:center; justify-content:center; gap:16px; padding:14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); background:linear-gradient(0deg,#fff 60%,rgba(255,255,255,0)); }
+.nav-btn{ width:48px; height:48px; border-radius:50%; border:1.5px solid var(--line); background:#fff; font-size:18px; font-weight:900; }
+.nav-btn:disabled{ opacity:.3; cursor:default; }
+.slide-num{ font-weight:900; color:var(--sub); font-variant-numeric:tabular-nums; min-width:70px; text-align:center; }
+.cart{ position:fixed; top:14px; right:16px; z-index:5; border:1.5px solid var(--line); background:#fff; border-radius:99px; padding:8px 14px; font-weight:900; font-size:13.5px; display:flex; gap:6px; align-items:center; box-shadow:0 6px 18px rgba(21,19,43,.08); }
+.cart i{ font-style:normal; background:var(--ink); color:#fff; border-radius:99px; padding:1px 8px; font-variant-numeric:tabular-nums; }
+
+@media (max-width:760px){
+  .slide{ padding:56px 16px 92px; align-items:flex-start; }
+  .two, .vs, .builder{ grid-template-columns:1fr; }
+  .seq-row{ grid-template-columns:46px repeat(16,1fr); gap:3px; }
+  .weight i{ width:52px; }
+  .moodmap{ aspect-ratio:4/5; max-height:none; }
+  .mark{ font-size:10px; padding:1px 4px; }
+}
+@media (prefers-reduced-motion:reduce){ .slide{ transition:none; transform:none; } }
+
+/* ── 씨앗 은행 전용 ── */
+:root{ --word:#059669; --concept:#7c3aed; --sent:#2563eb; --test:#ea580c; }
+.c-word{color:var(--word)} .c-concept{color:var(--concept)} .c-sent{color:var(--sent)} .c-test{color:var(--test)}
+
+/* 표지 씨앗 */
+.grow{ width:220px; height:200px; }
+
+/* 뒤집는 카드 */
+.flips{ display:grid; grid-template-columns:repeat(2,1fr); gap:18px; width:100%; max-width:780px; }
+.flip{ perspective:1200px; border:none; background:none; padding:0; text-align:left; min-height:300px; }
+.flip-in{ position:relative; width:100%; height:100%; min-height:300px; transition:transform .6s cubic-bezier(.2,.8,.2,1); transform-style:preserve-3d; }
+.flip.on .flip-in{ transform:rotateY(180deg); }
+.face{ position:absolute; inset:0; border-radius:24px; padding:22px; backface-visibility:hidden; -webkit-backface-visibility:hidden; display:flex; flex-direction:column; gap:10px; border:2px solid var(--line); background:#fff; box-shadow:0 10px 30px rgba(21,19,43,.06); }
+.face.back{ transform:rotateY(180deg); background:var(--panel); }
+.face .kind{ font-size:13px; font-weight:900; letter-spacing:2px; }
+.face .big{ font-family:var(--display); font-size:clamp(26px,2.6vw,36px); line-height:1.25; }
+.face p{ font-size:15px; line-height:1.6; color:var(--sub); }
+.face .hint{ margin-top:auto; font-size:13px; font-weight:700; color:var(--faint); }
+.face.back .mu{ font-size:16px; line-height:1.65; color:var(--ink); background:#fff; border-radius:14px; padding:12px 14px; }
+
+/* 감별기 */
+.tester{ display:grid; grid-template-columns:260px 1fr; gap:22px; width:100%; max-width:980px; align-items:center; }
+.plant{ width:100%; max-width:260px; height:auto; }
+.seed-input{ width:100%; border:2px solid var(--line); border-radius:16px; padding:12px 16px; font-size:20px; font-weight:900; font-family:inherit; outline:none; color:var(--ink); }
+.seed-input:focus{ border-color:var(--test); }
+.switches{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.sw{ display:flex; align-items:center; gap:12px; text-align:left; border:2px solid var(--line); background:#fff; border-radius:16px; padding:12px 14px; }
+.sw .knob{ width:44px; height:26px; border-radius:99px; background:#e5e4ee; position:relative; flex-shrink:0; transition:background .2s; }
+.sw .knob::after{ content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.2); transition:left .2s; }
+.sw[aria-pressed="true"]{ border-color:var(--test); background:#fff7ed; }
+.sw[aria-pressed="true"] .knob{ background:var(--test); }
+.sw[aria-pressed="true"] .knob::after{ left:21px; }
+.sw b{ display:block; font-size:15px; } .sw span{ font-size:12.5px; color:var(--sub); line-height:1.4; }
+.verdict{ font-size:18px; font-weight:900; padding:12px 16px; border-radius:16px; background:var(--panel); }
+
+/* 단어 씨앗 + 양파 */
+.word-wrap{ display:grid; grid-template-columns:minmax(0,1fr) 420px; gap:20px; width:100%; max-width:1120px; align-items:start; }
+.filters{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+.wgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); gap:8px; max-height:52vh; overflow-y:auto; padding:4px; }
+.wbtn{ border:1.5px solid var(--line); background:#fff; border-radius:16px; padding:10px 8px; display:flex; flex-direction:column; gap:3px; align-items:flex-start; text-align:left; transition:transform .12s, border-color .15s; }
+.wbtn:hover{ transform:translateY(-2px); border-color:var(--word); }
+.wbtn b{ font-size:15.5px; font-weight:900; } .wbtn small{ font-size:11px; font-weight:700; color:var(--faint); }
+.wbtn[aria-current="true"]{ border-color:var(--word); background:#ecfdf5; }
+.mine{ display:flex; gap:8px; align-items:center; margin-bottom:10px; background:#ecfdf5; border:2px dashed var(--word); border-radius:16px; padding:8px 10px; }
+.mine label{ font-size:13px; font-weight:900; color:var(--word); white-space:nowrap; }
+.mine input{ flex:1; min-width:0; border:1.5px solid var(--line); border-radius:12px; padding:9px 12px; font-family:inherit; font-size:16px; font-weight:700; outline:none; background:#fff; color:var(--ink); }
+.mine input:focus{ border-color:var(--word); }
+.mine button{ border:none; border-radius:12px; padding:9px 14px; font-weight:900; font-size:14px; background:var(--word); color:#fff; white-space:nowrap; }
+.mine.on{ background:#d1fae5; border-style:solid; }
+.mine-ans{ display:block; width:100%; margin-top:10px; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none; background:#fff; color:var(--ink); }
+.mine-ans:focus{ border-color:var(--word); }
+.onion-panel{ background:#fff; border:2px solid var(--line); border-radius:24px; padding:18px; display:flex; flex-direction:column; gap:12px; position:sticky; top:0; }
+.onion-head{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.onion-head b{ font-family:var(--display); font-size:30px; font-weight:400; }
+.onion-svg{ width:100%; max-width:260px; margin:0 auto; display:block; cursor:pointer; }
+.onion-svg circle{ transition:fill .3s, stroke-width .2s; stroke:#fff; stroke-width:3; }
+.onion-svg circle:hover{ stroke:#15132b; }
+.layer-out{ min-height:110px; border-radius:16px; background:var(--panel); padding:12px 14px; font-size:15px; line-height:1.65; }
+.layer-out .ln{ font-size:12px; font-weight:900; letter-spacing:1px; display:block; margin-bottom:2px; }
+.layer-out .q{ color:var(--concept); font-weight:700; }
+.whoai{ font-size:11px; font-weight:900; padding:2px 8px; border-radius:99px; background:#e0f2fe; color:#0369a1; }
+.whome{ font-size:11px; font-weight:900; padding:2px 8px; border-radius:99px; background:var(--concept); color:#fff; }
+
+/* 개념 씨앗 */
+.pair-list{ display:flex; gap:7px; flex-wrap:wrap; justify-content:center; }
+.stage{ width:100%; max-width:920px; display:grid; grid-template-columns:1fr 200px 1fr; gap:10px; align-items:center; }
+.node{ border-radius:24px; padding:22px 16px; text-align:center; font-family:var(--display); font-size:clamp(26px,3vw,40px); color:#fff; min-height:120px; display:flex; flex-direction:column; justify-content:center; gap:6px; }
+.node small{ font-family:var(--body); font-size:13px; font-weight:700; opacity:.9; }
+.node.a{ background:var(--concept); } .node.b{ background:#c026d3; }
+.link{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+.link .sym{ font-size:48px; font-weight:900; color:var(--ink); line-height:1; }
+.link .lt{ font-size:13px; font-weight:900; color:var(--sub); text-align:center; }
+.song3{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:920px; }
+.song3 div{ border-radius:18px; padding:12px 14px; background:var(--panel); font-size:14.5px; line-height:1.55; }
+.song3 b{ display:block; font-size:12.5px; letter-spacing:1px; margin-bottom:4px; }
+
+/* 개념 씨앗: 과정 3단계 */
+.con-name{ font-family:var(--display); font-size:clamp(26px,3vw,40px); color:var(--concept); text-align:center; line-height:1.25; }
+.con-name small{ display:block; font-family:var(--body); font-size:13px; font-weight:700; color:var(--faint); margin-top:4px; }
+.steps3{ width:100%; max-width:1000px; display:grid; grid-template-columns:1fr 36px 1fr 36px 1fr; gap:6px; align-items:stretch; }
+.st3{ border-radius:20px; padding:14px 16px; background:#fff; border:2px solid #ddd6fe; display:flex; flex-direction:column; gap:6px; }
+.st3 b{ font-size:12.5px; font-weight:900; letter-spacing:1px; color:var(--concept); }
+.st3 span{ font-size:15px; line-height:1.55; font-weight:700; }
+.st3 em{ font-style:normal; font-size:12px; font-weight:900; color:#fff; background:var(--concept); border-radius:99px; padding:2px 9px; align-self:flex-start; }
+.st3:nth-of-type(3){ background:#f5f3ff; } .st3:nth-of-type(5){ background:#ede9fe; }
+.arr{ display:grid; place-items:center; font-size:26px; font-weight:900; color:var(--concept); }
+.con-why, .con-story, .con-mu{ max-width:1000px; }
+.con-story{ background:#fffbeb; } .con-mu{ background:#ecfdf5; }
+@media (max-width:760px){ .steps3{ grid-template-columns:1fr; } .arr{ transform:rotate(90deg); } }
+
+/* 문장 씨앗 */
+.sent-list{ display:flex; gap:7px; flex-wrap:wrap; justify-content:center; max-width:1000px; }
+.tokens{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; font-size:clamp(20px,2.4vw,30px); font-weight:900; max-width:980px; }
+.tok{ border:none; background:#eef2ff; color:var(--ink); border-radius:12px; padding:6px 12px; transition:background .15s, transform .15s; }
+.tok:hover{ transform:translateY(-2px); }
+.tok[aria-pressed="true"]{ background:var(--sent); color:#fff; }
+.techs{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.lyric-out{ width:100%; max-width:820px; border-radius:20px; background:#15132b; color:#fff; padding:18px 22px; font-size:clamp(17px,1.9vw,22px); line-height:1.7; min-height:84px; }
+.ctx{ width:100%; max-width:820px; font-size:14.5px; line-height:1.65; color:var(--sub); background:var(--panel); border-radius:16px; padding:11px 15px; }
+.ctx b{ color:var(--ink); }
+.lyric-out small{ display:block; font-size:12.5px; color:#a5a3c9; font-weight:700; margin-bottom:4px; }
+
+/* 담기 버튼 */
+.keep{ border:none; border-radius:12px; padding:8px 14px; font-weight:900; font-size:14px; color:#fff; }
+.keep[aria-pressed="true"]{ background:var(--ink) !important; }
+
+/* 조립기 */
+.seed-items{ display:flex; flex-direction:column; gap:8px; }
+.seed-item{ display:flex; align-items:center; gap:10px; border:2px solid var(--line); border-radius:16px; padding:10px 12px; background:#fff; text-align:left; width:100%; }
+.seed-item[aria-pressed="true"]{ border-color:var(--word); background:#ecfdf5; }
+.seed-item .ty{ font-size:11.5px; font-weight:900; padding:3px 9px; border-radius:99px; color:#fff; flex-shrink:0; }
+.seed-item .tx{ flex:1; font-size:15px; font-weight:700; }
+.seed-item .x{ border:none; background:none; color:var(--faint); font-weight:900; font-size:16px; }
+
+@media (max-width:760px){
+  .flips, .tester, .word-wrap, .song3{ grid-template-columns:1fr; }
+  .stage{ grid-template-columns:1fr; }
+  .switches{ grid-template-columns:1fr; }
+  .wgrid{ max-height:none; }
+  .onion-panel{ position:static; }
+  .flip, .flip-in{ min-height:260px; }
+}
+/* 세로 태블릿: 단어 목록 아래에 양파 패널(양파 왼쪽 · 설명 오른쪽) */
+@media (min-width:761px) and (max-width:1000px){
+  .word-wrap{ grid-template-columns:minmax(0,1fr); }
+  .wgrid{ max-height:34vh; }
+  .onion-panel{ position:static; display:grid; grid-template-columns:230px minmax(0,1fr); grid-template-areas:"head head" "svg ctrl" "svg out"; gap:12px 20px; align-items:start; }
+  .onion-head{ grid-area:head; }
+  .onion-svg{ grid-area:svg; align-self:center; }
+  .onion-panel > .row{ grid-area:ctrl; justify-content:flex-start; }
+  .layer-out{ grid-area:out; }
+}
+</style>
+</head>
+<body>
+<div class="staff-bg" aria-hidden="true"></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 표지 -->
+  <section class="slide">
+    <div class="inner">
+      <svg class="grow" id="grow-cover" viewBox="0 0 220 200" aria-hidden="true">
+        <ellipse cx="110" cy="186" rx="90" ry="12" fill="#efe7dc"/>
+        <ellipse id="gc-seed" cx="110" cy="176" rx="14" ry="9" fill="#b45309"/>
+        <path id="gc-stem" d="M110 176 C110 140 108 110 110 70" stroke="#059669" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <path id="gc-l1" d="M110 130 C80 120 70 100 72 92 C92 94 106 108 110 130 Z" fill="#34d399"/>
+        <path id="gc-l2" d="M110 110 C140 100 150 80 148 72 C128 74 114 88 110 110 Z" fill="#10b981"/>
+        <g id="gc-flower">
+          <circle cx="110" cy="58" r="16" fill="#f472b6"/><circle cx="92" cy="62" r="13" fill="#a78bfa"/><circle cx="128" cy="62" r="13" fill="#60a5fa"/>
+          <circle cx="100" cy="44" r="13" fill="#fbbf24"/><circle cx="120" cy="44" r="13" fill="#fb7185"/><circle cx="110" cy="56" r="8" fill="#fff"/>
+        </g>
+      </svg>
+      <span class="tag c-word">SEED BANK</span>
+      <h1>교과서 속<br><span class="c-word">노래의 씨앗</span> 찾기</h1>
+      <p class="sub">교과서 속 <b>단어</b> 하나도<br>깊이 파면 노래가 자라요.</p>
+    </div>
+  </section>
+
+  <!-- 4 단어 씨앗 -->
+  <section class="slide">
+    <div class="inner">
+      <span class="tag c-word">단어 씨앗 · 양파 5겹</span>
+      <h2>단어를 고르고 <span class="c-word">양파를 바깥부터</span> 눌러 봐요</h2>
+      <div class="word-wrap">
+        <div>
+          <form class="mine" id="mine" autocomplete="off"><label for="mine-in">✏️ 여기 없는 단어</label><input id="mine-in" type="text" maxlength="20" placeholder="내가 고른 단어를 직접 써요"><button type="submit">이 단어로 파기</button></form>
+          <div class="filters" id="subj-filter"></div>
+          <div class="wgrid" id="wgrid"></div>
+        </div>
+        <div class="onion-panel">
+          <div class="onion-head"><b id="o-word">포화</b><span class="tag c-word" id="o-unit" style="letter-spacing:0;font-size:11.5px"></span></div>
+          <svg class="onion-svg" id="onion" viewBox="0 0 220 220" role="img" aria-label="눌러서 펼치는 양파 다섯 겹">
+            <circle data-l="1" cx="110" cy="110" r="104" fill="#e0e7ff"/>
+            <circle data-l="2" cx="110" cy="110" r="84" fill="#c7d2fe"/>
+            <circle data-l="3" cx="110" cy="110" r="64" fill="#a5b4fc"/>
+            <circle data-l="4" cx="110" cy="110" r="44" fill="#818cf8"/>
+            <circle data-l="5" cx="110" cy="110" r="24" fill="#6366f1"/>
+          </svg>
+          <div class="row" style="gap:8px">
+            <button class="btn ghost" id="o-back" type="button" disabled>◀ 이전 겹</button><button class="btn ghost" id="o-all" type="button">▶ 한 겹 펼치기 (0/5)</button>
+            <button class="keep" id="o-keep" type="button" style="background:var(--word)">📋 복사하기</button>
+          </div>
+          <div class="layer-out" id="o-out">양파의 <b>가장 바깥 겹</b>을 눌러 보세요.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button class="nav-btn" id="prev" type="button" aria-label="이전">◀</button>
+  <span class="slide-num" id="num">1 / 9</span>
+  <button class="nav-btn" id="next" type="button" aria-label="다음">▶</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var motion=!!window.gsap && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ═════════ 데이터 ═════════ */
+  var W = [
+    /* ── 과학 2 ── */
+    { w: '밀도', s: '과학', g: 'g2', u: '물질의 특성', t: [1,1,0,0],
+      m: '단위 부피당 질량(질량 ÷ 부피)',
+      p: '물질마다 밀도가 정해져 있어서 물질을 구별하는 특성이 돼요. 물보다 밀도가 작으면 뜨고, 크면 가라앉아요.',
+      r: '짝꿍: 질량 · 부피 / 뜨는 것 ↔ 가라앉는 것 · 예: 물 위에 뜬 기름',
+      x: '크기는 같아도 속이 꽉 찬 사람, 겉으로 안 보이는 마음의 무게',
+      me: '겉으론 가벼워 보여도 마음이 무거웠던 날은?',
+      mu: '가벼운 악기는 위에 둥둥, 묵직한 베이스는 아래로 가라앉는 층층이 곡' },
+    { w: '포화', s: '과학', g: 'g2', u: '물질의 특성', t: [1,1,1,0],
+      m: '용매에 용질이 더 이상 녹을 수 없을 만큼 최대로 녹아 있는 상태',
+      p: '일정한 온도에서 용매 100g에 최대로 녹을 수 있는 용질의 양을 용해도라고 해요. 대부분의 고체는 온도가 높을수록 더 많이 녹아요.',
+      r: '짝꿍: 용질 ↔ 용매 / 불포화 ↔ 포화 · 원인 → 결과: 온도가 내려가면 → 녹아 있던 것이 다시 결정으로',
+      x: '더 이상 받아들일 수 없을 만큼 꽉 찬 머릿속',
+      me: '머릿속이 "포화 상태"였던 때는?',
+      mu: '소리가 하나씩 쌓이다 가득 차는 순간 터지는 후렴' },
+    { w: '풍화', s: '과학', g: 'g2', u: '지권의 변화', t: [1,0,1,0],
+      m: '암석이 물, 공기, 생물 등의 작용으로 부서지거나 성질이 변하는 현상',
+      p: '아주 오랜 시간 동안 조금씩 일어나요. 풍화로 부서진 알갱이에 생물이 썩은 물질 등이 섞여 흙(토양)이 만들어져요.',
+      r: '순서: 암석 → 풍화 → 토양 · 예: 바위틈에서 자라는 나무뿌리가 바위를 쪼갬',
+      x: '작은 반복이 쌓여 결국 단단한 것도 바꾼다',
+      me: '매일 조금씩 해서 결국 해낸 일은?',
+      mu: '짧은 패턴을 계속 반복하며 아주 조금씩 바뀌어 가는 곡' },
+    { w: '대륙 이동', s: '과학', g: 'g2', u: '지권의 변화', t: [1,1,1,0],
+      m: '하나로 붙어 있던 대륙이 갈라지고 이동해 지금의 모습이 되었다는 생각(대륙 이동설)',
+      p: '베게너는 대륙의 해안선 모양이 맞아떨어지고, 멀리 떨어진 대륙에서 같은 화석이 나오는 것 등을 근거로 들었어요.',
+      r: '짝꿍: 하나였던 대륙 ↔ 갈라진 대륙 · 원인 → 결과: 아주 느린 이동 → 새로운 바다와 산맥',
+      x: '나도 모르게 아주 천천히 멀어진 사이, 다시 맞춰 보면 딱 맞는 조각',
+      me: '어느새 멀어진 친구, 혹은 다시 생각나는 사람은?',
+      mu: '하나의 멜로디가 두 갈래로 갈라졌다가 마지막에 다시 겹치는 곡' },
+    { w: '굴절', s: '과학', g: 'g2', u: '빛과 파동', t: [1,1,1,0],
+      m: '빛이 서로 다른 물질의 경계를 지날 때 진행 방향이 꺾이는 현상',
+      p: '물질마다 빛의 속력이 달라서 경계에서 방향이 바뀌어요. 물에 꽂은 빨대가 꺾여 보이는 이유예요.',
+      r: '짝꿍: 반사(되돌아옴) ↔ 굴절(통과하며 꺾임) · 예: 렌즈, 안경',
+      x: '같은 말도 누구를 거치느냐에 따라 다르게 전달됨, 새 환경에서 방향이 바뀌는 나',
+      me: '내 말이 다르게 전해졌던 적은? 새 학년이 되어 달라진 나는?',
+      mu: '같은 멜로디가 다른 악기와 조성을 지나며 다른 느낌으로 바뀌는 곡' },
+    { w: '파동', s: '과학', g: 'g2', u: '빛과 파동', t: [1,1,1,1],
+      m: '한 곳에서 생긴 진동이 주위로 퍼져 나가는 현상',
+      p: '파동이 전달될 때 물질(매질)은 제자리에서 진동하고 에너지만 전달돼요. 소리의 크기는 진폭, 높낮이는 진동수, 맵시는 파형과 관련 있어요.',
+      r: '짝꿍: 매질(전달하는 것) ↔ 에너지(전달되는 것) · 예: 경기장의 파도타기 응원 · 과목 넘나들기: 음악의 소리',
+      x: '나는 제자리에 있어도 마음은 멀리까지 전해진다',
+      me: '내 한마디가 생각보다 멀리 퍼졌던 경험은?',
+      mu: '진폭(크기)과 진동수(높낮이)를 직접 바꿔 가며 만드는 곡. 소리 자체가 파동이에요' },
+    { w: '이온', s: '과학', g: 'g2', u: '물질의 구성', t: [1,1,1,0],
+      m: '원자가 전자를 잃거나 얻어서 전기를 띠게 된 입자',
+      p: '전자를 잃으면 양이온, 얻으면 음이온이 돼요. 양이온과 음이온은 서로 끌어당겨요.',
+      r: '짝꿍: 양이온 ↔ 음이온 · 원인 → 결과: 전자를 잃거나 얻음 → 전기를 띰 · 예: 소금(염화 나트륨)',
+      x: '무언가를 잃거나 얻고 나서 달라진 나, 서로 달라서 끌리는 사이',
+      me: '무언가를 잃고(또는 얻고) 내가 달라졌던 순간은?',
+      mu: '서로 반대되는 두 멜로디가 끌어당기듯 하나로 합쳐지는 곡' },
+    { w: '광합성', s: '과학', g: 'g2', u: '식물과 에너지', t: [1,1,1,0],
+      m: '식물이 빛에너지를 이용해 물과 이산화탄소로 양분(포도당)을 만들고 산소를 내놓는 과정',
+      p: '엽록체에서 일어나요. 빛의 세기, 온도, 이산화탄소의 양에 따라 빠르기가 달라져요.',
+      r: '짝꿍: 호흡(양분을 분해해 에너지를 얻음) · 원인 → 결과: 빛 → 양분과 산소',
+      x: '빛을 받아 스스로 자라는 것, 받은 것을 다시 세상에 나누는 것',
+      me: '누군가의 응원(빛)을 받고 자랐던 경험은?',
+      mu: '어둡게 시작해 서서히 밝아지는 곡, 느리고 서정적인 흐름' },
+    { w: '순환', s: '과학', g: 'g2', u: '동물과 에너지', t: [1,1,1,1],
+      m: '혈액이 심장에서 나와 온몸을 돌고 다시 심장으로 돌아오는 과정(혈액 순환)',
+      p: '혈액은 산소와 영양소를 온몸의 세포로 나르고, 이산화탄소와 노폐물을 받아 와요. 온몸 순환과 폐순환이 있어요.',
+      r: '짝꿍: 동맥 ↔ 정맥 · 닮은 것: 물의 순환, 계절 · 과목 넘나들기: 사회의 경제 순환',
+      x: '주고받으며 돌아오는 것, 떠났다가 다시 돌아오는 마음',
+      me: '내가 준 것이 돌고 돌아 나에게 돌아온 적은?',
+      mu: '처음 멜로디로 다시 돌아오며 끝나는 곡(돌림 구조)' },
+    { w: '정전기', s: '과학', g: 'g2', u: '전기와 자기', t: [1,1,1,0],
+      m: '마찰 등으로 물체에 생긴 전기가 흐르지 않고 머물러 있는 것',
+      p: '두 물체를 문지르면 전자가 한쪽으로 이동해 한 물체는 (+)전기, 다른 물체는 (−)전기를 띠어요. 같은 전기끼리는 밀어내고, 다른 전기끼리는 끌어당겨요.',
+      r: '짝꿍: 끌어당김 ↔ 밀어냄 · 원인 → 결과: 마찰 → 전자 이동 → 전기를 띰 · 예: 겨울철 문고리의 "찌릿"',
+      x: '스치기만 해도 찌릿한 사이, 쌓였다가 한순간 터지는 감정',
+      me: '사소한 말 한마디에 "찌릿"했던 순간은?',
+      mu: '짧고 날카로운 효과음, 쌓이다가 한 번에 터지는 사운드' },
+    { w: '저항', s: '과학', g: 'g2', u: '전기와 자기', t: [1,1,0,1],
+      m: '전류의 흐름을 방해하는 정도',
+      p: '같은 전압이면 저항이 클수록 전류가 적게 흘러요(옴의 법칙). 저항을 직렬이나 병렬로 연결하면 전체 저항이 달라져요.',
+      r: '짝꿍: 전류 · 전압 · 같은 낱말: 역사 속 독립운동의 저항',
+      x: '흐름에 휩쓸리지 않고 버티는 힘, 또는 나를 가로막는 것',
+      me: '무언가에 맞섰던 순간, 혹은 지금 나를 막고 있는 것은?',
+      mu: '부드럽게 흐르는 멜로디에 브레이크를 거는 리듬, 묵직하게 버티는 베이스' },
+    { w: '연주 시차', s: '과학', g: 'g2', u: '별과 우주', t: [1,1,0,0],
+      m: '지구가 태양 주위를 공전하면서 6개월 간격으로 같은 별을 볼 때 생기는 각도 차이의 절반',
+      p: '가까운 별일수록 연주 시차가 크고, 먼 별일수록 작아요. 이것으로 별까지의 거리를 구해요.',
+      r: '짝꿍: 가까움 ↔ 멂 · 원인 → 결과: 보는 위치가 바뀜 → 별이 움직여 보임 · 닮은 예: 한쪽 눈씩 감으면 손가락이 움직여 보이는 것',
+      x: '내가 서 있는 자리가 바뀌면 같은 것도 다르게 보인다',
+      me: '입장이 바뀌고 나서야 이해된 사람이나 일은?',
+      mu: '같은 멜로디를 왼쪽과 오른쪽 소리로 번갈아 들려주는 곡' },
+    { w: '우주 팽창', s: '과학', g: 'g2', u: '별과 우주', t: [1,1,1,0],
+      m: '우주가 점점 커지면서 은하들 사이의 거리가 멀어지고 있다는 것',
+      p: '멀리 있는 은하일수록 더 빠르게 멀어져요. 풍선에 점을 찍고 불면 점들이 서로 멀어지는 것과 비슷해요.',
+      r: '짝꿍: 팽창 ↔ 수축 · 원인 → 결과: 공간이 커짐 → 서로 멀어짐 · 예: 부풀어 오르는 풍선',
+      x: '점점 넓어지는 나의 세계, 커질수록 멀어지는 것들',
+      me: '세상이 갑자기 넓어진 것 같았던 순간은?',
+      mu: '악기와 소리가 점점 넓게 퍼지며 커지는 곡' },
+
+    /* ── 수학 2 ── */
+    { w: '순환소수', s: '수학', g: 'g2', u: '유리수와 순환소수', t: [1,1,0,1],
+      m: '소수점 아래에 같은 숫자 배열이 끝없이 되풀이되는 소수',
+      p: '되풀이되는 부분을 순환마디라고 해요. 순환소수는 분수(유리수)로 나타낼 수 있어요.',
+      r: '짝꿍: 유한소수 ↔ 순환소수 · 원인 → 결과: 기약분수의 분모에 2와 5 말고 다른 소인수가 있으면 → 순환소수 · 과목 넘나들기: 음악의 반복 마디',
+      x: '끝없이 반복되는 하루, 그래도 분수처럼 정리될 수 있는 마음',
+      me: '끝없이 반복되는 것 같았던 나의 일상은?',
+      mu: '짧은 마디(순환마디)가 끝없이 반복되는 루프 음악' },
+    { w: '부등식', s: '수학', g: 'g2', u: '일차부등식', t: [1,1,1,0],
+      m: '부등호(<, >, ≤, ≥)를 써서 두 수나 식의 크기를 비교한 식',
+      p: '양변에 같은 수를 더하거나 빼도 부등호 방향은 그대로지만, 음수를 곱하거나 나누면 방향이 바뀌어요.',
+      r: '짝꿍: 등식 ↔ 부등식 · 원인 → 결과: 음수를 곱하면 → 방향이 뒤집힘',
+      x: '같지 않은 마음, 한마디에 뒤집히는 관계',
+      me: '누군가와 나 사이가 "같지 않다"고 느꼈던 순간은?',
+      mu: '한쪽으로 기울어 있다가 브리지에서 방향이 확 뒤집히는 곡' },
+    { w: '연립방정식', s: '수학', g: 'g2', u: '연립일차방정식', t: [1,1,0,0],
+      m: '두 개 이상의 방정식을 한 쌍으로 묶은 것. 모두를 동시에 만족하는 해를 구해요',
+      p: '한 미지수를 없애는 가감법이나 대입법으로 풀어요. 그래프로 그리면 두 직선이 만나는 점이 해예요.',
+      r: '짝꿍: 조건 ① ↔ 조건 ② · 닮은 것: 두 직선이 만나는 점',
+      x: '두 사람의 마음이 동시에 맞는 지점 찾기',
+      me: '친구와 서로의 조건을 맞춰 약속을 정했던 일은?',
+      mu: '두 멜로디가 따로 가다가 한 음에서 딱 만나는 곡' },
+    { w: '기울기', s: '수학', g: 'g2', u: '일차함수와 그 그래프', t: [1,1,1,1],
+      m: '일차함수 y = ax + b에서 x가 증가할 때 y가 얼마나 변하는지를 나타내는 a',
+      p: '기울기가 클수록 그래프가 가파르고, 작을수록 완만해요. 기울기가 음수면 오른쪽 아래로 내려가요.',
+      r: '짝꿍: 오르막(양수) ↔ 내리막(음수) · 닮은 것: 속력, 성장 속도 · 과목 넘나들기: 과학의 그래프',
+      x: '나의 성장 그래프, 가파르게 오를 때와 완만할 때',
+      me: '실력이 가파르게 늘었던 때, 혹은 내려갔던 때는?',
+      mu: '음이 계단처럼 점점 올라가거나 내려가는 멜로디' },
+    { w: '닮음', s: '수학', g: 'g2', u: '도형의 닮음', t: [1,1,0,1],
+      m: '한 도형을 일정한 비율로 확대하거나 축소하여 다른 도형과 합동이 될 때, 두 도형은 서로 닮음이에요',
+      p: '닮은 도형은 대응하는 각의 크기가 같고, 대응하는 변의 길이의 비가 일정해요.',
+      r: '짝꿍: 합동(크기까지 같음) ↔ 닮음(모양만 같음) · 예: 지도와 실제 땅 · 과목 넘나들기: 미술의 확대·축소',
+      x: '크기는 달라도 모양이 같은 사람, 부모님을 닮은 나',
+      me: '가족에게서 나와 닮은 점을 발견했던 순간은?',
+      mu: '같은 멜로디를 높게·낮게, 빠르게·느리게 바꿔 부르는 곡' },
+    { w: '피타고라스 정리', s: '수학', g: 'g2', u: '피타고라스 정리', t: [1,1,0,1],
+      m: '직각삼각형에서 빗변 길이의 제곱은 나머지 두 변 길이의 제곱의 합과 같다 (a² + b² = c²)',
+      p: '두 변의 길이를 알면 나머지 한 변의 길이를 구할 수 있어요. 직각이 있을 때만 성립해요.',
+      r: '짝꿍: 두 직각변 ↔ 빗변 · 원인 → 결과: 직각이 있어야 → 성립 · 과목 넘나들기: 피타고라스는 음의 비율 연구로도 전해져요',
+      x: '서로 다른 두 길이 만나 만드는 가장 긴 연결, 돌아가지 않는 지름길',
+      me: '돌아가지 않고 지름길로 갔던 선택은?',
+      mu: '현의 길이 비율로 화음을 만들었다는 이야기에서 출발한 곡' },
+    { w: '확률', s: '수학', g: 'g2', u: '경우의 수와 확률', t: [1,1,0,0],
+      m: '어떤 사건이 일어날 가능성을 0부터 1 사이의 수로 나타낸 것',
+      p: '실험을 많이 반복할수록 사건이 일어나는 비율이 일정한 값에 가까워져요.',
+      r: '짝꿍: 일어날 확률 p ↔ 일어나지 않을 확률 1 − p',
+      x: '가능성, 운과 노력 사이',
+      me: '확률은 낮았지만 도전했던 일은?',
+      mu: '주사위를 굴리듯 예상하지 못한 방향으로 바뀌는 구간이 있는 곡' },
+    { w: '함수', s: '수학', g: 'g2', u: '일차함수와 그 그래프', t: [1,1,1,0],
+      m: 'x의 값이 정해지면 y의 값이 오직 하나씩 정해지는 대응 관계',
+      p: '입력 → 규칙 → 출력의 구조예요. 같은 입력에는 늘 같은 출력이 나와요.',
+      r: '짝꿍: 입력(x) ↔ 출력(y) · 닮은 것: 원인과 결과',
+      x: '내가 한 만큼 돌아오는 것',
+      me: '노력(x)에 따라 결과(y)가 달라졌던 경험은?',
+      mu: '하나의 짧은 동기(입력)가 규칙에 따라 계속 변주되는 곡' },
+
+    /* ── 사회 ② ── */
+    { w: '기회비용', s: '사회', g: 'school', u: '사회 ② · 경제생활과 선택', t: [1,1,0,0],
+      m: '어떤 것을 선택했을 때 포기한 것 중 가장 가치가 큰 것',
+      p: '시간과 돈은 한정되어 있어서(희소성) 무언가를 고르면 늘 포기하는 것이 생겨요.',
+      r: '원인: 희소성 · 짝꿍: 선택 ↔ 포기',
+      x: '가지 않은 길',
+      me: '하나를 고르느라 포기했던 것은?',
+      mu: '두 갈래 멜로디가 나오다 하나만 이어지는 곡' },
+    { w: '희소성', s: '사회', g: 'school', u: '사회 ② · 경제생활과 선택', t: [1,1,0,0],
+      m: '사람들의 욕구에 비해 자원이 상대적으로 부족한 상태',
+      p: '양이 많아도 원하는 사람이 더 많으면 희소해요. 희소할수록 가치가 높아져요.',
+      r: '결과: 선택과 기회비용 · 비교: 희귀성은 절대적인 양이 적은 것',
+      x: '다시 오지 않는 시간이 소중한 이유',
+      me: '얼마 남지 않아서 더 소중했던 것은?',
+      mu: '곡 전체에서 단 한 번만 나오는 특별한 멜로디' },
+    { w: '균형 가격', s: '사회', g: 'school', u: '사회 ② · 시장과 가격', t: [1,1,1,0],
+      m: '수요량과 공급량이 같아지는 지점에서 정해지는 가격',
+      p: '사려는 사람이 많으면 가격이 오르고, 팔려는 사람이 많으면 가격이 내려가요. 둘이 만나는 곳에서 가격이 정해져요.',
+      r: '짝꿍: 수요 ↔ 공급 · 원인 → 결과: 수요가 늘면 → 가격이 오름 · 예: 한정판 운동화',
+      x: '서로 원하는 만큼 주고받는 관계의 균형점',
+      me: '친구와 서로 양보해서 딱 맞는 지점을 찾았던 일은?',
+      mu: '두 악기가 밀고 당기다 한 음에서 만나는 곡' },
+    { w: '권력 분립', s: '사회', g: 'school', u: '사회 ② · 헌법과 국가 기관', t: [1,1,0,0],
+      m: '국가 권력을 입법·행정·사법으로 나누어 서로 다른 기관이 맡게 하는 원리',
+      p: '권력이 한곳에 모이면 함부로 쓰일 수 있어서, 서로 견제하고 균형을 이루게 해요.',
+      r: '짝꿍: 견제 ↔ 균형 · 비교: 권력 집중 · 예: 국회, 정부, 법원',
+      x: '혼자 다 쥐지 않고 나누는 힘, 서로를 지켜봐 주는 친구들',
+      me: '혼자 다 하려다 힘들었던 일, 또는 나눠서 잘된 일은?',
+      mu: '세 악기가 번갈아 주도권을 주고받는 곡' },
+    { w: '세계화', s: '사회', g: 'school', u: '사회 ② · 우리나라 경제와 세계화', t: [1,1,1,1],
+      m: '사람, 물자, 정보, 문화가 국경을 넘어 오가며 세계가 하나로 연결되는 현상',
+      p: '교통과 통신의 발달로 빨라졌어요. 기회가 늘어나는 한편 경쟁과 불평등 문제도 생겨요.',
+      r: '짝꿍: 세계화 ↔ 지역화 · 원인 → 결과: 교통·통신 발달 → 연결 · 예: 세계에서 사랑받는 K팝',
+      x: '내 방에서 세계와 연결되는 나',
+      me: '다른 나라 문화에서 영향을 받은 나의 취향은?',
+      mu: '여러 나라 악기와 언어가 섞인 곡' },
+    { w: '사회 변동', s: '사회', g: 'school', u: '사회 ② · 사회 변동과 사회 문제', t: [1,0,1,0],
+      m: '시간이 흐르면서 사회 구조나 생활 방식이 달라지는 것',
+      p: '과학 기술의 발달, 인구 변화 등으로 일어나요. 변화 속에서 새로운 사회 문제가 생기기도 해요.',
+      r: '짝꿍: 변화 ↔ 유지 · 원인 → 결과: 스마트폰 보급 → 소통 방식 변화',
+      x: '부모님 때와 지금이 다른 나의 학교생활',
+      me: '부모님 학창 시절과 달라진 것 중 가장 신기한 것은?',
+      mu: '옛날 카세트 소리로 시작해 최신 사운드로 바뀌어 가는 곡' },
+
+    /* ── 국어 ── */
+    { w: '화자', s: '국어', g: 'g2', u: '문학 속 목소리 · 시의 화자', t: [1,1,0,1],
+      m: '시 속에서 말하는 사람(시인과 다를 수 있음)',
+      p: '시인은 화자를 내세워 어떤 목소리와 태도로 말할지 정해요.',
+      r: '짝꿍: 청자(듣는 사람) · 비교: 시인 · 과목 넘나들기: 노래 속 "나"',
+      x: '내가 아닌 누군가의 목소리로 말하기',
+      me: '다른 존재가 되어 말해 보고 싶은 이야기는?',
+      mu: '노래 속 "나"를 나무, 바다, 할머니 같은 다른 인물로 정한 곡' },
+    { w: '서술자', s: '국어', g: 'g2', u: '문학 속 목소리 · 소설의 서술자', t: [1,1,0,1],
+      m: '소설 속에서 이야기를 전달하는 사람',
+      p: '서술자가 작품 속 "나"인지, 작품 밖에서 지켜보는 사람인지에 따라 이야기의 시점과 분위기가 달라져요.',
+      r: '짝꿍: 시의 화자 ↔ 소설의 서술자 · 비교: 1인칭 ↔ 3인칭 시점',
+      x: '같은 일도 누가 말하느냐에 따라 다른 이야기가 된다',
+      me: '같은 일을 친구와 나는 다르게 기억했던 적은?',
+      mu: '같은 사건을 1절은 "나", 2절은 "너"의 목소리로 부르는 곡' },
+    { w: '타당성', s: '국어', g: 'g2', u: '타당성 평가하며 읽기', t: [1,1,0,0],
+      m: '주장과 근거가 이치에 맞고 믿을 만한 정도',
+      p: '근거가 주장을 제대로 뒷받침하는지, 근거가 사실인지 따져 보며 읽어요.',
+      r: '짝꿍: 주장 ↔ 근거 · 원인 → 결과: 근거가 약하면 → 설득력이 떨어짐',
+      x: '내 마음에도 근거가 있을까, 믿음과 의심 사이',
+      me: '누군가의 말을 그대로 믿었다가 아니었던 경험은?',
+      mu: '질문하는 멜로디와 대답하는 멜로디가 주고받는 곡' },
+    { w: '반어', s: '국어', g: 'school', u: '시의 표현 (출판사마다 달라요)', t: [1,1,0,1],
+      m: '겉으로 하는 말과 속뜻을 반대로 표현하는 방법',
+      p: '말과 상황이 어긋날 때 오히려 속마음이 더 강하게 드러나요. 「진달래꽃」의 "죽어도 아니 눈물 흘리우리다"가 대표적이에요.',
+      r: '짝꿍(비교): 역설은 표현 자체가 모순',
+      x: '괜찮다고 말하지만 괜찮지 않은 마음',
+      me: '마음과 반대로 말해 버렸던 순간은?',
+      mu: '밝은 장조 멜로디에 슬픈 가사를 얹은 곡' },
+    { w: '역설', s: '국어', g: 'school', u: '시의 표현 (출판사마다 달라요)', t: [1,1,0,0],
+      m: '겉으로는 모순되어 보이지만 그 속에 진실을 담은 표현',
+      p: '「님의 침묵」의 "님은 갔지마는 나는 님을 보내지 아니하였습니다"처럼 말이 안 되는 듯한 표현으로 더 깊은 뜻을 전해요.',
+      r: '짝꿍(비교): 반어',
+      x: '지는 것이 이기는 것, 쉬어야 멀리 간다',
+      me: '실패했는데 오히려 얻은 것이 있었던 일은?',
+      mu: '가장 조용한 부분이 가장 강렬하게 느껴지는 곡' },
+
+    /* ── 역사 ── */
+    { w: '교류', s: '역사', g: 'school', u: '역사 ① · 세계사', t: [1,1,0,1],
+      m: '서로 다른 지역이나 나라가 물건, 기술, 문화, 사상을 주고받는 것',
+      p: '비단길(실크로드)과 바닷길을 통해 동서양이 종이, 비단, 종교 등을 주고받았어요.',
+      r: '짝꿍: 주는 것 ↔ 받는 것 · 비교: 고립 · 결과: 새로운 문화가 생김',
+      x: '서로 다른 친구와 취향을 나누며 새로워지는 나',
+      me: '친구에게서 배운 것, 내가 친구에게 알려 준 것은?',
+      mu: '동양 악기와 서양 악기가 번갈아 주고받는 곡' },
+    { w: '혁명', s: '역사', g: 'school', u: '역사 ① · 세계사', t: [1,1,1,1],
+      m: '기존의 사회 체제나 질서를 짧은 시간에 근본적으로 바꾸는 것',
+      p: '시민 혁명은 왕의 권력에 맞서 자유와 평등을 요구했고, 산업 혁명은 기계로 생산 방식을 바꿨어요.',
+      r: '비교: 개혁(고쳐 나감) ↔ 혁명(뒤엎음) · 원인 → 결과: 쌓인 불만 → 큰 변화',
+      x: '내 삶을 확 바꾼 순간',
+      me: '생각이 완전히 뒤집혔던 경험은?',
+      mu: '잔잔하다가 한순간 모든 것이 바뀌는 곡' },
+    { w: '독립', s: '역사', g: 'school', u: '역사 ② · 한국사', t: [1,1,1,1],
+      m: '남의 지배를 받지 않고 스스로 서는 것, 나라가 주권을 되찾는 것',
+      p: '3·1 운동과 대한민국 임시 정부 등 국내외의 끈질긴 독립운동이 있었어요.',
+      r: '반대: 식민 지배 · 짝꿍: 저항, 연대',
+      x: '홀로서기',
+      me: '처음으로 혼자 힘으로 해낸 일은?',
+      mu: '혼자 부르는 목소리로 시작해 합창으로 커지는 장엄한 곡' },
+    { w: '계승', s: '역사', g: 'school', u: '역사 ② · 한국사', t: [1,1,0,1],
+      m: '앞 세대의 문화, 전통, 정신을 이어받아 발전시키는 것',
+      p: '고려가 고구려를 잇는다는 뜻으로 나라 이름을 지은 것처럼, 과거를 이어받으며 새롭게 만들어요.',
+      r: '짝꿍: 창조 · 반대: 단절',
+      x: '할머니에게서 물려받은 것',
+      me: '가족에게 물려받은 습관이나 말버릇은?',
+      mu: '전통 장단 위에 현대적인 비트를 얹은 곡' },
+
+    /* ── 음악·미술 ── */
+    { w: '쉼표', s: '음악·미술', g: 'common', u: '음악', t: [1,1,0,1],
+      m: '악보에서 소리를 내지 않고 쉬는 길이를 나타내는 기호',
+      p: '쉼도 음악의 일부라서 박자를 차지해요.',
+      r: '짝꿍: 음표 · 같은 낱말: 국어의 문장 부호',
+      x: '쉬어 가는 것도 삶의 일부',
+      me: '잠시 멈췄기에 다시 갈 수 있었던 때는?',
+      mu: '갑자기 모든 소리가 멈췄다가 다시 터져 나오는 후렴' },
+    { w: '불협화음', s: '음악·미술', g: 'common', u: '음악', t: [1,1,1,0],
+      m: '함께 울릴 때 어울리지 않고 긴장감을 주는 화음',
+      p: '불협화음은 협화음으로 이어지며 풀려요. 긴장에서 해소로 가는 흐름을 만들어요.',
+      r: '짝꿍: 협화음 · 원인 → 결과: 긴장 → 해결',
+      x: '갈등, 다툼, 서로 다름',
+      me: '친구와 부딪혔다가 다시 풀렸던 일은?',
+      mu: '긴장되는 화음이 쌓이다가 편안한 화음으로 풀리는 곡' },
+    { w: '여백', s: '음악·미술', g: 'common', u: '미술', t: [1,1,0,1],
+      m: '그림에서 아무것도 그리지 않고 비워 둔 부분',
+      p: '동양화에서는 비워 둔 공간이 오히려 상상할 자리를 열어 준다고 봐요(여백의 미).',
+      r: '짝꿍: 채움 · 닮은 것: 음악의 쉼표',
+      x: '꽉 채우지 않은 하루, 말하지 않은 마음',
+      me: '비워 두었을 때 오히려 좋았던 순간은?',
+      mu: '악기 수를 줄인 단순하고 고요한 곡' },
+    { w: '명암', s: '음악·미술', g: 'common', u: '미술', t: [1,1,0,1],
+      m: '빛을 받아 밝은 부분과 어두운 부분이 생기는 것',
+      p: '명암으로 입체감을 표현해요. 빛이 있어야 그림자도 생겨요.',
+      r: '짝꿍: 빛 ↔ 그림자',
+      x: '밝음 뒤의 그림자, 웃음 뒤의 고민',
+      me: '겉으론 밝았지만 속으론 힘들었던 때는?',
+      mu: '장조와 단조가 번갈아 나오는 곡' },
+
+    /* ── 다른 학년 ── */
+    { w: '관성', s: '과학', g: 'other', u: '다른 학년 단원', t: [1,1,1,0],
+      m: '물체가 원래의 운동 상태를 계속 유지하려는 성질',
+      p: '힘이 작용하지 않으면 멈춘 물체는 계속 멈춰 있고, 움직이는 물체는 같은 속도로 계속 움직여요.',
+      r: '짝꿍: 힘(운동 상태를 바꾸는 것) · 예: 버스가 급정거하면 몸이 앞으로 쏠림',
+      x: '습관, 미루기, 익숙한 것에서 벗어나기 어려운 마음',
+      me: '방학이 끝났는데 몸은 아직 방학이었던 적은?',
+      mu: '1절은 반복되는 리듬(관성), 브리지에서 바뀌는 비트(힘), 후렴은 새 리듬' },
+    { w: '증발', s: '과학', g: 'other', u: '중1 · 물질의 상태 변화', t: [1,1,1,0],
+      m: '액체 표면에서 액체가 기체로 변하는 현상',
+      p: '끓는점보다 낮은 온도에서도 일어나요. 온도가 높고, 바람이 불고, 습도가 낮을수록 잘 일어나요.',
+      r: '짝꿍: 응결(기체 → 액체) · 비교: 끓음은 액체 내부에서도 일어남',
+      x: '조용히 사라지는 것: 잊혀 가는 기억, 어느새 사라진 자신감',
+      me: '나도 모르게 사라져 버린 마음이나 계획은?',
+      mu: '소리가 점점 작아지며 사라지는 끝맺음' },
+    { w: '사건의 지평선', s: '도전', g: 'other', u: '고등학교 이상 · 도전 단어', t: [1,1,0,0],
+      m: '블랙홀 둘레에서, 그 안으로 들어가면 빛조차 빠져나올 수 없는 경계',
+      p: '블랙홀의 중력이 너무 강해서 경계 안쪽에서는 빛의 속력으로도 탈출할 수 없어요. 중2 별과 우주 단원과 이어 볼 수 있어요.',
+      r: '짝꿍: 탈출할 수 있는 바깥 ↔ 돌아올 수 없는 안쪽 · 닮은 예: 폭포 앞, 물살이 물고기보다 빨라지는 지점',
+      x: '돌아올 수 없는 선, 되돌릴 수 없는 말이나 선택',
+      me: '한번 넘고 나니 돌아갈 수 없었던 순간은?',
+      mu: '점점 느려지고 낮아지다가 한순간 정적에 빨려 들어가는 곡' }
+  ];
+
+  var WX={"밀도": ["密(빽빽할 밀) + 度(정도 도): 얼마나 빽빽하게 차 있는지. 아르키메데스가 왕관을 물에 넣어 순금인지 가려냈다는 이야기가 전해져요.", "사회: “인구 밀도가 높다” · 일상: “오늘 수업 밀도 있었어”"], "포화": ["飽(배부를 포) + 和(화할 화): 배가 부를 만큼 꽉 차서 더 받아들일 수 없는 상태. 바닷물을 말려 소금을 얻는 염전도 이 원리를 이용해요.", "뉴스: “주차장이 포화 상태예요” · 일상: “시험 기간이라 머리가 포화야”"], "풍화": ["風(바람 풍) + 化(될 화): 바람과 물 같은 자연에 의해 바뀜. 오래된 비석의 글씨가 닳아 흐려지는 것도 풍화예요.", "표현: “기억이 풍화되다” · 일상: 오래된 돌담과 건물"], "대륙 이동": ["大陸(큰 땅) + 移動(옮겨 움직임). 1912년 베게너가 주장했을 때는 비웃음을 샀지만, 나중에 판 구조론으로 인정받았어요.", "일상: 세계 지도를 퍼즐처럼 맞춰 보기 · 다큐멘터리, 화석 이야기"], "굴절": ["屈(굽을 굴) + 折(꺾을 절): 굽어서 꺾임. 물속 막대가 꺾여 보이는 현상은 아주 옛날부터 알려져 있었어요.", "일상: 안경, 돋보기 렌즈 · 표현: “굴절된 시선”"], "파동": ["波(물결 파) + 動(움직일 동): 물결처럼 움직임. 호수에 돌을 던지면 퍼지는 물결이 가장 쉬운 예예요.", "음악: 소리는 파동이에요 · 뉴스: “경제에 큰 파동” · 응원: 경기장 파도타기"], "이온": ["영어 ion, 그리스어로 “가는 것”이라는 뜻. 1834년 패러데이가 전기를 따라 움직이는 알갱이에 이 이름을 붙였어요.", "일상: 이온 음료, “음이온” 드라이기 광고"], "광합성": ["光(빛 광) + 合(합할 합) + 成(이룰 성): 빛으로 합쳐 만들어 냄. 1600년대 반 헬몬트의 버드나무 실험에서 “흙을 먹고 자라는 게 아니구나”를 알게 됐어요.", "일상: 햇볕을 쬐며 “광합성 중”이라고 농담할 때"], "순환": ["循(돌 순) + 環(고리 환): 고리처럼 돌고 돎. 1628년 하비가 피가 온몸을 돌아 다시 심장으로 온다는 것을 밝혔어요.", "사회: 경제 순환 · 일상: 순환 버스, 계절의 순환"], "정전기": ["靜(고요할 정) + 電(전기 전) + 氣(기운 기): 흐르지 않고 머문 전기. 고대 그리스 사람들이 호박(보석)을 문지르면 먼지가 붙는 것을 보았고, 영어 electricity도 그리스어 “호박”에서 왔어요.", "일상: 겨울철 문고리의 “찌릿”, 풍선에 붙는 머리카락"], "저항": ["抵(막을 저) + 抗(겨룰 항): 막아서 맞섬. 1827년 옴이 전압, 전류, 저항의 관계(옴의 법칙)를 정리했어요.", "역사: 독립운동의 “저항” · 일상: 달릴 때 느끼는 “공기 저항”, “저항감이 든다”"], "연주 시차": ["年周(일 년 동안 돎) + 視差(보는 차이). 1838년 베셀이 처음으로 별의 연주 시차를 재서 별까지의 거리를 구했어요.", "일상: 한쪽 눈씩 감고 손가락을 보면 움직여 보이는 것"], "우주 팽창": ["宇宙(우주) + 膨脹(부풀어 커짐). 1929년 허블이 멀리 있는 은하일수록 빨리 멀어진다는 것을 발견했어요.", "일상: 부풀어 오르는 풍선 · 표현: “세계관이 팽창한다”"], "순환소수": ["循環(돌고 돎) + 小數(작은 수): 소수점 아래가 고리처럼 돌고 도는 수.", "일상: 계산기로 1 ÷ 3을 하면 끝없이 나오는 0.3333… · “무한 반복”"], "부등식": ["不(아닐 부) + 等(같을 등) + 式(식 식): 같지 않음을 나타낸 식. 부등호 <, >는 1631년에 나온 해리엇의 책에서 쓰이기 시작했어요.", "일상: 시소, “키 140cm 이상 탑승 가능” 같은 놀이기구 안내"], "연립방정식": ["聯立(나란히 세움) + 方程式(방정식). 약 2000년 전 중국 수학책 『구장산술』의 “방정” 장에서 “방정식”이라는 말이 왔어요.", "일상: “닭과 토끼 다리가 모두 몇 개” 같은 문제, 장보기 계산"], "기울기": ["순우리말 “기울다”에 “-기”가 붙은 말. 얼마나 기울었는지를 수로 나타내요.", "일상: 경사로, 도로의 오르막 표지판 · 표현: “마음이 한쪽으로 기울다”"], "닮음": ["순우리말 “닮다”에서 온 말. 고대 그리스의 탈레스가 그림자 길이로 피라미드 높이를 쟀다는 이야기가 전해져요.", "일상: 지도의 축척, 사진 확대·축소 · “엄마를 닮았네”"], "피타고라스 정리": ["고대 그리스 수학자 피타고라스의 이름이 붙었지만, 그보다 오래된 바빌로니아 점토판에도 비슷한 수의 관계가 적혀 있어요.", "일상: TV·휴대폰 화면 크기(대각선 길이), 지름길 거리 계산"], "확률": ["確(굳을 확) + 率(비율 률): 확실한 정도를 나타낸 비율. 1654년 파스칼과 페르마가 도박 문제를 편지로 주고받으며 확률을 연구했어요.", "뉴스: “내일 비 올 확률 60%” · 게임: 아이템 뽑기 확률"], "함수": ["函(상자 함) + 數(셈 수). 원래 영어 function을 옮긴 말인데, “넣으면 규칙대로 나오는 상자”로 기억하면 쉬워요. 라이프니츠가 function이라는 말을 처음 썼어요.", "일상: 동전을 넣으면 음료가 나오는 자판기 · 컴퓨터: 엑셀 함수"], "기회비용": ["機會(기회) + 費用(비용): 기회를 잃은 것도 비용이라는 뜻.", "일상: “게임 한 시간의 기회비용은 공부 한 시간” · 진로 선택"], "희소성": ["稀(드물 희) + 少(적을 소) + 性(성질 성): 드물고 적은 성질.", "일상: 한정판 운동화, 게임의 희귀 아이템"], "균형 가격": ["均衡(고르게 맞춤, 저울이 평평함) + 價格(값).", "일상: 중고 거래에서 사는 사람과 파는 사람이 합의한 값"], "권력 분립": ["權力(권력) + 分立(나누어 세움). 1748년 몽테스키외가 『법의 정신』에서 권력을 나눠야 자유가 지켜진다고 했어요.", "학교: 학생회와 선생님, 학급 회의가 서로 견제하는 것"], "세계화": ["世界(세계) + 化(될 화): 세계가 하나로 이어져 감. 1980~90년대부터 널리 쓰이기 시작했어요.", "일상: K-팝, 해외 직구, 외국 OTT 드라마"], "사회 변동": ["社會(사회) + 變動(바뀌어 움직임).", "일상: 스마트폰이 생긴 뒤 달라진 소통, 부모님 학창 시절과 지금"], "화자": ["話(말할 화) + 者(사람 자): 말하는 사람.", "노래: 노래 가사 속 “나” · 웹툰의 1인칭 주인공"], "서술자": ["敍述(차례로 풀어 말함) + 者(사람): 이야기를 들려주는 사람.", "영상: 다큐의 내레이션, 웹툰의 해설 말풍선"], "타당성": ["妥當(사리에 마땅함) + 性(성질).", "일상: 토론, “그 말 근거 있어?”, 광고 문구 따져 보기"], "반어": ["反(돌이킬 반) + 語(말씀 어): 반대로 하는 말. 영어 irony는 그리스어로 “시치미 떼기”라는 말에서 왔어요.", "일상: 혼낼 때 “참~ 잘했다”"], "역설": ["逆(거스를 역) + 說(말씀 설): 거꾸로 된 듯한 말. 영어 paradox는 그리스어로 “생각을 넘어서는 것”이라는 뜻이에요.", "속담: “바쁠수록 돌아가라”, “지는 게 이기는 것”"], "교류": ["交(사귈 교) + 流(흐를 류): 서로 오가며 흐름.", "일상: 교환 학생, 자매결연 학교 · 과학: 전기의 “교류”"], "혁명": ["革(고칠 혁) + 命(목숨·운명 명): 하늘이 내린 운명을 바꾼다는 옛말에서 왔어요.", "뉴스: “스마트폰 혁명”, “AI 혁명” · 역사: 산업 혁명"], "독립": ["獨(홀로 독) + 立(설 립): 홀로 섬.", "일상: 독립 영화, “경제적 독립”, 혼자 방 쓰기"], "계승": ["繼(이을 계) + 承(이을 승): 이어서 받음.", "일상: 전통 계승, 할머니 손맛 이어받기"], "쉼표": ["쉼 + 標(표 표): 쉬는 자리를 나타내는 표시.", "국어: 문장 부호 쉼표 · 표현: “인생의 쉼표”"], "불협화음": ["不(아닐 불) + 協和(어울림) + 音(소리): 어울리지 않는 소리.", "뉴스: “팀 안의 불협화음” · 일상: 친구 사이 삐걱거림"], "여백": ["餘(남을 여) + 白(흰 백): 남은 흰 부분.", "일상: 공책 여백, 포스터 디자인 · 표현: “여백의 미”"], "명암": ["明(밝을 명) + 暗(어두울 암): 밝음과 어두움.", "뉴스: “정책의 명암” · 사진: 그림자 효과"], "관성": ["慣(익숙할 관) + 性(성질 성): 하던 대로 하려는 성질. 갈릴레이가 생각해 내고 뉴턴이 운동 제1법칙으로 정리했어요.", "일상: 버스 급정거, “습관처럼 폰을 켠다”"], "증발": ["蒸(찔 증) + 發(필 발): 쪄서 날아감.", "일상: 젖은 빨래가 마름 · 표현: “용돈이 증발했다”"], "사건의 지평선": ["지평선은 땅과 하늘이 만나는 선, 그 너머는 보이지 않아요. 블랙홀의 경계를 이렇게 불러요.", "노래: 윤하의 「사건의 지평선」 · 표현: 돌아올 수 없는 선"]};
+  W.forEach(function(d){ var x=WX[d.w]; if(x){ d.or=x[0]; d.use=x[1]; } });
+  var TESTS=[['은유','"요즘 나는 ___ 같다"가 되나요?'],['짝꿍','반대·짝을 이루는 개념이 있나요?'],['변화','과정이나 변화가 들어 있나요?'],['과목 넘나들기','다른 과목에서도 쓰이나요?']];
+
+
+  /* ═════════ 상태 ═════════ */
+  var KEY='seed-bank-deck-v4';
+  var S={ items:[], main:0, tests:[0,0,0,0], seedText:'', word:'포화' };
+  try{ var sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv) S=Object.assign(S,sv); }catch(e){}
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+  function findItem(t,k){ for(var i=0;i<S.items.length;i++) if(S.items[i].t===t&&S.items[i].k===k) return i; return -1; }
+  function toggleItem(t,k,extra){ var i=findItem(t,k); if(i>=0) S.items.splice(i,1); else S.items.push(Object.assign({t:t,k:k},extra||{})); if(S.main>=S.items.length) S.main=Math.max(0,S.items.length-1); save(); refresh(); if(motion&&i<0) gsap.fromTo('#cart',{scale:1.2},{scale:1,duration:.45,ease:'back.out(3)'}); }
+
+  /* ═════════ 표지 ═════════ */
+  if(motion){
+    var tl=gsap.timeline({repeat:-1,repeatDelay:1.2});
+    tl.set(['#gc-stem','#gc-l1','#gc-l2','#gc-flower'],{opacity:0})
+      .from('#gc-seed',{y:-40,duration:.6,ease:'bounce.out'})
+      .to('#gc-stem',{opacity:1,duration:.4}).fromTo('#gc-stem',{scaleY:0,transformOrigin:'50% 100%'},{scaleY:1,duration:.7},'<')
+      .to('#gc-l1',{opacity:1,duration:.3}).fromTo('#gc-l1',{scale:0,transformOrigin:'100% 100%'},{scale:1,duration:.4,ease:'back.out(2)'},'<')
+      .to('#gc-l2',{opacity:1,duration:.3}).fromTo('#gc-l2',{scale:0,transformOrigin:'0% 100%'},{scale:1,duration:.4,ease:'back.out(2)'},'<')
+      .to('#gc-flower',{opacity:1,duration:.3}).fromTo('#gc-flower',{scale:0,transformOrigin:'50% 50%'},{scale:1,duration:.6,ease:'elastic.out(1,.5)'},'<');
+  }
+
+  /* ═════════ 뒤집는 카드 ═════════ */
+  document.querySelectorAll('.flip').forEach(function(f){ f.addEventListener('click',function(){ f.classList.toggle('on'); }); });
+
+  /* ═════════ 단어 씨앗 ═════════ */
+  var SUBJ=['전체','과학','수학','사회','국어','역사','음악·미술'], subj='전체';
+  $('subj-filter').innerHTML=SUBJ.map(function(s){ return '<button type="button" class="chip" data-subj="'+s+'" style="--cc:var(--word)" aria-pressed="'+(s===subj)+'">'+s+'</button>'; }).join('');
+  $('subj-filter').addEventListener('click',function(e){ var b=e.target.closest('[data-subj]'); if(!b) return; subj=b.dataset.subj; [].forEach.call(this.children,function(x){x.setAttribute('aria-pressed',x===b);}); drawWords(); });
+  function wordList(){ return W.filter(function(d){ return !d.k && d.g!=='other' && (subj==='전체'||d.s===subj); }); }
+  function getWord(w){ for(var i=0;i<W.length;i++) if(W[i].w===w) return W[i]; if(w&&String(w).trim()) return { w:String(w).trim(), s:'내 단어', u:'직접 고른 씨앗', mine:true }; return W[0]; }
+  function drawWords(){
+    $('wgrid').innerHTML=wordList().map(function(d){ return '<button type="button" class="wbtn" data-w="'+esc(d.w)+'" aria-current="'+(d.w===S.word)+'"><b>'+esc(d.w)+'</b><small>'+esc(d.s)+' · '+esc(d.u.replace(/^사회 ② · |^역사 [①②] · /,''))+'</small></button>'; }).join('');
+  }
+  $('o-out').addEventListener('input',function(e){ var t=e.target; if(!t.classList.contains('mine-ans')) return;
+    var w=getWord(S.word).w; S.mineAns=S.mineAns||{}; S.mineAns[w]=S.mineAns[w]||{}; S.mineAns[w][t.dataset.l]=t.value; save(); });
+  $('mine').addEventListener('submit',function(e){ e.preventDefault(); var v=$('mine-in').value.trim(); if(!v){ $('mine-in').focus(); return; }
+    S.word=v; save(); drawWords(); drawOnion(); if(window.innerWidth<=1000) $('o-word').scrollIntoView({behavior:'smooth',block:'start'}); });
+  $('wgrid').addEventListener('click',function(e){ var b=e.target.closest('[data-w]'); if(!b) return; S.word=b.dataset.w; save(); drawWords(); drawOnion(); if(window.innerWidth<=1000) $('o-word').scrollIntoView({behavior:'smooth',block:'start'}); });
+  var opened=0, revealT=null;
+  function layerHtml(d,l){
+    var names=['','① 뜻과 뿌리','② 쓰임','③ 짝꿍','④ 은유','⑤ 나'];
+    var who=l<=3?'<span class="whoai">AI 도움 OK</span>':'<span class="whome">직접</span>';
+    if(d.mine){ var Q=['','이 말은 <b>어디서</b> 왔고, 무슨 뜻일까? 글자를 풀면? 교과서에서는? 어떤 <b>특징</b>이 있어?','교과서 말고 <b>어디서</b> 이 말을 들어 봤어?','이 말과 <b>반대</b>이거나 짝을 이루는 건?','“요즘 나는 <b>'+esc(d.w)+'</b> 같다” → 왜 그럴까?','이 말이 딱 맞았던 <b>내 하루</b>는? 그때 들린 소리는?'];
+      var v=((S.mineAns||{})[d.w]||{})[l]||'';
+      return '<span class="ln">'+names[l]+' '+who+'</span><span class="q">'+Q[l]+'</span>'+
+        '<textarea class="mine-ans" data-l="'+l+'" rows="2">'+esc(v)+'</textarea>'; }
+    var body= l===1?'<b>뿌리</b> · '+esc(d.or||'')+'<br><b>교과서</b> · '+esc(d.m)+(d.p?'<br><b>특징</b> · '+esc(d.p):'') : l===2?esc(d.use||d.r) : l===3?esc(d.r) : l===4?'요즘 나는 "'+esc(d.w)+'" 같다 → '+esc(d.x) : '<span class="q">'+esc(d.me)+' 그때 들린 소리는?</span><br><br><b>🎵 음악으로 잇는다면</b> · '+esc(d.mu);
+    return '<span class="ln">'+names[l]+' '+who+'</span>'+body;
+  }
+  function paintRings(){ document.querySelectorAll('#onion circle').forEach(function(c){ var l=+c.dataset.l;
+      c.style.opacity = l<opened ? .18 : (l<=opened+1 ? 1 : .35);
+      c.style.strokeWidth = l===opened ? 7 : 3; c.style.stroke = l===opened ? '#15132b' : '#fff';
+      c.style.strokeDasharray = l<opened ? '6 6' : ''; });
+    if(motion&&opened){ var cc=document.querySelector('#onion circle[data-l="'+opened+'"]'); gsap.fromTo(cc,{scale:1.06,transformOrigin:'50% 50%'},{scale:1,duration:.5,ease:'back.out(3)'}); }
+    var b=$('o-all'); if(b) b.textContent = opened>=5 ? '↺ 처음부터 다시' : '▶ 한 겹 펼치기 ('+opened+'/5)';
+    var bk=$('o-back'); if(bk){ bk.disabled=opened<1; bk.style.opacity=opened<1?.4:1; } }
+  function openLayer(l){ var d=getWord(S.word); opened=l; $('o-out').innerHTML=layerHtml(d,l); paintRings(); if(motion) gsap.fromTo('#o-out',{y:8,opacity:0},{y:0,opacity:1,duration:.35}); }
+  function drawOnion(){ clearTimeout(revealT); var d=getWord(S.word); $('mine').classList.toggle('on',!!d.mine); if(d.mine&&!$('mine-in').value) $('mine-in').value=d.w; $('o-word').textContent=d.w; $('o-unit').textContent=d.s+' · '+d.u; opened=0; paintRings(); $('o-out').innerHTML='양파의 <b>가장 바깥 겹</b>을 눌러 보세요. 안쪽으로 갈수록 나만의 이야기가 나와요.'; }
+  $('onion').addEventListener('click',function(e){ var c=e.target.closest('circle'); if(!c) return; var l=+c.dataset.l; if(l>opened+1){ $('o-out').innerHTML='바깥 겹부터 차례로! 지금은 <b>'+(opened+1)+'번째 겹</b>을 눌러요.'; return; } openLayer(l); });
+  $('o-back').addEventListener('click',function(){ if(opened<1) return;
+    if(opened===1){ opened=0; paintRings(); $('o-out').innerHTML='양파의 <b>가장 바깥 겹</b>을 눌러 보세요. 안쪽으로 갈수록 나만의 이야기가 나와요.'; return; }
+    openLayer(opened-1); });
+  $('o-all').addEventListener('click',function(){
+    if(opened>=5){ opened=0; paintRings(); $('o-out').innerHTML='양파의 <b>가장 바깥 겹</b>부터 다시 펼쳐요.'; return; }
+    openLayer(opened+1);
+    if(window.innerWidth<=1000) $('o-out').scrollIntoView({behavior:'smooth',block:'nearest'}); });
+  $('o-keep').addEventListener('click',function(){ var btn=this, t=cardText(getWord(S.word));
+    var done=function(msg){ btn.textContent=msg; setTimeout(function(){ btn.textContent='📋 복사하기'; },1800); };
+    var fb=function(){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done('✅ 복사했어요!'); }catch(err){ done('복사가 안 돼요'); } document.body.removeChild(ta); };
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ done('✅ 복사했어요!'); },fb); else fb(); });
+
+  /* ═════════ 복사할 내용 ═════════ */
+  function cardText(d){
+    if(d.mine){ var A=(S.mineAns||{})[d.w]||{}, a=function(k){ return (A[k]||'').trim(); };
+      return ['■ 나의 씨앗: '+d.w,'','· ① 뜻과 뿌리 (글자 풀이, 교과서 뜻, 특징): '+a(1),'· ② 쓰임 (교과서 말고 어디서 들어 봤나): '+a(2),'· ③ 짝꿍 (반대이거나 짝을 이루는 것): '+a(3),'· ④ 은유: 요즘 나는 "'+d.w+'" 같다 → '+a(4),'· ⑤ 나 (딱 맞았던 내 하루, 그때 들린 소리): '+a(5),'','→ ①②③은 AI·사전 도움 OK, ④⑤는 내 말로 써요'].join(String.fromCharCode(10)); }
+    return ['■ 나의 씨앗: '+d.w,'','· 어디서: '+d.s+' · '+d.u,'· ① 뿌리: '+(d.or||''),'· ① 뜻: '+d.m,'· ① 특징: '+(d.p||''),'· ② 쓰임: '+(d.use||''),
+      '· ③ 짝꿍 예시: '+d.r,'· ④ 은유 예시: 요즘 나는 "'+d.w+'" 같다 → '+d.x,'· ⑤ 나에게 물어볼 질문: '+d.me+' 그때 들린 소리는?','',
+      '→ ④ 은유 ⑤ 나는 내 말로 다시 써요'].join(String.fromCharCode(10));
+  }
+
+  /* ═════════ 슬라이드 이동 ═════════ */
+  var slides=[].slice.call(document.querySelectorAll('.slide')), cur=0;
+  function animIn(sl){ if(!motion) return; var it=sl.querySelectorAll('[data-in]'); if(it.length) gsap.fromTo(it,{y:18,opacity:0},{y:0,opacity:1,duration:.5,stagger:.06,ease:'power2.out'}); }
+  function go(n){ n=Math.max(0,Math.min(slides.length-1,n)); if(n!==cur) clearTimeout(revealT); cur=n;
+    slides.forEach(function(s,i){ s.classList.toggle('active',i===n); s.classList.toggle('prev',i<n); s.setAttribute('aria-hidden',i===n?'false':'true'); });
+    $('num').textContent=(n+1)+' / '+slides.length; $('prev').disabled=n===0; $('next').disabled=n===slides.length-1; slides[n].scrollTop=0; animIn(slides[n]);
+    }
+  $('prev').addEventListener('click',function(){go(cur-1);}); $('next').addEventListener('click',function(){go(cur+1);});
+  document.addEventListener('keydown',function(e){ if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return; if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();go(cur+1);} else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1);} });
+  var sx=null,sy=null;
+  document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',function(e){ if(sx===null) return; if(e.target.closest('input,textarea')){ sx=null; return; } var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) go(cur+(dx<0?1:-1)); sx=null; });
+
+  drawWords(); drawOnion(); go(0);
+})();
+</script>
+</body>
+</html>
