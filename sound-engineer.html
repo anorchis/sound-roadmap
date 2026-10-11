@@ -167,7 +167,7 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
 <div class="transport" id="transport" role="region" aria-label="재생 장치">
   <button class="play" id="play" type="button" aria-label="재생">▶</button>
   <select id="src" aria-label="소리 고르기">
-    <option value="vocal">🎤 목소리(흉내)</option><option value="guitar">🎸 기타 리프</option><option value="drums">🥁 드럼</option><option value="band">🎵 밴드 전체</option><option value="file">📁 내 파일</option><option value="mic">🎙 내 마이크</option>
+    <option value="guitar">🎸 기타 리프</option><option value="drums">🥁 드럼</option><option value="band">🎵 밴드 전체</option><option value="file">📁 내 파일</option>
   </select>
   <input type="file" id="file" accept="audio/*" hidden>
   <button class="tb" id="noise" type="button" title="잡음 섞기">🌫 잡음 섞기</button>
@@ -186,8 +186,8 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
       <span class="tag" style="color:var(--dyn)">SOUND ENGINEER LAB</span>
       <div class="console" id="console" aria-hidden="true"></div>
       <h1>사운드 엔지니어 <span style="color:var(--dyn)">실습실</span></h1>
-      <p class="sub">무대 뒤에서 소리를 만지는 사람처럼, <b>BandLab 이펙트를 진짜로 돌려</b> 봐요.<br>노브를 돌리면 실제 소리가 바뀌어요. 내 목소리나 내 파일로도 실습할 수 있어요.<br>마음에 들면 <b>⏺ 녹음</b>을 눌러 <b>내 버전을 파일로 저장</b>해요. 🎧</p>
-      <p class="cap">🎧 헤드폰을 쓰면 더 잘 들려요. 마이크를 쓸 때는 꼭 헤드폰을 쓰세요(삐— 소리 방지).</p>
+      <p class="sub">무대 뒤에서 소리를 만지는 사람처럼, <b>BandLab 이펙트를 진짜로 돌려</b> 봐요.<br>노브를 돌리면 실제 소리가 바뀌어요. 내 파일로도 실습할 수 있어요.<br>마음에 들면 <b>⏺ 녹음</b>을 눌러 <b>내 버전을 파일로 저장</b>해요. 🎧</p>
+      <p class="cap">🎧 헤드폰을 쓰면 더 잘 들려요.</p>
     </div>
   </section>
 
@@ -213,7 +213,7 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
   <!-- 4 크기 -->
   <section class="slide lab" data-lab="dyn">
     <div class="inner">
-      <div class="lab-head"><span class="tag" style="color:var(--dyn)">LAB 2 · 크기</span><h2>들쭉날쭉한 목소리를 <span style="color:var(--dyn)">고르게</span></h2></div>
+      <div class="lab-head"><span class="tag" style="color:var(--dyn)">LAB 2 · 크기</span><h2>들쭉날쭉한 소리를 <span style="color:var(--dyn)">고르게</span></h2></div>
       <div class="labwrap"><div class="rack"><canvas class="scope" aria-hidden="true"></canvas><div id="r-dyn"></div></div><div class="side"><div class="mission" id="m-dyn"></div><div class="tip"><b>💡 “빨아들인다”의 정체</b><br>컴프레서는 <b>기준선(Threshold)을 넘은 소리만</b> 눌러요. 그래서 들어오는 소리가 기준선보다 작으면 아무 일도 안 해요. 노란 막대(GR)가 움직이면 일하고 있다는 뜻!<br>눌러서 작아진 만큼 <b>Makeup</b>으로 다시 올려요.<br><b>Limiter</b>는 “절대 이 선을 넘지 마!” 하는 마지막 안전벨트예요.</div></div></div>
     </div>
   </section>
@@ -379,7 +379,7 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
   document.getElementById('vol').addEventListener('input',function(){ setVol(+this.value); });
   setTimeout(function(){ setVol(VOL); },0);
   /* ═════════ 소리 재료 ═════════ */
-  var SRC={kind:'vocal',on:false,timer:null,buf:null,fileBuf:null,mic:null,step:0,next:0};
+  var SRC={kind:'guitar',on:false,timer:null,buf:null,fileBuf:null,mic:null,step:0,next:0};
   function midi(n){ return 440*Math.pow(2,(n-69)/12); }
   var VOW=[[800,1150,2900],[450,800,2830],[350,2000,2800],[325,700,2530]];
   function voice(a,dest,t,f,d,vel,vw){ var out=a.createGain(), lv=.55*vel; out.gain.setValueAtTime(.0001,t); out.gain.exponentialRampToValueAtTime(lv,t+.05); out.gain.setValueAtTime(lv,t+Math.max(.06,d-.06)); out.gain.exponentialRampToValueAtTime(.0001,t+d+.15); out.connect(dest);
@@ -483,10 +483,10 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
   /* ═════════ 실습실 미션 ═════════ */
   var MS={
     clean:[['🌫 잡음 섞기를 켜고 소리를 들어 봐요','“쉬—”, “웅—” 소리가 들리나요?',function(){ return NOISE; }],['🧹 Polish 청소 강도를 60% 이상','잡음이 줄어드는지 A/B 원음 버튼으로 비교!',function(){ return NOISE&&FX.polish.on&&FX.polish.amt>=60; }],['↔️ Utility 팬을 왼쪽 끝으로','헤드폰 왼쪽에서만 들리나요?',function(){ return FX.util.on&&FX.util.pan<=-.8; }]],
-    dyn:[['🎤 목소리를 틀고 컴프레서를 켜요','목소리는 일부러 셌다 여렸다 해요',function(){ return SRC.kind==='vocal'&&FX.comp.on; }],['🗜 GR 막대가 6dB 넘게 움직이게','Threshold를 내리거나 Ratio를 올려요',function(){ return grMax>=6; }],['🛡 리미터를 켜고 💥 펑!','CLIP이 안 뜨면 성공',function(){ return FX.lim.on&&limOK; }]],
-    tone:[['📞 전화기 목소리','Low -12 이하, High -12 이하, Mid +6 이상 (1000~2500Hz)',function(){ var p=FX.eq; return p.on&&p.low<=-12&&p.high<=-12&&p.mid>=6&&p.mf>=1000&&p.mf<=2500; }],['🌬 공기반 소리반','High(고음·공기) +5 이상',function(){ return FX.eq.on&&FX.eq.high>=5; }],['🔥 록 기타','기타 리프 + Distortion 또는 Amp, Drive 70% 이상',function(){ return SRC.kind==='guitar'&&FX.tone.on&&FX.tone.mode!=='sat'&&FX.tone.drive>=70; }]],
+    dyn:[['🥁 드럼을 틀고 컴프레서를 켜요','킥·스네어는 세고 하이햇은 여려서 크기가 들쭉날쭉해요',function(){ return SRC.kind==='drums'&&FX.comp.on; }],['🗜 GR 막대가 6dB 넘게 움직이게','Threshold를 내리거나 Ratio를 올려요',function(){ return grMax>=6; }],['🛡 리미터를 켜고 💥 펑!','CLIP이 안 뜨면 성공',function(){ return FX.lim.on&&limOK; }]],
+    tone:[['📞 전화기 속 소리','Low -12 이하, High -12 이하, Mid +6 이상 (1000~2500Hz)',function(){ var p=FX.eq; return p.on&&p.low<=-12&&p.high<=-12&&p.mid>=6&&p.mf>=1000&&p.mf<=2500; }],['🌬 공기반 소리반','High(고음·공기) +5 이상',function(){ return FX.eq.on&&FX.eq.high>=5; }],['🔥 록 기타','기타 리프 + Distortion 또는 Amp, Drive 70% 이상',function(){ return SRC.kind==='guitar'&&FX.tone.on&&FX.tone.mode!=='sat'&&FX.tone.drive>=70; }]],
     space:[['⛰ 산 메아리','Delay 250ms 이상 + Feedback 40% 이상',function(){ return FX.delay.on&&FX.delay.time>=250&&FX.delay.fb>=40; }],['⚡ 옛날 록 보컬 슬랩백','Delay 50~160ms, Feedback 20% 이하',function(){ return FX.delay.on&&FX.delay.time>=50&&FX.delay.time<=160&&FX.delay.fb<=20; }],['⛪ 성당에서 부르기','Reverb Church + Mix 60% 이상',function(){ return FX.verb.on&&FX.verb.type==='church'&&FX.verb.mix>=60; }]],
-    move:[['🐿 다람쥐 목소리','Pitch Shift +7 이상',function(){ return FX.pitch.on&&FX.pitch.st>=7; }],['✈️ 제트기 슈웅','Modulation Flanger + Depth 70% 이상',function(){ return FX.mod.on&&FX.mod.mode==='flanger'&&FX.mod.depth>=70; }],['💡 박자 깜빡이','Rhythmic Tremolo, 16분음표',function(){ return FX.rhy.on&&FX.rhy.mode==='trem'&&FX.rhy.div===16; }]]};
+    move:[['🐿 다람쥐 소리','Pitch Shift +7 이상',function(){ return FX.pitch.on&&FX.pitch.st>=7; }],['✈️ 제트기 슈웅','Modulation Flanger + Depth 70% 이상',function(){ return FX.mod.on&&FX.mod.mode==='flanger'&&FX.mod.depth>=70; }],['💡 박자 깜빡이','Rhythmic Tremolo, 16분음표',function(){ return FX.rhy.on&&FX.rhy.mode==='trem'&&FX.rhy.div===16; }]]};
   var grMax=0, limOK=false;
   function drawMission(lab){ var el=$('m-'+lab); if(!el) return; el.innerHTML='<h4>🎯 MISSION</h4>'+MS[lab].map(function(m,i){ var d=m[2](); return '<div class="mi'+(d?' done':'')+'"><span class="ck">'+(d?'✓':'')+'</span><span>'+m[0]+'<small>'+m[1]+'</small></span></div>'; }).join(''); }
   function checkMissions(){ Object.keys(MS).forEach(drawMission); }
@@ -527,11 +527,11 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
 
   /* ═════════ 의뢰서 ═════════ */
   var ORD=[
-    {e:'💭',t:'꿈속에서 부르는 노래',d:'“멀리서 들리는 것처럼 몽롱하게 해 주세요.”',src:'vocal',fx:{eq:{on:1,low:-3,mid:-2,mf:800,high:4},mod:{on:1,mode:'chorus',rate:.8,depth:60,mix:45},delay:{on:1,time:375,fb:35,mix:30},verb:{on:1,type:'hall',mix:70}}},
-    {e:'📻',t:'옛날 라디오',d:'“할머니 댁 라디오에서 나오는 소리!”',src:'vocal',noise:1,fx:{eq:{on:1,low:-15,mid:8,mf:1500,high:-15},tone:{on:1,mode:'sat',drive:60},comp:{on:1,thr:-30,ratio:6,att:5,rel:120,make:9}}},
+    {e:'💭',t:'꿈속에서 부르는 노래',d:'“멀리서 들리는 것처럼 몽롱하게 해 주세요.”',src:'band',fx:{eq:{on:1,low:-3,mid:-2,mf:800,high:4},mod:{on:1,mode:'chorus',rate:.8,depth:60,mix:45},delay:{on:1,time:375,fb:35,mix:30},verb:{on:1,type:'hall',mix:70}}},
+    {e:'📻',t:'옛날 라디오',d:'“할머니 댁 라디오에서 나오는 소리!”',src:'guitar',noise:1,fx:{eq:{on:1,low:-15,mid:8,mf:1500,high:-15},tone:{on:1,mode:'sat',drive:60},comp:{on:1,thr:-30,ratio:6,att:5,rel:120,make:9}}},
     {e:'🎤',t:'공연장 라이브',d:'“큰 무대에서 부르는 느낌, 목소리는 또렷하게.”',src:'band',fx:{comp:{on:1,thr:-26,ratio:4,att:8,rel:150,make:7},eq:{on:1,low:-2,mid:2,mf:2500,high:3},delay:{on:1,time:120,fb:10,mix:20},verb:{on:1,type:'hall',mix:35},lim:{on:1,thr:-2}}},
-    {e:'🤖',t:'로봇 목소리',d:'“사람 같지 않은 기계 목소리요!”',src:'vocal',fx:{pitch:{on:1,st:-4},mod:{on:1,mode:'flanger',rate:.5,depth:90,mix:70},rhy:{on:1,mode:'trem',div:16,depth:80},tone:{on:1,mode:'dist',drive:30}}},
-    {e:'🤫',t:'속삭임을 또렷하게',d:'“작은 목소리인데 귀에 쏙 들어오게.”',src:'vocal',fx:{eq:{on:1,low:-6,mid:0,mf:1000,high:7},comp:{on:1,thr:-34,ratio:5,att:3,rel:100,make:12},verb:{on:1,type:'room',mix:15}}}];
+    {e:'🤖',t:'로봇 기타',d:'“사람이 치는 것 같지 않은 기계 소리요!”',src:'guitar',fx:{pitch:{on:1,st:-4},mod:{on:1,mode:'flanger',rate:.5,depth:90,mix:70},rhy:{on:1,mode:'trem',div:16,depth:80},tone:{on:1,mode:'dist',drive:30}}},
+    {e:'🤫',t:'작은 소리를 또렷하게',d:'“조용한 기타인데 귀에 쏙 들어오게.”',src:'guitar',fx:{eq:{on:1,low:-6,mid:0,mf:1000,high:7},comp:{on:1,thr:-34,ratio:5,att:3,rel:100,make:12},verb:{on:1,type:'room',mix:15}}}];
   var oi=0;
   function drawOrders(){ $('orders').innerHTML=ORD.map(function(o,i){ return '<button type="button" class="order'+(i===oi?' on':'')+'" data-o="'+i+'"><span class="e">'+o.e+'</span><b>'+o.t+'</b><small>'+o.d+'</small></button>'; }).join(''); note(); }
   $('orders').addEventListener('click',function(e){ var b=e.target.closest('[data-o]'); if(!b) return; oi=+b.dataset.o; drawOrders(); var o=ORD[oi]; SRC.kind=o.src; $('src').value=o.src; if(SRC.on) startSrc(); });
