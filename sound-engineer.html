@@ -118,7 +118,7 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
 .eqcv{ width:100%; height:110px; border-radius:12px; background:rgba(0,0,0,.22); display:block; margin-bottom:8px; }
 
 /* AUX */
-.auxmix{ display:grid; grid-template-columns:repeat(3,1fr) 1.1fr; gap:10px; width:100%; }
+.auxmix{ display:grid; grid-template-columns:repeat(2,1fr) 1.1fr; gap:10px; width:100%; }
 .strip{ border-radius:18px; background:#15132b; color:#fff; padding:12px; display:flex; flex-direction:column; align-items:center; gap:8px; }
 .strip h4{ font-size:14px; font-weight:900; } .strip .e{ font-size:26px; }
 .strip.ret{ background:linear-gradient(160deg,#059669,#064e3b); }
@@ -401,7 +401,7 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
   function tick(){ var a=A; if(!a||!SRC.on) return; var dur=60/BPM/4, la=a.currentTime+.12;
     while(SRC.next<la){ var s=SRC.step%64, t=SRC.next, q=s%16, bar=Math.floor(s/16), st=FX.pitch.on&&!ALLBYP?FX.pitch.st:0, k=SRC.kind;
       var dv=E.trk[2], dg=E.trk[1], dd=E.trk[0];
-      if(k==='vocal'||k==='band') VOC.forEach(function(v){ if(v[0]===s) voice(a,k==='band'?dv:E.input,t,midi(v[1]+st),v[2]*dur,v[3],Math.floor(v[0]/4)); });
+      if(k==='vocal') VOC.forEach(function(v){ if(v[0]===s) voice(a,k==='band'?dv:E.input,t,midi(v[1]+st),v[2]*dur,v[3],Math.floor(v[0]/4)); });
       if(k==='guitar'||k==='band'){ var gi=GTR.indexOf(q); if(gi>=0) pluck(a,k==='band'?dg:E.input,t,midi(GN[gi]+(bar%2?2:0)+st),q===0?1.1:.7); if(k==='band'&&(q===0||q===10)) bass(a,dg,t,midi(ROOT[bar]-12+st),dur*5); }
       if(k==='drums'||k==='band'){ var dt=k==='band'?dd:E.input; if(q===0||q===7||q===10) kick(a,dt,t,.9); if(q===4||q===12) snare(a,dt,t,1); if(q%2===0) hat(a,dt,t,q%4===0?1:.6); }
       SRC.step++; SRC.next+=dur; } }
@@ -519,17 +519,17 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
   $('fxinfo').addEventListener('click',function(e){ var b=e.target.closest('[data-goto]'); if(b) go(+b.dataset.goto); });
 
   /* ═════════ AUX ═════════ */
-  var TR=[['🥁','드럼'],['🎸','기타·베이스'],['🎤','보컬']];
+  var TR=[['🥁','드럼'],['🎸','기타·베이스']];
   function drawAux(){ $('auxmix').innerHTML=TR.map(function(t,i){ return '<div class="strip"><span class="e">'+t[0]+'</span><h4>'+t[1]+'</h4><label>볼륨 '+aux.vol[i]+'</label><input type="range" min="0" max="100" value="'+aux.vol[i]+'" data-av="'+i+'" aria-label="'+t[1]+' 볼륨"><label>SEND → AUX '+aux.send[i]+'</label><input type="range" min="0" max="100" value="'+aux.send[i]+'" data-as="'+i+'" aria-label="'+t[1]+' 센드"></div>'; }).join('')+
-      '<div class="strip ret"><span class="e">🏛</span><h4>AUX 방 (공유 리버브)</h4><label>RETURN '+aux.ret+'</label><input type="range" min="0" max="100" value="'+aux.ret+'" data-ar="1" aria-label="AUX 리턴"><span style="font-size:12px;opacity:.85;text-align:center;line-height:1.5">세 트랙이 보낸 소리가<br>이 방 하나에서 함께 울려요</span></div>'; drawWire(); }
-  function drawWire(){ var xs=[125,375,625], X=875; $('wire').innerHTML=xs.map(function(x,i){ var w=aux.send[i]/100; return '<path d="M'+x+',10 C'+x+',80 '+X+',30 '+X+',110" stroke="rgba(5,150,105,'+(.12+w*.88)+')" stroke-width="'+(2+w*8)+'" stroke-dasharray="'+(w>0?'0':'6 6')+'"/>'; }).join('')+'<text x="500" y="60" text-anchor="middle" font-size="16" font-weight="900" fill="#059669">SEND 선이 굵을수록 AUX 방으로 많이 보내요</text>'; }
+      '<div class="strip ret"><span class="e">🏛</span><h4>AUX 방 (공유 리버브)</h4><label>RETURN '+aux.ret+'</label><input type="range" min="0" max="100" value="'+aux.ret+'" data-ar="1" aria-label="AUX 리턴"><span style="font-size:12px;opacity:.85;text-align:center;line-height:1.5">두 트랙이 보낸 소리가<br>이 방 하나에서 함께 울려요</span></div>'; drawWire(); }
+  function drawWire(){ var xs=[161,484], X=823; $('wire').innerHTML=xs.map(function(x,i){ var w=aux.send[i]/100; return '<path d="M'+x+',10 C'+x+',80 '+X+',30 '+X+',110" stroke="rgba(5,150,105,'+(.12+w*.88)+')" stroke-width="'+(2+w*8)+'" stroke-dasharray="'+(w>0?'0':'6 6')+'"/>'; }).join('')+'<text x="500" y="60" text-anchor="middle" font-size="16" font-weight="900" fill="#059669">SEND 선이 굵을수록 AUX 방으로 많이 보내요</text>'; }
   $('auxmix').addEventListener('input',function(e){ var t=e.target, i; if(t.dataset.av!=null){ i=+t.dataset.av; aux.vol[i]=+t.value; } else if(t.dataset.as!=null){ i=+t.dataset.as; aux.send[i]=+t.value; } else if(t.dataset.ar){ aux.ret=+t.value; } build(); applyAux(); var lb=t.previousElementSibling; if(lb) lb.textContent=lb.textContent.replace(/\d+$/,t.value); drawWire(); });
 
   /* ═════════ 의뢰서 ═════════ */
   var ORD=[
-    {e:'💭',t:'꿈속에서 부르는 노래',d:'“멀리서 들리는 것처럼 몽롱하게 해 주세요.”',src:'band',fx:{eq:{on:1,low:-3,mid:-2,mf:800,high:4},mod:{on:1,mode:'chorus',rate:.8,depth:60,mix:45},delay:{on:1,time:375,fb:35,mix:30},verb:{on:1,type:'hall',mix:70}}},
+    {e:'💭',t:'꿈속의 음악',d:'“멀리서 들리는 것처럼 몽롱하게 해 주세요.”',src:'band',fx:{eq:{on:1,low:-3,mid:-2,mf:800,high:4},mod:{on:1,mode:'chorus',rate:.8,depth:60,mix:45},delay:{on:1,time:375,fb:35,mix:30},verb:{on:1,type:'hall',mix:70}}},
     {e:'📻',t:'옛날 라디오',d:'“할머니 댁 라디오에서 나오는 소리!”',src:'guitar',noise:1,fx:{eq:{on:1,low:-15,mid:8,mf:1500,high:-15},tone:{on:1,mode:'sat',drive:60},comp:{on:1,thr:-30,ratio:6,att:5,rel:120,make:9}}},
-    {e:'🎤',t:'공연장 라이브',d:'“큰 무대에서 부르는 느낌, 목소리는 또렷하게.”',src:'band',fx:{comp:{on:1,thr:-26,ratio:4,att:8,rel:150,make:7},eq:{on:1,low:-2,mid:2,mf:2500,high:3},delay:{on:1,time:120,fb:10,mix:20},verb:{on:1,type:'hall',mix:35},lim:{on:1,thr:-2}}},
+    {e:'🎤',t:'공연장 라이브',d:'“큰 무대에서 연주하는 느낌, 소리는 또렷하게.”',src:'band',fx:{comp:{on:1,thr:-26,ratio:4,att:8,rel:150,make:7},eq:{on:1,low:-2,mid:2,mf:2500,high:3},delay:{on:1,time:120,fb:10,mix:20},verb:{on:1,type:'hall',mix:35},lim:{on:1,thr:-2}}},
     {e:'🤖',t:'로봇 기타',d:'“사람이 치는 것 같지 않은 기계 소리요!”',src:'guitar',fx:{pitch:{on:1,st:-4},mod:{on:1,mode:'flanger',rate:.5,depth:90,mix:70},rhy:{on:1,mode:'trem',div:16,depth:80},tone:{on:1,mode:'dist',drive:30}}},
     {e:'🤫',t:'작은 소리를 또렷하게',d:'“조용한 기타인데 귀에 쏙 들어오게.”',src:'guitar',fx:{eq:{on:1,low:-6,mid:0,mf:1000,high:7},comp:{on:1,thr:-34,ratio:5,att:3,rel:100,make:12},verb:{on:1,type:'room',mix:15}}}];
   var oi=0;
