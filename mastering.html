@@ -135,7 +135,7 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
 
 <div class="transport" id="transport" role="region" aria-label="재생 장치">
   <button class="play" id="play" type="button" aria-label="재생">▶</button>
-  <select id="src" aria-label="들을 곡"><option value="pop">🎵 데모 곡 (마스터링 전)</option><option value="file">📁 내 곡 파일</option><option value="game">🎮 장르 데모</option></select>
+  <select id="src" aria-label="들을 곡"><option value="pop">🎵 데모 곡 (마스터링 전)</option><option value="file">📁 내 곡 파일</option></select>
   <input type="file" id="file" accept="audio/*" hidden>
   <div class="ab" role="group" aria-label="원본과 마스터 비교"><button type="button" data-ab="0">A 원본</button><button type="button" data-ab="1" class="on">B 마스터</button></div>
   <button class="tb" id="match" type="button" title="원본과 마스터의 음량을 맞춰서 비교">🎚 음량 맞춰 비교</button>
@@ -344,9 +344,9 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
     else { SRC.step=0; SRC.next=a.currentTime+.06; tick(); SRC.timer=setInterval(tick,25); }
     SRC.on=true; $('play').textContent='■'; $('play').classList.add('on'); }
   function stopSrc(quiet){ SRC.on=false; clearInterval(SRC.timer); if(SRC.buf){ try{ SRC.buf.stop(); }catch(e){} SRC.buf=null; } if(!quiet){ $('play').textContent='▶'; $('play').classList.remove('on'); } }
-  function setKind(k){ SRC.kind=k; var o=$('src'); o.value=(k==='file'||k==='pop')?k:'game'; if(SRC.on) startSrc(); }
+  function setKind(k){ SRC.kind=k; var o=$('src'); if(k==='file'||k==='pop') o.value=k; else o.selectedIndex=-1; if(SRC.on) startSrc(); }
   $('play').addEventListener('click',function(){ if(SRC.on) stopSrc(); else startSrc(); });
-  $('src').addEventListener('change',function(){ if(this.value==='file'&&!SRC.fileBuf){ $('file').click(); return; } setKind(this.value==='game'?(gSel||'trap'):this.value); });
+  $('src').addEventListener('change',function(){ if(this.value==='file'&&!SRC.fileBuf){ $('file').click(); return; } setKind(this.value); });
   function loadFile(f){ if(!f) return; var a=ac(); if(!a) return; f.arrayBuffer().then(function(ab){ return a.decodeAudioData(ab); }).then(function(b){ SRC.fileBuf=b; SRC.name=f.name; $('drop').innerHTML='✅ <b>'+esc(f.name)+'</b> 불러왔어요! 위 재생 바에서 ▶ · 다 만들면 <b>⏺ 녹음</b>으로 저장<br><small style="font-weight:500">다른 파일로 바꾸려면 다시 눌러요.</small>'; setKind('file'); if(!SRC.on) startSrc(); note(); }).catch(function(){ $('drop').textContent='⚠️ 이 파일은 열 수 없어요. mp3나 wav 파일을 골라 주세요.'; }); }
   $('file').addEventListener('change',function(){ loadFile(this.files[0]); });
   var drop=$('drop'); ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.add('over'); }); }); ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.remove('over'); }); });
