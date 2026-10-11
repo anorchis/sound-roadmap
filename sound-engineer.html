@@ -155,6 +155,10 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
   .labwrap{ grid-template-columns:1fr; } .fams{ grid-template-columns:1fr; } .auxmix{ grid-template-columns:1fr 1fr; } .orders{ grid-template-columns:1fr 1fr; } .bigrack{ grid-template-columns:1fr; } .oneknob{ grid-template-columns:1fr 1fr; } .insend{ grid-template-columns:1fr; }
 }
 @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+/* 터치 화면: 작은 버튼을 손가락 크기로 */
+@media (pointer:coarse){
+  .modes button, [data-sync], .pill, .fxb{ min-height:40px; }
+}
 </style>
 </head>
 <body>

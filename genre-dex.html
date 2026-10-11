@@ -310,6 +310,11 @@ input[type=range]{ width:100%; accent-color:var(--tempo); height:28px; }
 .pn.wide{ grid-column:1 / -1; }
 .pn.wow{ background:#fff7ed; } .pn.wow b{ color:#b45309; }
 :root{ --rt:#b45309; }
+/* 터치 화면: 작은 버튼을 손가락 크기로 */
+@media (pointer:coarse){
+  .gchip, .chip{ min-height:40px; padding-left:14px; padding-right:14px; }
+  .chain button{ min-height:40px; }
+}
 </style>
 </head>
 <body>

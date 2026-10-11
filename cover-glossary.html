@@ -96,6 +96,10 @@ h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px
 .dots{ display:flex; gap:6px; } .dots i{ width:8px; height:8px; border-radius:99px; background:#dcd9ea; cursor:pointer; transition:all .3s; } .dots i.on{ width:24px; background:var(--style); }
 @media (max-width:900px){ .slide{ padding:20px 14px 84px; } .lab, .builder{ grid-template-columns:1fr; } .ethic{ grid-template-columns:1fr 1fr; } }
 @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+/* 터치 화면: 작은 버튼을 손가락 크기로 */
+@media (pointer:coarse){
+  .neg button, .btns button, .pill{ min-height:40px; }
+}
 </style>
 </head>
 <body>

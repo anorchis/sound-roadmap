@@ -115,6 +115,10 @@ button{ font-family:inherit; cursor:pointer; }
 .out{ background:var(--panel); border-radius:14px; padding:12px 14px; font-family:'Consolas','D2Coding',monospace; font-size:13px; white-space:pre-wrap; line-height:1.65; margin-top:8px; }
 @media (max-width:760px){ .allrow{ grid-template-columns:repeat(3,1fr); } .kiseung{ grid-template-columns:1fr 1fr; } }
 @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+/* 터치 화면: 갈림길 버튼을 손가락 크기로 */
+@media (pointer:coarse){
+  .chip{ min-height:36px; padding:6px 14px; }
+}
 </style>
 </head>
 <body>
