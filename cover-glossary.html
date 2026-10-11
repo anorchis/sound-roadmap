@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커버 이미지 용어 사전</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{ --ink:#15132b; --sub:#5b5873; --faint:#a3a0b8; --line:#ebe9f3; --panel:#f6f5fb;
+  --cam:#0ea5e9; --light:#f59e0b; --q:#10b981; --style:#e11d48; --comp:#7c3aed; --color:#db2777; --neg:#475569;
+  --display:'Black Han Sans',sans-serif; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ background:#fff; }
+body{ font-family:'Noto Sans KR',sans-serif; color:var(--ink); width:100vw; height:100vh; overflow:hidden; }
+button{ font-family:inherit; cursor:pointer; } input{ font-family:inherit; }
+.dotsbg{ position:fixed; inset:0; pointer-events:none; background-image:radial-gradient(#e9e7f2 1.2px,transparent 1.2px); background-size:22px 22px; mask-image:radial-gradient(ellipse at center,#000 35%,transparent 80%); }
+.deck{ position:relative; z-index:1; width:100%; height:100%; }
+.slide{ position:absolute; inset:0; display:flex; justify-content:center; padding:28px 40px 84px; opacity:0; transform:translateX(70px); transition:opacity .45s, transform .45s; pointer-events:none; overflow-y:auto; }
+.slide.active{ opacity:1; transform:none; pointer-events:all; } .slide.prev{ transform:translateX(-70px); }
+.inner{ width:100%; max-width:1180px; display:flex; flex-direction:column; align-items:center; gap:16px; margin:auto 0; }
+.slide.active .inner > *{ animation:up .5s ease both; animation-delay:calc(var(--i,0)*60ms); }
+@keyframes up{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+.tag{ font-size:12px; font-weight:900; letter-spacing:3px; padding:6px 16px; border-radius:20px; border:1.5px solid currentColor; background:#fff; }
+h1{ font-family:var(--display); font-weight:400; font-size:clamp(40px,6vw,82px); line-height:1.08; text-align:center; }
+h2{ font-family:var(--display); font-weight:400; font-size:clamp(26px,3.3vw,44px); line-height:1.2; text-align:center; }
+.sub{ font-size:clamp(14px,1.6vw,18px); color:var(--sub); text-align:center; line-height:1.75; } .sub b{ color:var(--ink); }
+.cap{ font-size:12.5px; color:var(--faint); text-align:center; line-height:1.6; }
+.pill{ padding:8px 15px; border-radius:22px; font-size:13.5px; font-weight:900; border:2px solid var(--line); background:#fff; color:var(--sub); transition:all .2s; }
+.pill:hover{ border-color:#c9c5dc; color:var(--ink); }
+.pill.on{ background:var(--pc,var(--ink)); border-color:var(--pc,var(--ink)); color:#fff; box-shadow:0 8px 18px rgba(21,19,43,.15); }
+.btns{ display:flex; gap:7px; flex-wrap:wrap; justify-content:center; }
+
+/* 미리보기 + 설명 */
+.lab{ width:100%; display:grid; grid-template-columns:minmax(300px,480px) 1fr; gap:22px; align-items:start; }
+.frame{ position:relative; width:100%; aspect-ratio:1/1; border-radius:18px; overflow:hidden; box-shadow:0 26px 50px rgba(21,19,43,.18),0 0 0 1px rgba(21,19,43,.06); background:#eee; }
+.frame canvas{ width:100%; height:100%; display:block; image-rendering:auto; }
+.frame .badge{ position:absolute; top:10px; left:10px; font-size:11.5px; font-weight:900; background:rgba(255,255,255,.88); border-radius:99px; padding:3px 10px; }
+.frame .ov{ position:absolute; inset:0; pointer-events:none; }
+.frame .ov.thirds{ background-image:linear-gradient(90deg,transparent calc(33.33% - 1px),rgba(255,255,255,.85) calc(33.33% - 1px),rgba(255,255,255,.85) 33.33%,transparent 33.33%,transparent calc(66.66% - 1px),rgba(255,255,255,.85) calc(66.66% - 1px),rgba(255,255,255,.85) 66.66%,transparent 66.66%),linear-gradient(0deg,transparent calc(33.33% - 1px),rgba(255,255,255,.85) calc(33.33% - 1px),rgba(255,255,255,.85) 33.33%,transparent 33.33%,transparent calc(66.66% - 1px),rgba(255,255,255,.85) calc(66.66% - 1px),rgba(255,255,255,.85) 66.66%,transparent 66.66%); }
+.frame .title{ position:absolute; left:8%; top:9%; font-family:var(--display); font-size:clamp(20px,3.2vw,40px); color:#fff; letter-spacing:2px; text-shadow:0 2px 10px rgba(0,0,0,.35); pointer-events:none; }
+.frame .title small{ display:block; font-family:'Noto Sans KR'; font-size:12px; letter-spacing:4px; opacity:.85; }
+.def{ display:flex; flex-direction:column; gap:10px; }
+.term{ border-radius:20px; background:#fff; border:2px solid var(--line); padding:14px 18px; }
+.term .en{ font-family:'Consolas','D2Coding',monospace; font-size:14px; color:var(--tc); font-weight:700; }
+.term h3{ font-family:var(--display); font-weight:400; font-size:30px; line-height:1.15; }
+.term p{ font-size:14.5px; color:var(--sub); line-height:1.65; margin-top:4px; } .term p b{ color:var(--ink); }
+.term .see{ margin-top:8px; font-size:13.5px; background:var(--panel); border-radius:12px; padding:8px 12px; line-height:1.6; }
+.ctrl{ display:flex; flex-direction:column; gap:8px; }
+.ctrl label{ font-size:12.5px; font-weight:900; color:var(--sub); }
+.sl{ display:grid; grid-template-columns:70px 1fr 70px; gap:8px; align-items:center; font-size:12.5px; font-weight:900; color:var(--sub); }
+.sl input{ width:100%; accent-color:var(--tc,var(--ink)); }
+.bigval{ font-family:var(--display); font-size:34px; color:var(--tc); text-align:center; }
+.warn{ border-radius:16px; background:#fff7ed; border:1.5px solid #fed7aa; padding:10px 14px; font-size:13.5px; line-height:1.6; color:#7c2d12; }
+.warn b{ color:#c2410c; }
+
+/* 프롬프트 해부 */
+.prompt{ width:100%; max-width:1000px; border-radius:22px; background:#15132b; color:#e9e7ff; padding:22px 24px; font-family:'Consolas','D2Coding',monospace; font-size:clamp(14px,1.6vw,18px); line-height:2.1; }
+.prompt .t{ border-radius:8px; padding:2px 6px; cursor:pointer; border-bottom:3px solid var(--tc); transition:all .2s; }
+.prompt .t:hover, .prompt .t.on{ background:var(--tc); color:#fff; }
+.legend{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; font-size:12.5px; font-weight:900; }
+.legend span{ display:inline-flex; align-items:center; gap:5px; } .legend i{ width:12px; height:12px; border-radius:4px; }
+.pop{ width:100%; max-width:1000px; min-height:70px; border-radius:18px; border:2px dashed var(--line); padding:12px 18px; font-size:15px; line-height:1.65; color:var(--sub); }
+.pop b{ color:var(--ink); }
+
+/* 스타일 격자 */
+.stylegrid{ display:grid; grid-template-columns:repeat(2,1fr); gap:7px; }
+.stylegrid button{ text-align:left; border:2px solid var(--line); background:#fff; border-radius:14px; padding:8px 11px; display:flex; flex-direction:column; gap:1px; transition:all .2s; }
+.stylegrid button b{ font-size:14px; } .stylegrid button small{ font-family:'Consolas','D2Coding',monospace; font-size:11.5px; color:var(--faint); }
+.stylegrid button.on{ border-color:var(--style); background:#fff1f2; }
+
+/* 글자 깨짐 */
+.garble{ font-family:var(--display); font-size:clamp(26px,3.6vw,46px); letter-spacing:3px; color:#fff; text-align:center; }
+.garble span{ display:inline-block; animation:jit 1.6s ease-in-out infinite alternate; }
+@keyframes jit{ to{ transform:translateY(-3px) rotate(4deg); } }
+.neg{ display:flex; flex-wrap:wrap; gap:6px; }
+.neg button{ border:2px solid var(--line); background:#fff; border-radius:12px; padding:6px 11px; font-size:13px; font-weight:700; font-family:'Consolas','D2Coding',monospace; }
+.neg button.on{ border-color:var(--neg); background:var(--neg); color:#fff; }
+.ethic{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:100%; }
+.ethic div{ border-radius:16px; background:#fef2f2; padding:12px; font-size:13px; line-height:1.55; } .ethic b{ display:block; font-size:14px; color:#b91c1c; margin-bottom:2px; }
+
+/* 조립기 */
+.builder{ width:100%; display:grid; grid-template-columns:minmax(280px,420px) 1fr; gap:18px; align-items:start; }
+.groups{ display:flex; flex-direction:column; gap:8px; }
+.grp{ border-radius:16px; background:var(--panel); padding:9px 12px; }
+.grp h4{ font-size:12px; font-weight:900; letter-spacing:1.5px; color:var(--gc); margin-bottom:6px; }
+.grp .btns{ justify-content:flex-start; gap:5px; } .grp .pill{ padding:5px 11px; font-size:12.5px; --pc:var(--gc); }
+.subject{ width:100%; border:2px solid var(--line); border-radius:12px; padding:9px 12px; font-size:14.5px; outline:none; }
+.subject:focus{ border-color:var(--style); }
+.out{ background:#15132b; color:#e9e7ff; border-radius:16px; padding:14px 16px; font-family:'Consolas','D2Coding',monospace; font-size:13px; white-space:pre-wrap; line-height:1.7; }
+.msg{ font-size:13px; font-weight:900; color:#16a34a; }
+
+.nav{ position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:30; display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.92); backdrop-filter:blur(10px); border:1px solid var(--line); border-radius:99px; padding:6px 10px; box-shadow:0 10px 30px rgba(21,19,43,.1); }
+.nav button{ width:38px; height:38px; border-radius:50%; border:none; background:var(--panel); font-size:15px; }
+.nav button:disabled{ opacity:.3; }
+.dots{ display:flex; gap:6px; } .dots i{ width:8px; height:8px; border-radius:99px; background:#dcd9ea; cursor:pointer; transition:all .3s; } .dots i.on{ width:24px; background:var(--style); }
+@media (max-width:900px){ .slide{ padding:20px 14px 84px; } .lab, .builder{ grid-template-columns:1fr; } .ethic{ grid-template-columns:1fr 1fr; } }
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="dotsbg" aria-hidden="true"></div>
+<div class="deck" id="deck">
+
+  <!-- 1 표지 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--style)">COVER ART GLOSSARY</span>
+    <div class="frame" style="width:min(340px,70vw)"><canvas id="cv-cover" width="480" height="480" aria-label="스타일이 바뀌는 앨범 커버 예시"></canvas><span class="badge" id="coverBadge"></span></div>
+    <h1>커버 이미지 <span style="color:var(--style)">용어 사전</span></h1>
+    <p class="sub">보케? 8K? 펜화? AI가 써 준 프롬프트 속 낯선 단어를<br><b>눈으로 바로 보면서</b> 익혀요. 모든 그림은 이 화면에서 직접 그려져요.</p>
+  </div></section>
+
+  <!-- 2 프롬프트 해부 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--comp)">ANATOMY · 프롬프트 해부</span>
+    <h2>AI가 써 준 프롬프트, <span style="color:var(--comp)">어디가 무슨 뜻?</span></h2>
+    <div class="legend" id="legend"></div>
+    <div class="prompt" id="prompt"></div>
+    <div class="pop" id="pop">색칠된 단어를 눌러 보세요. 뜻과 함께 어느 장면에서 직접 볼 수 있는지 알려 줘요.</div>
+  </div></section>
+
+  <!-- 3 보케·심도 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--cam)">CAMERA ① · 초점</span>
+    <h2>보케와 <span style="color:var(--cam)">얕은 심도</span></h2>
+    <div class="lab" style="--tc:var(--cam)">
+      <div class="frame"><canvas id="cv-dof" width="480" height="480"></canvas><span class="badge" id="dofBadge"></span></div>
+      <div class="def">
+        <div class="term" style="--tc:var(--cam)"><span class="en">bokeh · 보케</span><h3>배경 불빛이 동글동글</h3><p>일본어 <b>‘흐림(暈け)’</b>에서 온 말이에요. 초점이 맞지 않은 곳의 불빛이 <b>동그란 빛망울</b>로 번지는 모습이에요.</p></div>
+        <div class="term" style="--tc:var(--cam)"><span class="en">shallow depth of field · 얕은 심도</span><p>초점이 맞는 범위가 얇아서 <b>주인공만 또렷하고 배경은 흐려요.</b> 보케와 짝꿍이에요.</p></div>
+        <div class="ctrl"><label>🔭 조리개 f값 (작을수록 배경이 더 흐려요)</label><div class="sl"><span>f/16 또렷</span><input type="range" id="fnum" min="0" max="100" value="70" aria-label="조리개"><span>f/1.4 흐림</span></div><div class="bigval" id="fval">f/2.8</div>
+          <label>📏 렌즈 mm (클수록 확대)</label><div class="btns" id="lens"></div></div>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- 4 빛 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--light)">CAMERA ② · 빛</span>
+    <h2>빛만 바꿔도 <span style="color:var(--light)">이야기가 바뀌어요</span></h2>
+    <div class="lab" style="--tc:var(--light)">
+      <div class="frame"><canvas id="cv-light" width="480" height="480"></canvas><span class="badge" id="lightBadge"></span></div>
+      <div class="def"><div class="btns" id="lightBtns" style="justify-content:flex-start"></div><div class="term" id="lightTerm" style="--tc:var(--light)"></div></div>
+    </div>
+  </div></section>
+
+  <!-- 5 특수 효과 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--cam)">CAMERA ③ · 사진 효과</span>
+    <h2>필름 그레인 · 장노출 · <span style="color:var(--cam)">틸트 시프트</span></h2>
+    <div class="lab" style="--tc:var(--cam)">
+      <div class="frame"><canvas id="cv-fx" width="480" height="480"></canvas><span class="badge" id="fxBadge"></span></div>
+      <div class="def"><div class="btns" id="fxBtns" style="justify-content:flex-start"></div><div class="term" id="fxTerm" style="--tc:var(--cam)"></div></div>
+    </div>
+  </div></section>
+
+  <!-- 6 화질 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--q)">QUALITY · 화질</span>
+    <h2>8K라고 쓰면 <span style="color:var(--q)">진짜 8K가 될까?</span></h2>
+    <div class="lab" style="--tc:var(--q)">
+      <div class="frame"><canvas id="cv-res" width="480" height="480"></canvas><span class="badge" id="resBadge"></span></div>
+      <div class="def">
+        <div class="ctrl"><label>📺 해상도</label><div class="sl"><span>240p</span><input type="range" id="res" min="0" max="5" step="1" value="5" aria-label="해상도"><span>8K</span></div><div class="bigval" id="resval">8K</div></div>
+        <div class="term" style="--tc:var(--q)"><span class="en">8K resolution · 8K 해상도</span><p>가로 <b>7680 × 세로 4320</b> 점(픽셀)으로 된 화면이에요. 4K의 4배, 풀HD의 16배예요.</p><div class="see">⚠️ 프롬프트에 “8K”를 넣는다고 실제로 8K 그림이 나오지는 않아요. 실제 크기는 도구가 정해요. AI에게는 <b>“아주 선명하고 디테일하게”</b>라는 주문으로 통해요.</div></div>
+        <div class="term" style="--tc:var(--q)"><span class="en">highly detailed · sharp focus · photorealistic · 3D render</span><p><b>highly detailed</b> 아주 세밀하게 · <b>sharp focus</b> 또렷한 초점 · <b>photorealistic</b> 사진처럼 · <b>hyperrealistic</b> 사진보다 더 사진같이 · <b>3D render / octane render / unreal engine</b> 게임·애니메이션 같은 매끈한 3D 느낌 (3D 프로그램 이름이에요)</p></div>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- 7 스타일 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--style)">STYLE · 그림 스타일</span>
+    <h2>같은 장면, <span style="color:var(--style)">열 가지 붓</span></h2>
+    <div class="lab" style="--tc:var(--style)">
+      <div class="frame"><canvas id="cv-style" width="480" height="480"></canvas><span class="badge" id="styleBadge"></span></div>
+      <div class="def"><div class="stylegrid" id="styleGrid"></div><div class="term" id="styleTerm" style="--tc:var(--style)"></div></div>
+    </div>
+  </div></section>
+
+  <!-- 8 구도 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--comp)">COMPOSITION · 구도와 시점</span>
+    <h2>카메라를 <span style="color:var(--comp)">어디에</span> 둘까?</h2>
+    <div class="lab" style="--tc:var(--comp)">
+      <div class="frame"><canvas id="cv-comp" width="480" height="480"></canvas><div class="ov" id="compOv"></div><div class="title" id="compTitle" hidden><small>SINGLE</small>MY SONG</div><span class="badge" id="compBadge"></span></div>
+      <div class="def"><div class="btns" id="compBtns" style="justify-content:flex-start"></div><div class="term" id="compTerm" style="--tc:var(--comp)"></div><div class="warn">📐 <b>1:1 (square)</b> = 정사각형. 앨범 커버의 기본 비율이라 프롬프트 끝에 <b>“square, 1:1”</b>이 자주 붙어요. 이 슬라이드의 그림도 모두 1:1이에요.</div></div>
+    </div>
+  </div></section>
+
+  <!-- 9 색감 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--color)">COLOR · 색감과 분위기</span>
+    <h2>색 한 단어로 <span style="color:var(--color)">기분이 바뀌어요</span></h2>
+    <div class="lab" style="--tc:var(--color)">
+      <div class="frame"><canvas id="cv-color" width="480" height="480"></canvas><span class="badge" id="colorBadge"></span></div>
+      <div class="def"><div class="btns" id="colorBtns" style="justify-content:flex-start"></div><div class="term" id="colorTerm" style="--tc:var(--color)"></div></div>
+    </div>
+  </div></section>
+
+  <!-- 10 네거티브 + 윤리 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--neg)">NEGATIVE · 빼 줘 목록과 약속</span>
+    <h2>“이건 <span style="color:var(--neg)">빼 줘</span>”도 프롬프트예요</h2>
+    <div class="lab" style="--tc:var(--neg)">
+      <div class="frame"><canvas id="cv-neg" width="480" height="480"></canvas><div class="ov" style="display:flex;align-items:flex-start;justify-content:center;padding-top:12%"><div class="garble" id="garble"></div></div><span class="badge">AI가 글자를 쓰면…</span></div>
+      <div class="def">
+        <div class="term" style="--tc:var(--neg)"><span class="en">negative prompt · 네거티브 프롬프트</span><p>그림에 <b>나오지 않았으면 하는 것</b>의 목록이에요. 눌러서 담아 보세요.</p><div class="neg" id="negBtns" style="margin-top:8px"></div></div>
+        <div class="term" style="--tc:var(--neg)"><span class="en">text in image</span><p><b>AI는 글자에 약해요.</b> 제목 글자를 그리게 하면 철자가 깨지기 쉬워요(왼쪽처럼!). 그래서 <b>여백(negative space)만 만들고 글자는 나중에 직접</b> 넣어요.</p></div>
+      </div>
+    </div>
+    <div class="ethic"><div><b>🎨 화가 이름 ✗</b>“○○ 화가 스타일”처럼 실제 작가 이름을 넣지 않아요</div><div><b>🏯 스튜디오 이름 ✗</b>특정 애니메이션 회사 그림체를 따라 하지 않아요</div><div><b>🙂 실존 인물 ✗</b>연예인, 친구 등 진짜 사람 얼굴을 만들지 않아요</div><div><b>🧸 유명 캐릭터 ✗</b>저작권이 있는 캐릭터를 넣지 않아요</div></div>
+  </div></section>
+
+  <!-- 11 조립기 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--style)">BUILD · 내 커버 프롬프트</span>
+    <h2>용어를 골라 <span style="color:var(--style)">내 곡 커버</span>를 주문해요</h2>
+    <div class="builder">
+      <div style="display:flex;flex-direction:column;gap:10px"><div class="frame"><canvas id="cv-build" width="480" height="480"></canvas><div class="ov" id="buildOv"></div><span class="badge">미리보기 (흉내)</span></div></div>
+      <div class="groups">
+        <input class="subject" id="subj" placeholder="장면(영어로 쓰면 더 좋아요) 예: a teenager with headphones on a rooftop" aria-label="장면">
+        <div id="groups"></div>
+        <div class="out" id="out"></div>
+        <div class="btns" style="justify-content:flex-start"><button class="pill on" type="button" id="copy" style="--pc:var(--style)">📋 프롬프트 복사</button><span class="msg" id="msg"></span></div>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- 12 마무리 -->
+  <section class="slide"><div class="inner">
+    <span class="tag" style="color:var(--style)">REMEMBER</span>
+    <h1>단어를 알면<br><span style="color:var(--style)">AI에게 정확히 주문</span>할 수 있어요</h1>
+    <p class="sub">프롬프트는 AI가 써 줘도, <b>무슨 뜻인지 알고 고르는 건 우리</b>예요.<br>내 곡의 이야기와 어울리는 빛·스타일·색을 고른 이유를 말할 수 있으면 완성!</p>
+    <p class="cap">이 슬라이드의 그림은 모두 브라우저에서 도형으로 직접 그린 흉내예요. 실제 AI 이미지 결과는 도구와 프롬프트에 따라 달라요.</p>
+  </div></section>
+</div>
+<div class="nav"><button type="button" id="prev" aria-label="이전">◀</button><span class="dots" id="dots"></span><button type="button" id="next" aria-label="다음">▶</button></div>
+
+<script>
+(function(){
+  var $=function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches, S=480;
+
+  /* ═════════ 그림 엔진: 옥상 위 헤드폰 소년/소녀 + 도시 ═════════ */
+  function rng(seed){ var s=seed; return function(){ s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+  var TIMES={
+    day:{sky:['#7cc8ff','#d9f0ff'],sun:'#fff7c2',sunXY:[.78,.2],lights:0,ground:'#6b7280',bld:'#94a3b8',body:'#ef6f6c',skin:'#f2c9a5',hair:'#3b2f2f'},
+    golden:{sky:['#ff8a3d','#ffd27a'],sun:'#ffb347',sunXY:[.72,.5],lights:.4,ground:'#5b3a29',bld:'#7c4a3a',body:'#ef6f6c',skin:'#f6c08f',hair:'#3b2f2f'},
+    blue:{sky:['#1e3a8a','#7f9bd9'],sun:'#cfe0ff',sunXY:[.8,.18],lights:1,ground:'#1f2937',bld:'#273552',body:'#e2557a',skin:'#c7a389',hair:'#1f1a1a'},
+    night:{sky:['#070b1f','#2a1f4f'],sun:'#f3f4ff',sunXY:[.78,.16],lights:1,ground:'#111827',bld:'#1c2238',body:'#d6456f',skin:'#b08c76',hair:'#120f0f'}};
+  function mk(w,h){ var c=document.createElement('canvas'); c.width=w; c.height=h; return c; }
+  function base(o){ var T=TIMES[o.time||'blue'], cv=mk(S,S), c=cv.getContext('2d');
+    // 구도 계산
+    var ang=o.angle||'eye', shot=o.shot||'medium', horizon=ang==='low'?.86:ang==='bird'?-1:.64;
+    var sc={close:2.1,medium:1,wide:.5}[shot]||1; if(ang==='low') sc*=1.25; var px=o.thirds?S*.67:S*.5; if(o.neg) { sc*=.55; px=S*.7; }
+    // 하늘
+    if(ang!=='bird'){ var g=c.createLinearGradient(0,0,0,S*horizon); g.addColorStop(0,T.sky[0]); g.addColorStop(1,T.sky[1]); c.fillStyle=g; c.fillRect(0,0,S,S);
+      // 별
+      if(o.time==='night'){ var r0=rng(7); c.fillStyle='rgba(255,255,255,.8)'; for(var i=0;i<60;i++) c.fillRect(r0()*S,r0()*S*.5,1.4,1.4); }
+      // 해/달
+      var sx=T.sunXY[0]*S, sy=T.sunXY[1]*S; if(o.backlight){ sx=px; sy=S*horizon*.62; }
+      if(o.style==='synth'){ sx=S*.5; sy=S*.5; var rr=S*.24, lg=c.createLinearGradient(0,sy-rr,0,sy); lg.addColorStop(0,'#ffe66d'); lg.addColorStop(1,'#ff3d81'); c.fillStyle=lg; c.beginPath(); c.arc(sx,sy,rr,Math.PI,0); c.fill(); c.fillStyle=T.sky[1]; for(var bb=0;bb<6;bb++) c.fillRect(sx-rr,sy-rr*.5+bb*rr*.1,rr*2,2+bb*1.2); }
+      else { var sg=c.createRadialGradient(sx,sy,0,sx,sy,S*.16); sg.addColorStop(0,T.sun); sg.addColorStop(.35,T.sun); sg.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=sg; c.beginPath(); c.arc(sx,sy,S*.16,0,7); c.fill(); }
+      o._sun=[sx,sy]; }
+    else { c.fillStyle=T.ground; c.fillRect(0,0,S,S); }
+    return {cv:cv,c:c,T:T,horizon:horizon,sc:sc,px:px,ang:ang}; }
+  function city(L,o,blur){ var c=L.c, T=L.T, r=rng(42), hz=L.horizon;
+    var layer=mk(S,S), lc=layer.getContext('2d'), lights=[];
+    if(L.ang==='bird'){ // 위에서 본 도시: 건물 지붕과 도로
+      lc.fillStyle=T.ground; lc.fillRect(0,0,S,S); for(var gx=0;gx<6;gx++) for(var gy=0;gy<6;gy++){ lc.fillStyle=T.bld; lc.fillRect(gx*82+14,gy*82+14,58,58); if(T.lights) lights.push([gx*82+43,gy*82+43,'#ffd27a']); }
+      lc.strokeStyle='rgba(255,255,255,.35)'; lc.setLineDash([10,10]); for(var k=0;k<6;k++){ lc.beginPath(); lc.moveTo(k*82+4,0); lc.lineTo(k*82+4,S); lc.stroke(); } lc.setLineDash([]); }
+    else {
+      var y0=S*hz;
+      for(var x=-10;x<S;){ var w=24+r()*46, h=(L.ang==='low'?.5:.28)*S*(.35+r()*.9); lc.fillStyle=T.bld; lc.fillRect(x,y0-h,w,h+4);
+        for(var wy=y0-h+8;wy<y0-6;wy+=12) for(var wx=x+5;wx<x+w-6;wx+=10) if(r()<.45*(T.lights||.15)+.05) lights.push([wx+2,wy+3,r()<.8?'#ffd27a':'#9be7ff']);
+        x+=w+3; }
+      lc.fillStyle=T.ground; lc.fillRect(0,y0,S,S-y0);
+      // 옥상 난간
+      lc.fillStyle='rgba(0,0,0,.25)'; lc.fillRect(0,y0+S*.06,S,4); }
+    c.save(); if(blur) c.filter='blur('+blur+'px)'; c.drawImage(layer,0,0); c.restore();
+    // 불빛: 보케
+    var on=T.lights||(o.time==='golden'?.4:0); if(on){ lights.forEach(function(l,i){ if(i%2&&!blur) return; var rr=blur?2+blur*1.9:1.6; var gg=c.createRadialGradient(l[0],l[1],0,l[0],l[1],rr); gg.addColorStop(0,l[2]); gg.addColorStop(blur?.7:.4,l[2]); gg.addColorStop(1,'rgba(255,255,255,0)'); c.globalAlpha=blur?.55:.95; c.fillStyle=gg; c.beginPath(); c.arc(l[0],l[1],rr,0,7); c.fill(); }); c.globalAlpha=1; } }
+  function person(L,o){ var c=L.c, T=L.T, s=L.sc*S/480, x=L.px, y=L.ang==='bird'?S*.55:S*(L.ang==='low'?1.02:1.0)+(o.shot==='close'?S*.35:0);
+    var dark=o.backlight, body=dark?'#0d0d14':T.body, skin=dark?'#0d0d14':T.skin, hair=dark?'#0d0d14':T.hair, phones=dark?'#0d0d14':'#f8fafc';
+    c.save(); c.translate(x,y); c.scale(s,s);
+    if(L.ang==='bird'){ // 위에서 본 사람
+      c.fillStyle='rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(18,14,95,60,0,0,7); c.fill();
+      c.fillStyle=body; c.beginPath(); c.ellipse(0,0,95,58,0,0,7); c.fill(); c.fillStyle=hair; c.beginPath(); c.arc(0,-6,44,0,7); c.fill();
+      c.strokeStyle=phones; c.lineWidth=10; c.beginPath(); c.arc(0,-6,46,Math.PI*1.05,Math.PI*1.95); c.stroke(); c.fillStyle=phones; c.fillRect(-56,-22,18,32); c.fillRect(38,-22,18,32); c.restore(); return; }
+    if(o.rim||o.backlight){ c.shadowColor=o.time==='golden'?'#ffcf7a':'#bfe1ff'; c.shadowBlur=26; }
+    // 몸(후드)
+    c.fillStyle=body; c.beginPath(); c.moveTo(-120,0); c.quadraticCurveTo(-118,-150,-40,-170); c.lineTo(40,-170); c.quadraticCurveTo(118,-150,120,0); c.closePath(); c.fill();
+    // 목, 얼굴
+    c.fillStyle=skin; c.fillRect(-18,-200,36,40); c.beginPath(); c.ellipse(0,-245,50,58,0,0,7); c.fill();
+    c.fillStyle=hair; c.beginPath(); c.ellipse(0,-268,54,44,0,Math.PI,0); c.fill(); c.beginPath(); c.ellipse(-30,-262,28,30,-.4,0,7); c.fill();
+    c.shadowBlur=0;
+    // 헤드폰
+    c.strokeStyle=phones; c.lineWidth=12; c.lineCap='round'; c.beginPath(); c.arc(0,-250,64,Math.PI*1.08,Math.PI*1.92); c.stroke();
+    c.fillStyle=phones; c.beginPath(); c.roundRect?c.roundRect(-74,-268,24,48,10):c.rect(-74,-268,24,48); c.fill(); c.beginPath(); c.roundRect?c.roundRect(50,-268,24,48,10):c.rect(50,-268,24,48); c.fill();
+    if(!dark){ c.fillStyle='rgba(0,0,0,.55)'; c.beginPath(); c.arc(-17,-246,4.5,0,7); c.arc(17,-246,4.5,0,7); c.fill(); }
+    c.restore(); }
+  function rays(L,o){ var c=L.c, s=o._sun||[S*.8,S*.2]; c.save(); c.globalCompositeOperation='lighter'; for(var i=0;i<9;i++){ var a=Math.PI*.55+i*.11, g=c.createLinearGradient(s[0],s[1],s[0]+Math.cos(a)*S,s[1]+Math.sin(a)*S); g.addColorStop(0,'rgba(255,240,200,.32)'); g.addColorStop(1,'rgba(255,240,200,0)'); c.fillStyle=g; c.beginPath(); c.moveTo(s[0],s[1]); c.lineTo(s[0]+Math.cos(a-.03)*S*1.4,s[1]+Math.sin(a-.03)*S*1.4); c.lineTo(s[0]+Math.cos(a+.03)*S*1.4,s[1]+Math.sin(a+.03)*S*1.4); c.fill(); } c.restore(); }
+  function flare(L,o){ var c=L.c, s=o._sun||[S*.8,S*.2], cx=S/2, cy=S/2; c.save(); c.globalCompositeOperation='lighter';
+    [[.3,26,'rgba(255,200,120,.35)'],[.55,14,'rgba(140,200,255,.35)'],[.8,40,'rgba(255,120,200,.2)'],[1.2,18,'rgba(160,255,200,.3)'],[1.5,60,'rgba(255,220,150,.15)']].forEach(function(f){ var x=s[0]+(cx-s[0])*f[0]*2, y=s[1]+(cy-s[1])*f[0]*2, g=c.createRadialGradient(x,y,0,x,y,f[1]); g.addColorStop(0,f[2]); g.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=g; c.beginPath(); c.arc(x,y,f[1],0,7); c.fill(); });
+    c.strokeStyle='rgba(255,240,210,.45)'; c.lineWidth=2; c.beginPath(); c.moveTo(s[0]-120,s[1]); c.lineTo(s[0]+120,s[1]); c.stroke(); c.restore(); }
+  function trails(L){ var c=L.c, y=S*L.horizon+S*.12; c.save(); c.globalCompositeOperation='lighter'; c.lineCap='round';
+    for(var i=0;i<9;i++){ var col=i%2?'rgba(255,60,60,.8)':'rgba(255,245,220,.85)', yy=y+i*5; c.strokeStyle=col; c.lineWidth=2.4; c.shadowColor=col; c.shadowBlur=10; c.beginPath(); c.moveTo(-10,yy+20); c.bezierCurveTo(S*.3,yy-10,S*.7,yy+10,S+10,yy-15); c.stroke(); } c.restore(); }
+  function tilt(L){ var c=L.c, cp=mk(S,S), x=cp.getContext('2d'); x.filter='blur(7px) saturate(1.4)'; x.drawImage(L.cv,0,0);
+    [[0,.34,1],[.7,1,0]].forEach(function(b){ var g=c.createLinearGradient(0,b[0]*S,0,b[1]*S); c.save(); var mask=mk(S,S), m=mask.getContext('2d'); var mg=m.createLinearGradient(0,b[0]*S,0,b[1]*S); mg.addColorStop(0,b[2]?'#000':'rgba(0,0,0,0)'); mg.addColorStop(1,b[2]?'rgba(0,0,0,0)':'#000'); m.fillStyle=mg; m.fillRect(0,b[0]*S,S,(b[1]-b[0])*S); m.globalCompositeOperation='source-in'; m.drawImage(cp,0,0); c.drawImage(mask,0,0); c.restore(); }); }
+  function cinematic(L){ var c=L.c, g=c.createRadialGradient(S/2,S/2,S*.25,S/2,S/2,S*.75); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.6)'); c.fillStyle=g; c.fillRect(0,0,S,S); c.fillStyle='#000'; c.fillRect(0,0,S,S*.1); c.fillRect(0,S*.9,S,S*.1); }
+  // 픽셀 처리
+  function px(L,fn){ var d=L.c.getImageData(0,0,S,S), a=d.data; for(var i=0;i<a.length;i+=4){ var r=fn(a[i],a[i+1],a[i+2],i); a[i]=r[0]; a[i+1]=r[1]; a[i+2]=r[2]; } L.c.putImageData(d,0,0); }
+  function lum(r,g,b){ return .299*r+.587*g+.114*b; }
+  function hex(h){ var n=parseInt(h.slice(1),16); return [n>>16,(n>>8)&255,n&255]; }
+  function grain(L,amt){ var r=rng(99); px(L,function(R,G,B){ var n=(r()-.5)*amt; return [R+n,G+n,B+n]; }); }
+  function pixelate(L,cells){ var t=mk(cells,cells), x=t.getContext('2d'); x.imageSmoothingEnabled=true; x.drawImage(L.cv,0,0,cells,cells); L.c.imageSmoothingEnabled=false; L.c.drawImage(t,0,0,S,S); L.c.imageSmoothingEnabled=true; }
+  function styleIt(L,st){ var c=L.c;
+    if(st==='pen'){ var src=c.getImageData(0,0,S,S).data; c.fillStyle='#fbf7ee'; c.fillRect(0,0,S,S); c.strokeStyle='#1c1917'; c.lineWidth=1; var G=6;
+      for(var y=0;y<S;y+=G) for(var x=0;x<S;x+=G){ var i=((y+3)*S+x+3)*4, l=lum(src[i],src[i+1],src[i+2])/255; c.beginPath(); if(l<.82){ c.moveTo(x,y+G); c.lineTo(x+G,y); } if(l<.58){ c.moveTo(x,y); c.lineTo(x+G,y+G); } if(l<.36){ c.moveTo(x,y+G/2); c.lineTo(x+G,y+G/2); } c.stroke(); if(l<.16){ c.fillStyle='#1c1917'; c.fillRect(x,y,G,G); } }
+      for(y=1;y<S-1;y+=2) for(x=1;x<S-1;x+=2){ var a0=(y*S+x)*4, a1=(y*S+x+2)*4, a2=((y+2)*S+x)*4; if(Math.abs(lum(src[a0],src[a0+1],src[a0+2])-lum(src[a1],src[a1+1],src[a1+2]))+Math.abs(lum(src[a0],src[a0+1],src[a0+2])-lum(src[a2],src[a2+1],src[a2+2]))>60){ c.fillStyle='#1c1917'; c.fillRect(x,y,2,2); } } }
+    else if(st==='water'){ var t=mk(S,S), x2=t.getContext('2d'); x2.filter='blur(3px)'; x2.drawImage(L.cv,0,0); c.fillStyle='#fdfaf3'; c.fillRect(0,0,S,S); c.globalAlpha=.85; c.drawImage(t,0,0); c.globalAlpha=1;
+      px(L,function(R,G,B){ var q=48; return [Math.round(R/q)*q+12,Math.round(G/q)*q+12,Math.round(B/q)*q+12]; }); var r=rng(3); c.globalAlpha=.08; for(var k=0;k<1800;k++){ c.fillStyle=r()<.5?'#000':'#fff'; c.fillRect(r()*S,r()*S,2,2); } c.globalAlpha=.25; c.filter='blur(1px)'; c.drawImage(t,2,2); c.filter='none'; c.globalAlpha=1; }
+    else if(st==='pixel') pixelate(L,48);
+    else if(st==='lowpoly'){ var src2=c.getImageData(0,0,S,S).data, N=12, cell=S/N, r2=rng(11), P=[]; for(var j=0;j<=N;j++){ P.push([]); for(var i2=0;i2<=N;i2++){ var jx=(i2>0&&i2<N)?(r2()-.5)*cell*.7:0, jy=(j>0&&j<N)?(r2()-.5)*cell*.7:0; P[j].push([i2*cell+jx,j*cell+jy]); } }
+      function tri(a,b,d){ var cx=(a[0]+b[0]+d[0])/3|0, cy=(a[1]+b[1]+d[1])/3|0, ii=(Math.min(S-1,cy)*S+Math.min(S-1,cx))*4; c.fillStyle='rgb('+src2[ii]+','+src2[ii+1]+','+src2[ii+2]+')'; c.strokeStyle=c.fillStyle; c.beginPath(); c.moveTo(a[0],a[1]); c.lineTo(b[0],b[1]); c.lineTo(d[0],d[1]); c.closePath(); c.fill(); c.stroke(); }
+      for(j=0;j<N;j++) for(i2=0;i2<N;i2++){ tri(P[j][i2],P[j][i2+1],P[j+1][i2]); tri(P[j][i2+1],P[j+1][i2+1],P[j+1][i2]); } }
+    else if(st==='riso'){ var src3=c.getImageData(0,0,S,S).data; c.fillStyle='#f7f1e3'; c.fillRect(0,0,S,S); c.globalCompositeOperation='multiply'; var G2=7;
+      [['#ff48b0',2,1,0],['#0078bf',-2,-1,1]].forEach(function(ink){ c.fillStyle=ink[0]; for(var y=0;y<S;y+=G2) for(var x=0;x<S;x+=G2){ var i=((y+3)*S+x+3)*4, l=1-lum(src3[i],src3[i+1],src3[i+2])/255, ch=ink[3]?(src3[i+2]<src3[i]?l*.8:l):l; var rr=Math.sqrt(ch)*G2*.62; if(rr>.4){ c.beginPath(); c.arc(x+3+ink[1],y+3+ink[2],rr,0,7); c.fill(); } } }); c.globalCompositeOperation='source-over'; }
+    else if(st==='lino'){ var r3=rng(5); px(L,function(R,G,B){ var l=lum(R,G,B)+(r3()-.5)*50; return l<105?[24,20,18]:[244,236,218]; }); }
+    else if(st==='flat'){ px(L,function(R,G,B){ var q=64; return [Math.round(R/q)*q,Math.round(G/q)*q,Math.round(B/q)*q]; }); }
+    else if(st==='synth'){ var g=c.createLinearGradient(0,0,0,S*.62); g.addColorStop(0,'#2b0b4f'); g.addColorStop(1,'#ff4fa3'); c.save(); c.globalCompositeOperation='color'; c.fillStyle=g; c.fillRect(0,0,S,S); c.restore();
+      c.save();
+      c.strokeStyle='#ff4fd8'; c.lineWidth=2; c.shadowColor='#ff4fd8'; c.shadowBlur=8; var hz=S*.64; for(var gy=0;gy<10;gy++){ var yy=hz+Math.pow(gy/10,2)*S*.36; c.beginPath(); c.moveTo(0,yy); c.lineTo(S,yy); c.stroke(); } for(var gx=-8;gx<=8;gx++){ c.beginPath(); c.moveTo(S/2+gx*14,hz); c.lineTo(S/2+gx*90,S); c.stroke(); } c.restore(); }
+    else if(st==='cyber'){ c.save(); c.globalCompositeOperation='multiply'; c.fillStyle='#3b2a8a'; c.fillRect(0,0,S,S); c.restore(); c.save(); c.globalCompositeOperation='lighter';
+      [['#ff2bd6',.08,.3],['#00e5ff',.7,.22],['#ff2bd6',.55,.42],['#00e5ff',.2,.5]].forEach(function(n){ c.shadowColor=n[0]; c.shadowBlur=18; c.fillStyle=n[0]; c.fillRect(n[1]*S,n[2]*S,S*.12,S*.04); }); c.shadowBlur=0; var r4=rng(8); c.strokeStyle='rgba(180,220,255,.35)'; for(var k2=0;k2<120;k2++){ var x3=r4()*S, y3=r4()*S; c.beginPath(); c.moveTo(x3,y3); c.lineTo(x3-4,y3+16); c.stroke(); } c.restore(); }
+  }
+  function colorIt(L,cl){ var c=L.c;
+    if(cl==='pastel') px(L,function(R,G,B){ var l=lum(R,G,B); return [R*.45+l*.15+255*.4,G*.45+l*.15+255*.4,B*.45+l*.15+255*.4]; });
+    else if(cl==='mono') px(L,function(R,G,B){ var l=lum(R,G,B); return [l,l,l]; });
+    else if(cl==='duo'){ var A=hex('#22104d'), B2=hex('#ff7b9c'); px(L,function(R,G,B){ var t=lum(R,G,B)/255; return [A[0]+(B2[0]-A[0])*t,A[1]+(B2[1]-A[1])*t,A[2]+(B2[2]-A[2])*t]; }); }
+    else if(cl==='neon'){ px(L,function(R,G,B){ var l=lum(R,G,B); return [l+(R-l)*2.4,l+(G-l)*2.4,l+(B-l)*2.4].map(function(v){ return (v-128)*1.25+128; }); }); var t=mk(S,S), x=t.getContext('2d'); x.filter='blur(8px)'; x.drawImage(L.cv,0,0); c.save(); c.globalCompositeOperation='lighter'; c.globalAlpha=.45; c.drawImage(t,0,0); c.restore(); }
+    else if(cl==='muted') px(L,function(R,G,B){ var l=lum(R,G,B); return [l+(R-l)*.35+20,l+(G-l)*.35+20,l+(B-l)*.35+22]; });
+    else if(cl==='dreamy'){ var t2=mk(S,S), x2=t2.getContext('2d'); x2.filter='blur(10px)'; x2.drawImage(L.cv,0,0); c.save(); c.globalCompositeOperation='screen'; c.globalAlpha=.7; c.drawImage(t2,0,0); c.restore(); px(L,function(R,G,B){ return [R*.85+40,G*.82+30,B*.85+48]; }); }
+    else if(cl==='moody'){ px(L,function(R,G,B){ var l=lum(R,G,B), k=l<110?.6:.95; return [R*k*.8,G*k*.95,B*k*1.05]; }); var g=c.createRadialGradient(S/2,S/2,S*.2,S/2,S/2,S*.75); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.65)'); c.fillStyle=g; c.fillRect(0,0,S,S); } }
+  function render(cv,o){ o=o||{}; var L=base(o), blur=o.dof?o.dof*9:0;
+    if(o.rays) rays(L,o);
+    city(L,o,blur); if(o.trails) trails(L);
+    if(!o.noPerson) person(L,o);
+    if(o.flare) flare(L,o);
+    if(o.tilt) tilt(L);
+    if(o.cine) cinematic(L);
+    if(o.style&&o.style!=='photo') styleIt(L,o.style);
+    if(o.color&&o.color!=='natural') colorIt(L,o.color);
+    if(o.grain) grain(L,o.grain);
+    if(o.res!=null&&o.res<5) pixelate(L,[24,48,96,180,320][o.res]);
+    var ctx=cv.getContext&&cv.getContext('2d'); if(!ctx) return; ctx.clearRect(0,0,S,S); ctx.drawImage(L.cv,0,0); }
+
+  /* ═════════ 용어 데이터 ═════════ */
+  var CAT={cam:['카메라','var(--cam)'],light:['빛','var(--light)'],q:['화질','var(--q)'],style:['스타일','var(--style)'],comp:['구도','var(--comp)'],color:['색감','var(--color)'],neg:['빼 줘','var(--neg)']};
+  var LIGHT=[
+    ['golden','골든 아워','golden hour','해 뜬 직후, 해 지기 직전의 시간. <b>따뜻한 주황빛</b>과 긴 그림자로 그리움, 설렘을 표현해요.',{time:'golden'}],
+    ['blue','블루 아워','blue hour','해가 진 직후 하늘이 파랗게 남는 시간. <b>차분하고 쓸쓸한</b> 푸른빛, 도시 불빛이 켜지기 시작해요.',{time:'blue'}],
+    ['back','역광 · 림 라이트','backlight · rim light','빛이 <b>뒤에서</b> 와서 사람은 실루엣이 되고 윤곽에 <b>빛 테두리</b>가 생겨요. 신비롭고 극적이에요.',{time:'golden',backlight:1,rim:1}],
+    ['rays','볼류메트릭 라이트','volumetric light','공기 중 먼지·안개에 빛이 비쳐 <b>빛기둥</b>이 보이는 것. 성스럽고 웅장한 느낌.',{time:'golden',rays:1}],
+    ['cine','시네마틱 라이팅','cinematic lighting','영화처럼 <b>명암 대비가 강하고</b> 가장자리가 어두워요. 위아래 검은 띠(레터박스)도 자주 함께 써요.',{time:'night',cine:1,rim:1}],
+    ['flare','렌즈 플레어','lens flare','강한 빛이 렌즈 안에서 반사돼 <b>빛 고리와 줄</b>이 생겨요. 여름, 청춘, SF 느낌.',{time:'day',flare:1}]];
+  var FXS=[
+    ['grain','필름 그라인','film grain','필름 사진의 <b>자글자글한 입자</b>. 옛날 사진, 로파이 감성과 잘 어울려요.',{time:'golden',grain:70}],
+    ['long','장노출','long exposure','셔터를 오래 열어 두어 움직이는 불빛이 <b>빛의 선</b>으로 남아요. 밤 도시, 속도감.',{time:'night',trails:1}],
+    ['tilt','틸트 시프트','tilt-shift','위아래를 흐리게 해서 진짜 풍경이 <b>미니어처 장난감</b>처럼 보여요.',{time:'day',tilt:1,shot:'wide'}]];
+  FXS[0][1]='필름 그레인';
+  var STYLES=[
+    ['photo','사진','photograph','실제 사진처럼. photorealistic과 함께 써요.'],
+    ['pen','펜화','pen and ink drawing','펜과 잉크로 <b>선과 빗금(해칭)</b>만 써서 명암을 표현해요. 흑백, 고전 책 삽화 느낌.'],
+    ['water','수채화','watercolor','물감이 <b>번지고 투명하게</b> 겹쳐요. 부드럽고 서정적이에요.'],
+    ['pixel','픽셀 아트','pixel art','네모난 점으로 그린 <b>옛날 게임</b> 느낌.'],
+    ['lowpoly','로우 폴리','low poly','삼각형 면을 이어 붙인 <b>각진 3D</b>. 보석이나 종이접기 같아요.'],
+    ['riso','리소그래프','risograph','옛날 인쇄 방식. <b>망점과 살짝 어긋난 두 색</b>이 레트로해요.'],
+    ['lino','판화','linocut / woodcut','고무판·나무판을 파서 찍은 <b>굵고 투박한 흑백</b>.'],
+    ['flat','플랫 일러스트','flat illustration','그림자 없이 <b>평평한 색면</b>. 앱 아이콘처럼 깔끔해요.'],
+    ['synth','신스웨이브','synthwave / vaporwave','80~90년대 레트로. <b>분홍·보라 네온, 격자 바닥, 줄무늬 해</b>.'],
+    ['cyber','사이버펑크','cyberpunk','비 오는 밤의 미래 도시. <b>분홍·하늘색 네온 간판</b>.']];
+  var COMPS=[
+    ['close','클로즈업','close-up','가까이에서 <b>얼굴과 감정</b>에 집중해요. 더 가까이 = extreme close-up.',{shot:'close'}],
+    ['wide','와이드 샷','wide shot','멀리서 넓게 <b>장소와 분위기</b>를 보여 줘요. 사람은 작게.',{shot:'wide'}],
+    ['low','로우 앵글','low angle','<b>아래에서 올려다봐서</b> 주인공이 크고 강해 보여요.',{angle:'low'}],
+    ['bird','버즈아이 뷰','bird\'s eye view','<b>새처럼 위에서</b> 내려다봐요. 작고 외로워 보이거나 지도처럼 보여요.',{angle:'bird'}],
+    ['thirds','3분할 구도','rule of thirds','화면을 3×3으로 나누고 <b>선이 만나는 점</b>에 주인공을 둬요. 자연스럽고 안정적이에요.',{thirds:1}],
+    ['center','대칭 구도','symmetrical, centered','주인공을 <b>정가운데</b>. 강하고 단단한 느낌.',{}],
+    ['neg','여백','negative space','일부러 <b>비워 둔 공간</b>. 앨범 커버에서는 <b>제목 글자 자리</b>가 돼요.',{neg:1}]];
+  var COLORS=[
+    ['natural','기본','natural','손대지 않은 원래 색.'],['pastel','파스텔','pastel colors','<b>부드럽고 연한</b> 색. 포근하고 귀여워요.'],['mono','모노크롬','monochrome','<b>한 가지 색</b>(흑백 포함). 진지하고 클래식해요.'],['duo','듀오톤','duotone','<b>딱 두 가지 색</b>만. 포스터 같은 세련됨.'],
+    ['neon','네온','neon colors','<b>형광으로 빛나는</b> 색. 밤, 클럽, 미래.'],['muted','채도 낮은','muted, desaturated','<b>빛바랜</b> 차분한 색. 인디, 회상.'],['dreamy','몽환적','dreamy, ethereal','빛이 번지고 <b>공기처럼 가벼운</b> 느낌.'],['moody','무디','moody','<b>어둡고 감정이 짙은</b> 느낌.']];
+  var NEGS=['blurry','text','watermark','logo','extra fingers','distorted face','low quality','cropped'];
+
+  /* ═════════ 2 프롬프트 해부 ═════════ */
+  var PROMPT=[['A lonely teenager with headphones on a rooftop',''],[', ',''],['blue hour','light','블루 아워: 해 진 직후 파란 하늘',3],[', ',''],['shallow depth of field','cam','얕은 심도: 주인공만 또렷, 배경은 흐릿',2],[', ',''],['bokeh city lights','cam','보케: 배경 불빛이 동그란 빛망울로',2],[', ',''],['rim light','light','림 라이트: 윤곽에 빛 테두리',3],[', ',''],['film grain','cam','필름 그레인: 옛날 사진의 자글자글한 입자',4],[', ',''],['pen and ink style','style','펜화: 선과 빗금으로만 그린 그림',6],[', ',''],['muted colors','color','채도 낮은: 빛바랜 차분한 색',8],[', ',''],['rule of thirds','comp','3분할 구도: 3×3 선이 만나는 점에 주인공',7],[', ',''],['negative space for title','comp','여백: 제목 글자를 넣을 빈 공간',7],[', ',''],['square 1:1','comp','1:1: 정사각형, 앨범 커버 기본 비율',7],[', ',''],['8K','q','8K: 실제 해상도가 아니라 “선명하게”라는 주문',5],[', ',''],['highly detailed','q','아주 세밀하게',5],['\n--no ',''],['text, watermark, blurry','neg','네거티브 프롬프트: 빼 줘 목록',9]];
+  $('legend').innerHTML=Object.keys(CAT).map(function(k){ return '<span><i style="background:'+CAT[k][1]+'"></i>'+CAT[k][0]+'</span>'; }).join('');
+  $('prompt').innerHTML=PROMPT.map(function(p,i){ if(!p[1]) return esc(p[0]).replace(/\n/g,'<br>'); return '<span class="t" data-t="'+i+'" style="--tc:'+CAT[p[1]][1]+'">'+esc(p[0])+'</span>'; }).join('');
+  $('prompt').addEventListener('click',function(e){ var t=e.target.closest('[data-t]'); if(!t) return; var p=PROMPT[+t.dataset.t];
+    document.querySelectorAll('#prompt .t').forEach(function(x){ x.classList.toggle('on',x===t); });
+    $('pop').innerHTML='<b style="color:'+CAT[p[1]][1]+'">['+CAT[p[1]][0]+'] '+esc(p[0])+'</b> — '+esc(p[2])+' <button class="pill" type="button" data-go="'+p[3]+'" style="margin-left:6px;padding:4px 12px">👀 눈으로 보러 가기 →</button>'; });
+  $('pop').addEventListener('click',function(e){ var b=e.target.closest('[data-go]'); if(b) go(+b.dataset.go); });
+
+  /* ═════════ 3 보케 ═════════ */
+  var LENS=[['24mm','넓게',.55],['50mm','보통',1],['85mm','인물',1.5]], lensI=1;
+  $('lens').innerHTML=LENS.map(function(l,i){ return '<button type="button" class="pill'+(i===lensI?' on':'')+'" data-l="'+i+'" style="--pc:var(--cam)">'+l[0]+' · '+l[1]+'</button>'; }).join('');
+  function drawDof(){ var v=+$('fnum').value/100, fs=[16,11,8,5.6,4,2.8,2,1.4], f=fs[Math.round(v*(fs.length-1))]; $('fval').textContent='f/'+f; $('dofBadge').textContent='f/'+f+' · '+LENS[lensI][0];
+    render($('cv-dof'),{time:'blue',dof:v,shot:LENS[lensI][2]>1.2?'close':LENS[lensI][2]<.8?'wide':'medium'}); }
+  $('fnum').addEventListener('input',drawDof);
+  $('lens').addEventListener('click',function(e){ var b=e.target.closest('[data-l]'); if(!b) return; lensI=+b.dataset.l; [].forEach.call(this.children,function(x,i){ x.classList.toggle('on',i===lensI); }); drawDof(); });
+
+  /* ═════════ 4·5·7·8·9 공통 버튼 장면 ═════════ */
+  function btnScene(opts){ var host=$(opts.btns), cur=0;
+    host.innerHTML=opts.list.map(function(t,i){ return '<button type="button" class="pill'+(i===0?' on':'')+'" data-x="'+i+'" style="--pc:'+opts.color+'">'+t[1]+'</button>'; }).join('');
+    function draw(){ var t=opts.list[cur]; $(opts.term).innerHTML='<span class="en">'+esc(t[2])+'</span><h3>'+t[1]+'</h3><p>'+t[3]+'</p>'; $(opts.badge).textContent=t[2]; opts.draw(t); }
+    host.addEventListener('click',function(e){ var b=e.target.closest('[data-x]'); if(!b) return; cur=+b.dataset.x; [].forEach.call(host.children,function(x,i){ x.classList.toggle('on',i===cur); }); draw(); });
+    return draw; }
+  var drawLight=btnScene({btns:'lightBtns',term:'lightTerm',badge:'lightBadge',color:'var(--light)',list:LIGHT,draw:function(t){ render($('cv-light'),t[4]); }});
+  var drawFx=btnScene({btns:'fxBtns',term:'fxTerm',badge:'fxBadge',color:'var(--cam)',list:FXS,draw:function(t){ render($('cv-fx'),t[4]); }});
+  var drawComp=btnScene({btns:'compBtns',term:'compTerm',badge:'compBadge',color:'var(--comp)',list:COMPS,draw:function(t){ render($('cv-comp'),Object.assign({time:'golden'},t[4])); $('compOv').className='ov'+(t[0]==='thirds'?' thirds':''); $('compTitle').hidden=t[0]!=='neg'; }});
+  var drawColor=btnScene({btns:'colorBtns',term:'colorTerm',badge:'colorBadge',color:'var(--color)',list:COLORS.map(function(c){ return [c[0],c[1],c[2],c[3]]; }),draw:function(t){ render($('cv-color'),{time:'golden',color:t[0]}); }});
+  // 스타일 격자
+  var stI=1;
+  $('styleGrid').innerHTML=STYLES.map(function(s,i){ return '<button type="button" data-s="'+i+'" class="'+(i===stI?'on':'')+'"><b>'+s[1]+'</b><small>'+s[2]+'</small></button>'; }).join('');
+  function drawStyle(){ var s=STYLES[stI]; $('styleTerm').innerHTML='<span class="en">'+s[2]+'</span><h3>'+s[1]+'</h3><p>'+s[3]+'</p>'; $('styleBadge').textContent=s[2]; render($('cv-style'),{time:s[0]==='synth'||s[0]==='cyber'?'night':'golden',style:s[0]}); }
+  $('styleGrid').addEventListener('click',function(e){ var b=e.target.closest('[data-s]'); if(!b) return; stI=+b.dataset.s; [].forEach.call(this.children,function(x,i){ x.classList.toggle('on',i===stI); }); drawStyle(); });
+
+  /* ═════════ 6 해상도 ═════════ */
+  var RES=[['240p','426×240'],['480p','854×480'],['HD','1280×720'],['풀HD','1920×1080'],['4K','3840×2160'],['8K','7680×4320']];
+  function drawRes(){ var v=+$('res').value; $('resval').textContent=RES[v][0]; $('resBadge').textContent=RES[v][0]+' · '+RES[v][1]; render($('cv-res'),{time:'blue',res:v}); }
+  $('res').addEventListener('input',drawRes);
+
+  /* ═════════ 10 네거티브 ═════════ */
+  var negOn={text:1,watermark:1};
+  function drawNeg(){ $('negBtns').innerHTML=NEGS.map(function(n){ return '<button type="button" class="'+(negOn[n]?'on':'')+'" data-n="'+n+'">'+(negOn[n]?'✓ ':'')+n+'</button>'; }).join('');
+    $('garble').innerHTML=negOn.text?'':'SUMMRE NIHGT'.split('').map(function(ch,i){ return '<span style="animation-delay:'+(i*.13)+'s">'+(ch===' '?'&nbsp;':ch)+'</span>'; }).join('');
+    render($('cv-neg'),{time:'night',grain:negOn['low quality']?0:0}); var c=$('cv-neg').getContext&&$('cv-neg').getContext('2d'); if(c&&!negOn.watermark){ c.save(); c.globalAlpha=.35; c.fillStyle='#fff'; c.font='bold 34px sans-serif'; c.translate(240,300); c.rotate(-.4); c.fillText('© SAMPLE',-90,0); c.restore(); } }
+  $('negBtns').addEventListener('click',function(e){ var b=e.target.closest('[data-n]'); if(!b) return; negOn[b.dataset.n]=!negOn[b.dataset.n]; drawNeg(); });
+
+  /* ═════════ 11 조립기 ═════════ */
+  var G=[
+    {k:'time',n:'⏰ 시간·빛',c:'var(--light)',one:1,o:[['golden','골든 아워','golden hour'],['blue','블루 아워','blue hour'],['day','한낮','bright daylight'],['night','밤','night']]},
+    {k:'light',n:'💡 빛 효과',c:'var(--light)',o:[['rim','림 라이트','rim light'],['backlight','역광','backlit silhouette'],['rays','빛기둥','volumetric light'],['flare','렌즈 플레어','lens flare'],['cine','시네마틱','cinematic lighting']]},
+    {k:'cam',n:'📷 카메라',c:'var(--cam)',o:[['dof','보케·얕은 심도','shallow depth of field, bokeh'],['grain','필름 그레인','film grain'],['trails','장노출','long exposure light trails'],['tilt','틸트 시프트','tilt-shift']]},
+    {k:'style',n:'🎨 스타일',c:'var(--style)',one:1,o:STYLES.map(function(s){ return [s[0],s[1],s[0]==='photo'?'photorealistic photograph':s[2].split(' / ')[0]+' style']; })},
+    {k:'color',n:'🌈 색감',c:'var(--color)',one:1,o:COLORS.map(function(c){ return [c[0],c[1],c[0]==='natural'?'':c[2]]; })},
+    {k:'comp',n:'📐 구도',c:'var(--comp)',o:[['close','클로즈업','close-up'],['wide','와이드','wide shot'],['low','로우 앵글','low angle'],['bird','버즈아이','bird\'s eye view'],['thirds','3분할','rule of thirds'],['neg','여백','negative space for title']]}];
+  var B={time:'blue',light:{rim:1},cam:{dof:1},style:'photo',color:'natural',comp:{thirds:1,neg:1}};
+  function drawGroups(){ $('groups').innerHTML=G.map(function(g){ return '<div class="grp" style="--gc:'+g.c+'"><h4>'+g.n+(g.one?' (하나)':' (여러 개)')+'</h4><div class="btns">'+g.o.map(function(o){ var on=g.one?B[g.k]===o[0]:!!B[g.k][o[0]]; return '<button type="button" class="pill'+(on?' on':'')+'" data-g="'+g.k+'" data-v="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div></div>'; }).join(''); }
+  function buildOpts(){ var o={time:B.time,style:B.style,color:B.color}; Object.keys(B.light).forEach(function(k){ if(B.light[k]) o[k]=1; });
+    if(B.cam.dof) o.dof=.75; if(B.cam.grain) o.grain=60; if(B.cam.trails) o.trails=1; if(B.cam.tilt) o.tilt=1;
+    if(B.comp.close) o.shot='close'; else if(B.comp.wide) o.shot='wide'; if(B.comp.low) o.angle='low'; if(B.comp.bird) o.angle='bird'; if(B.comp.thirds) o.thirds=1; if(B.comp.neg) o.neg=1; return o; }
+  function drawBuild(){ render($('cv-build'),buildOpts()); $('buildOv').className='ov'+(B.comp.thirds?' thirds':'');
+    var parts=[($('subj').value||'a teenager with headphones on a rooftop').trim()], ko=[];
+    G.forEach(function(g){ g.o.forEach(function(o){ var on=g.one?B[g.k]===o[0]:!!B[g.k][o[0]]; if(on&&o[2]){ parts.push(o[2]); ko.push(o[1]+' ('+o[2]+')'); } }); });
+    parts.push('square 1:1 album cover','highly detailed'); var neg=Object.keys(negOn).filter(function(k){ return negOn[k]; });
+    $('out').textContent='[프롬프트]\n'+parts.join(', ')+'\n\n[빼 줘 (negative)]\n'+(neg.join(', ')||'—')+'\n\n[고른 용어 뜻]\n'+ko.map(function(k){ return '· '+k; }).join('\n')+'\n\n※ 실제 화가·스튜디오 이름, 실존 인물, 유명 캐릭터는 넣지 않아요.'; }
+  $('groups').addEventListener('click',function(e){ var b=e.target.closest('[data-g]'); if(!b) return; var g=G.filter(function(x){ return x.k===b.dataset.g; })[0], v=b.dataset.v;
+    if(g.one) B[g.k]=v; else { B[g.k][v]=!B[g.k][v]; if(g.k==='comp'){ if(v==='close'&&B.comp.close) B.comp.wide=0; if(v==='wide'&&B.comp.wide) B.comp.close=0; if(v==='low'&&B.comp.low) B.comp.bird=0; if(v==='bird'&&B.comp.bird) B.comp.low=0; } }
+    drawGroups(); drawBuild(); });
+  $('subj').addEventListener('input',drawBuild);
+  $('copy').addEventListener('click',function(){ var t=$('out').textContent, m=$('msg'); function fb(){ var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); m.textContent='복사했어요!'; }catch(e){ m.textContent='Ctrl+C로 복사해요'; } ta.remove(); }
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ m.textContent='복사했어요!'; setTimeout(function(){ m.textContent=''; },2000); },fb); else fb(); });
+
+  /* ═════════ 1 표지 순환 ═════════ */
+  var CYC=[['photo','blue','photograph'],['pen','golden','pen and ink'],['water','golden','watercolor'],['synth','night','synthwave'],['riso','day','risograph'],['pixel','blue','pixel art'],['lowpoly','golden','low poly'],['cyber','night','cyberpunk']], ci=0, coverT=null;
+  function coverNext(){ var c=CYC[ci++%CYC.length]; render($('cv-cover'),{time:c[1],style:c[0],dof:c[0]==='photo'?.7:0,rim:1}); $('coverBadge').textContent=c[2]; }
+
+  /* ═════════ 덱 ═════════ */
+  var slides=[].slice.call(document.querySelectorAll('.slide')), cur=0, drawn={};
+  slides.forEach(function(sl){ sl.querySelectorAll('.inner > *').forEach(function(el,i){ el.style.setProperty('--i',i); }); });
+  $('dots').innerHTML=slides.map(function(_,i){ return '<i data-g="'+i+'"></i>'; }).join('');
+  var ENTER={0:function(){ coverNext(); clearInterval(coverT); if(!reduce) coverT=setInterval(coverNext,2200); },2:drawDof,3:drawLight,4:drawFx,5:drawRes,6:drawStyle,7:drawComp,8:drawColor,9:drawNeg,10:function(){ drawGroups(); drawBuild(); }};
+  function go(n){ n=Math.max(0,Math.min(slides.length-1,n)); cur=n; if(n!==0) clearInterval(coverT);
+    slides.forEach(function(s,i){ s.classList.toggle('active',i===n); s.classList.toggle('prev',i<n); s.setAttribute('aria-hidden',i===n?'false':'true'); });
+    document.querySelectorAll('#dots i').forEach(function(d,i){ d.classList.toggle('on',i===n); }); $('prev').disabled=n===0; $('next').disabled=n===slides.length-1; slides[n].scrollTop=0;
+    if(ENTER[n]&&(!drawn[n]||n===0)){ drawn[n]=1; ENTER[n](); } }
+  $('prev').addEventListener('click',function(){ go(cur-1); }); $('next').addEventListener('click',function(){ go(cur+1); });
+  $('dots').addEventListener('click',function(e){ var d=e.target.closest('[data-g]'); if(d) go(+d.dataset.g); });
+  document.addEventListener('keydown',function(e){ if(/INPUT|TEXTAREA/.test(e.target.tagName)) return; if(e.key==='ArrowRight'||e.key==='PageDown'){ e.preventDefault(); go(cur+1); } if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(cur-1); } });
+  var sx=null, sy=null; document.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
+  document.addEventListener('touchend',function(e){ if(sx===null) return; if(e.target.closest('input')){ sx=null; return; } var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) go(cur+(dx<0?1:-1)); sx=null; });
+  go(0);
+})();
+</script>
+</body>
+</html>
