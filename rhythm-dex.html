@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>리듬 도감</title>
+<title>음악 요소 도감</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
 <style>
@@ -23,7 +23,7 @@ button{ font-family:inherit; cursor:pointer; color:inherit; }
 :focus-visible{ outline:3px solid #a5b4fc; outline-offset:2px; }
 .staff-bg{ position:fixed; inset:0; z-index:0; pointer-events:none; background:repeating-linear-gradient(180deg, transparent 0 46px, #f3f2f8 46px 47px); opacity:.7; }
 
-.deck{ position:relative; z-index:1; width:100%; height:100%; }
+.deck{ position:relative; z-index:1; width:100%; height:100%; overflow:hidden; }
 .slide{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:28px 44px 86px;
   opacity:0; visibility:hidden; transform:translateX(60px); transition:opacity .4s ease, transform .4s ease, visibility .4s; overflow-y:auto; }
 .slide.active{ opacity:1; visibility:visible; transform:none; }
@@ -196,6 +196,17 @@ h2 small{ font-family:var(--body); font-size:.42em; font-weight:700; color:var(-
   .srow > .nm{ min-height:36px; }
   .pill, .chip{ min-height:40px; }
 }
+/* ── 레이어 믹서 (악기 캐릭터 도감에서 가져옴) ── */
+:root{ --r1:#ea580c; }
+.mixer{ width:100%; max-width:980px; display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+.layer{ border:2px solid var(--line); background:#fff; border-radius:22px; padding:14px 10px; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; transition:all .2s; }
+.layer .e{ font-size:36px; } .layer b{ font-size:17px; } .layer small{ font-size:12.5px; color:var(--sub); line-height:1.45; }
+.layer .lv{ width:100%; height:8px; border-radius:4px; background:#ebe9f3; overflow:hidden; } .layer .lv i{ display:block; height:100%; width:0; background:var(--lc); transition:width .08s; }
+.layer[aria-pressed="true"]{ border-color:var(--lc); background:color-mix(in srgb,var(--lc) 8%,#fff); }
+.layer[aria-pressed="false"]{ opacity:.55; }
+.mx-detail{ width:100%; max-width:900px; min-height:58px; border-radius:16px; background:var(--panel); padding:14px 18px; font-size:15.5px; line-height:1.65; color:var(--sub); display:flex; gap:12px; align-items:center; }
+.mx-detail b{ color:var(--ink); }
+@media (max-width:760px){ .mixer{ grid-template-columns:1fr 1fr; } }
 </style>
 </head>
 <body>
@@ -207,14 +218,28 @@ h2 small{ font-family:var(--body); font-size:.42em; font-weight:700; color:var(-
   <section class="slide" style="--c:var(--root)">
     <div class="inner">
       <div class="cover-grid" id="cover-grid" aria-hidden="true"></div>
-      <span class="tag">RHYTHM FIELD GUIDE</span>
-      <h1>리듬 <span style="color:var(--dance)">도감</span></h1>
-      <p class="sub">같은 빠르기라도 <b>어디를 치고 어디를 비우느냐</b>에 따라 전혀 다른 음악이 돼요.<br>11가지 리듬을 직접 듣고, 끄고, 바꿔 보면서 <b>어디서 왔고 왜 그렇게 치는지</b> 알아봐요.</p>
+      <span class="tag">MUSIC ELEMENTS FIELD GUIDE</span>
+      <h1>음악 요소 <span style="color:var(--dance)">도감</span></h1>
+      <p class="sub">노래 한 곡은 <b>소리의 겹</b>, <b>빠르기</b>, <b>리듬</b>이 모여 만들어져요.<br>직접 듣고, 끄고, 바꿔 보면서 11가지 리듬이 <b>어디서 왔고 왜 그렇게 치는지</b>까지 알아봐요.</p>
       <div class="fams">
         <span class="fam" style="background:var(--root)">뿌리 리듬</span>
         <span class="fam" style="background:var(--dance)">춤의 리듬</span>
         <span class="fam" style="background:var(--beat)">힙합·전자</span>
       </div>
+    </div>
+  </section>
+
+  <!-- 2 다섯 가지 역할 (악기 캐릭터 도감에서 가져옴) -->
+  <section class="slide" style="--c:var(--r1)">
+    <div class="inner">
+      <span class="tag" style="color:var(--r1)">LAYERS · 밴드의 다섯 가지 일</span>
+      <h2>노래 한 곡은 <span style="color:var(--r1)">다섯 겹</span>으로 쌓여요</h2>
+      <div class="mixer" id="mixer"></div>
+      <div class="row">
+        <button class="btn" id="mx-play" type="button" style="background:var(--r1)">▶ 다 같이 듣기</button>
+        <button class="btn ghost" id="mx-build" type="button">🧱 한 겹씩 쌓기</button>
+      </div>
+      <div class="mx-detail" id="mx-out">카드를 눌러 그 겹을 끄고 켜 봐요. 무엇이 빠지면 가장 허전한가요?</div>
     </div>
   </section>
 
@@ -577,7 +602,7 @@ h2 small{ font-family:var(--body); font-size:.42em; font-weight:700; color:var(-
     if(items.length) gsap.fromTo(items,{y:16,opacity:0},{y:0,opacity:1,duration:.45,stagger:.035,ease:'power2.out',onComplete:sl.id==='tree-slide'?drawTree:null});
   }
   function go(n){
-    n=Math.max(0,Math.min(slides.length-1,n)); if(n!==cur){ stop(); if(window.__drumStop) window.__drumStop(); }
+    n=Math.max(0,Math.min(slides.length-1,n)); if(n!==cur){ stop(); if(window.__drumStop) window.__drumStop(); if(window.__mixStop) window.__mixStop(); }
     cur=n; slides.forEach(function(s,i){ s.classList.toggle('active',i===n); s.classList.toggle('prev',i<n); s.setAttribute('aria-hidden',i===n?'false':'true'); });
     $('num').textContent=(n+1)+' / '+slides.length; $('prev').disabled=n===0; $('next').disabled=n===slides.length-1;
     slides[n].scrollTop=0; animIn(slides[n]);
@@ -642,6 +667,71 @@ h2 small{ font-family:var(--body); font-size:.42em; font-weight:700; color:var(-
 
   window.__drumStop=stop;
   setP(100);
+})();
+</script>
+<script>
+/* ═════════ 레이어 믹서: 다섯 겹 밴드 (악기 캐릭터 도감에서 필요한 소리만 가져옴) ═════════ */
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var AC=null, MG=null, NB=null, cur=null;
+  function ac(){ if(!AC){ var C=window.AudioContext||window.webkitAudioContext; if(C){ AC=new C(); MG=AC.createGain(); MG.gain.value=.5; MG.connect(AC.destination); } } if(AC&&AC.state==='suspended') AC.resume(); return AC; }
+  function nb(a){ if(!NB){ NB=a.createBuffer(1,a.sampleRate*.8,a.sampleRate); var d=NB.getChannelData(0); for(var i=0;i<d.length;i++) d[i]=Math.random()*2-1; } return NB; }
+  function midi(n){ return 440*Math.pow(2,(n-69)/12); }
+  function g0(a,dest,t,v,att,dec,sus,rel,dur){ var g=a.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(Math.max(v,.0002),t+att);
+    if(sus==null){ g.gain.exponentialRampToValueAtTime(.0001,t+att+dec); } else { g.gain.exponentialRampToValueAtTime(Math.max(v*sus,.0002),t+att+dec); g.gain.setValueAtTime(Math.max(v*sus,.0002),t+Math.max(att+dec,dur)); g.gain.exponentialRampToValueAtTime(.0001,t+Math.max(att+dec,dur)+rel); }
+    g.connect(dest); return g; }
+  function osc(a,type,f,t,end,dest,det){ var o=a.createOscillator(); o.type=type; o.frequency.setValueAtTime(f,t); if(det) o.detune.value=det; o.connect(dest); o.start(t); o.stop(end); return o; }
+  function vib(a,o,t,end,rate,depth){ var l=a.createOscillator(), lg=a.createGain(); l.frequency.value=rate; lg.gain.value=depth; l.connect(lg).connect(o.frequency); l.start(t); l.stop(end); }
+  function lp(a,dest,f,q){ var x=a.createBiquadFilter(); x.type='lowpass'; x.frequency.value=f; if(q) x.Q.value=q; x.connect(dest); return x; }
+  function noiseSrc(a,t,len,dest){ var s=a.createBufferSource(); s.buffer=nb(a); s.loop=true; s.connect(dest); s.start(t); s.stop(t+len); return s; }
+  var D={
+    kick:function(a,bus,t,v){ var g=g0(a,bus,t,.9*(v||1),.003,.3); var o=osc(a,'sine',140,t,t+.35,g); o.frequency.exponentialRampToValueAtTime(42,t+.12); },
+    snare:function(a,bus,t,v){ var bp=a.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1800; bp.connect(g0(a,bus,t,.45*(v||1),.002,.18)); noiseSrc(a,t,.2,bp); },
+    hat:function(a,bus,t,v){ var hp=a.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=8000; hp.connect(g0(a,bus,t,.2*(v||1),.001,.045)); noiseSrc(a,t,.06,hp); }
+  };
+  var I={
+    piano:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.32*v,.004,1.4); var x=lp(a,g,Math.min(6000,f*8)); osc(a,'triangle',f,t,t+1.6,x); var g2=a.createGain(); g2.gain.value=.25; g2.connect(x); osc(a,'sine',f*2,t,t+1.6,g2); },
+    bass:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.5*v,.004,.15,.6,.08,d); osc(a,'triangle',f,t,t+d+.15,lp(a,g,900)); },
+    flute:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.22*v,.06,.1,.85,.12,d); var o=osc(a,'sine',f,t,t+d+.2,g); vib(a,o,t+.2,t+d+.2,5,f*.008); var hp=a.createBiquadFilter(); hp.type='bandpass'; hp.frequency.value=f*2; var n=a.createGain(); n.gain.value=.05; hp.connect(n).connect(g); noiseSrc(a,t,d+.2,hp); },
+    glock:function(a,bus,t,f,d,v){ var g=g0(a,bus,t,.18*v,.001,1.2); osc(a,'sine',f*2,t,t+1.3,g); var g2=g0(a,bus,t,.06*v,.001,.3); osc(a,'sine',f*2*2.76,t,t+.4,g2); }
+  };
+  function stop(){ if(cur){ clearInterval(cur.id); try{ cur.bus.gain.setTargetAtTime(0,AC.currentTime,.04); }catch(e){} var cb=cur.onStop; cur=null; if(cb) cb(); } }
+  function loop(bpm,step,onStop){ stop(); var a=ac(); if(!a) return; var b=a.createGain(); b.gain.value=.8; b.connect(MG); var i=0, dur=60/bpm/4;
+    var tick=function(){ step(i,a.currentTime+.03,dur,b,a); i++; }; tick(); cur={id:setInterval(tick,dur*1000),bus:b,onStop:onStop}; }
+  window.__mixStop=stop;
+
+  var ROLES={
+    beat:{ko:'박자',e:'🥁',c:'#ea580c',say:'심장처럼 쿵짝쿵짝 시간을 지켜요',ex:'🥁 드럼'},
+    low:{ko:'바닥',e:'🧱',c:'#2563eb',say:'낮은 소리로 땅을 깔아 곡을 받쳐요',ex:'🪨 베이스 기타'},
+    harm:{ko:'화음',e:'🛋️',c:'#059669',say:'여러 음을 겹쳐 분위기(색)를 칠해요',ex:'🎹 피아노'},
+    mel:{ko:'멜로디',e:'🎤',c:'#e11d48',say:'귀에 남는 이야기를 노래해요',ex:'🪈 플루트'},
+    spice:{ko:'양념',e:'✨',c:'#b45309',say:'반짝이는 장식으로 맛을 더해요',ex:'🔔 글로켄슈필'}
+  };
+  var RK=['beat','low','harm','mel','spice'];
+  /* 같이 연주할 곡 재료: C - Am - F - G */
+  var ROOT=[36,33,29,31], CH=[[60,64,67],[57,60,64],[57,60,65],[55,59,62]];
+  var MEL=[[0,72,4],[4,76,4],[8,79,6],[14,76,2],[16,72,4],[20,76,4],[24,74,8],[32,77,4],[36,76,4],[40,74,4],[44,72,4],[48,74,6],[54,71,2],[56,67,8]];
+  var MELS={}; MEL.forEach(function(m){ MELS[m[0]]=m; });
+  var on={beat:1,low:1,harm:1,mel:1,spice:1}, building=false, bTick=0;
+  function band(onStep,onStop){
+    loop(96,function(i,t,dur,b,a){ var s=i%64, bar=Math.floor(s/16), q=s%16, lv={};
+      if(on.beat){ if(q===0||q===10) D.kick(a,b,t); if(q===4||q===12) D.snare(a,b,t,.8); if(q%2===0) D.hat(a,b,t,.7); if(q===0||q===4||q===10||q===12) lv.beat=1; }
+      if(on.low&&(q===0||q===6||q===8)){ I.bass(a,b,t,midi(ROOT[bar]),dur*(q===8?7:5),1); lv.low=1; }
+      if(on.harm&&(q===0||q===6||q===12)){ CH[bar].forEach(function(n){ I.piano(a,b,t,midi(n),dur*5,.55); }); lv.harm=1; }
+      if(on.mel&&MELS[s]){ var m=MELS[s]; I.flute(a,b,t,midi(m[1]),dur*m[2]*.92,.9); lv.mel=1; }
+      if(on.spice&&q%4===2){ I.glock(a,b,t,midi(CH[bar][(q>>2)%3]+12),dur*3,.45); lv.spice=1; }
+      onStep(s,lv); },onStop); }
+
+  $('mixer').innerHTML=RK.map(function(r){ var R=ROLES[r]; return '<button type="button" class="layer" data-in data-r="'+r+'" aria-pressed="true" style="--lc:'+R.c+'"><span class="e">'+R.e+'</span><b>'+R.ko+'</b><small>'+R.say+'<br>예: '+R.ex+'</small><span class="lv"><i id="lv-'+r+'"></i></span></button>'; }).join('');
+  function drawMx(){ [].forEach.call($('mixer').children,function(b){ b.setAttribute('aria-pressed',on[b.dataset.r]?'true':'false'); });
+    var off=RK.filter(function(r){ return !on[r]; }); $('mx-out').innerHTML=off.length? '지금 빠진 겹: <b>'+off.map(function(r){ return ROLES[r].e+' '+ROLES[r].ko; }).join(', ')+'</b> — 어떤 느낌이 사라졌나요?':'다섯 겹이 모두 켜져 있어요. 하나씩 꺼 보며 차이를 느껴 봐요.'; }
+  function lvShow(s,lv){ RK.forEach(function(r){ var el=$('lv-'+r); if(el) el.style.width=lv[r]?'100%':'0'; });
+    if(building&&s===0&&bTick++>0){ var nx=RK.filter(function(r){ return !on[r]; })[0]; if(nx){ on[nx]=1; drawMx(); } else building=false; } }
+  function startMx(){ band(lvShow,function(){ $('mx-play').textContent='▶ 다 같이 듣기'; building=false; RK.forEach(function(r){ var el=$('lv-'+r); if(el) el.style.width='0'; }); }); $('mx-play').textContent='■ 멈추기'; }
+  $('mixer').addEventListener('click',function(e){ var b=e.target.closest('[data-r]'); if(!b) return; on[b.dataset.r]=on[b.dataset.r]?0:1; building=false; drawMx(); });
+  $('mx-play').addEventListener('click',function(){ if(cur){ stop(); return; } startMx(); });
+  $('mx-build').addEventListener('click',function(){ RK.forEach(function(r,i){ on[r]=i===0?1:0; }); building=true; bTick=0; drawMx(); startMx(); $('mx-out').innerHTML='🥁 박자부터 시작해서 4마디마다 한 겹씩 더해져요. 언제 "노래"가 되나요?'; });
+  drawMx();
 })();
 </script>
 </body>
